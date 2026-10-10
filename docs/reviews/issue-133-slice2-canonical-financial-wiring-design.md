@@ -75,9 +75,17 @@ No fresh competitive research is required for this bounded truthful wiring. A ma
 | Customer account projection | lib/commerce/customer-account-projection.ts — projectCustomerAccountTotals | cross-source reconciliation | Governed Option A | None if preserved | Keep lifetime paid/spend/deposits unknown; current balance only on complete agreeing sources |
 | Receipt email context | lib/commerce/receipts.ts | receipt -> transaction -> appointment | Canonical transaction-bound context | Future UI may assume receipt.invoice_id direct link | Keep accepted independence; operator/accounting lookup traverses receipt -> transaction -> invoice |
 | Projection wrapper | lib/commerce/payment-projections/kernel.ts — projectPaymentObligation | #133 projector RPCs + admission | Canonical, unwired | Premature worker wiring could sweep retained cohorts | No worker in Slice 2; explicit projections only under later governed acceptance |
-| Communications | booking events + notification/communication pipeline; exact fresh-booking hook must be re-traced at implementation start | booking events, paymentStatusLabel, explicit receipt send functions | Separate domain | Wiring durable booking could accidentally trigger sends before communication acceptance | Mandatory implementation preflight: identify exact event hook, preserve sends/providers OFF during Slice 2 acceptance |
+| Reception customer preview | lib/actions/customers.ts lifetimeRevenue → components/reception/customer-preview.tsx | completed appointments × service price | Legacy monetary claim | Reception displays a customer Revenue value that can disagree with ledger truth | Monetary lifetime value becomes UNKNOWN under Option A; keep non-money customer/visit metrics |
+| CRM Chase hint | lib/crm/chase-hints.ts lifetimeRevenue threshold | appointment-derived CRM insight | Legacy monetary segmentation | A false money estimate can drive “high-value customer” recommendations | Remove monetary threshold until complete canonical history exists; keep visit/recency segmentation |
+| Employee performance | lib/employees/service.ts lifetimeRevenue + lib/employees/types.ts → components/employees/employee-performance.tsx | appointmentRecognizedCents | Legacy staff monetary claim | Employee Lifetime revenue can contradict canonical collected money | Subject to Product Owner decision E1 in section 14; never leave current label/formula silently |
+| Reports employee commission | lib/reports/compute.ts commissionCents | appointment-derived report revenue | Staff-pay-adjacent legacy formula | Commission can be derived from a noncanonical money base | Subject to Product Owner decision E1; HELD unless the approved basis is provably satisfied |
+| Chase revenue pace | lib/booking-engine/queries/range.ts utilization revenue → lib/chase/analytics.ts / lib/chase/insights.ts / lib/chase/types.ts | service/catalog appointment value | Legacy monetary KPI | Chase can say revenue up/down from non-ledger value | Re-source money KPI to canonical aggregate or explicitly relabel as nonfinancial service value |
+| Calendar dashboard money | lib/actions/appointments.ts dashboard stats → app/(dashboard)/dashboard/calendar/page.tsx → lib/dashboard/insights.ts | sumRecognizedRevenueDollars | Legacy monetary KPI | Calendar can say Completed revenue today from appointment estimates | Re-source money fields to canonical aggregate; operational appointment metrics remain separate |
+| Chase workspace | components/chase/chase-ops-workspace.tsx | numeric Chase/Commerce revenue fields | Consumer | Can render held/legacy values as exact currency | Propagate EXACT/HELD/UNKNOWN; never format held as zero |
+| CRM monetary types/UI | lib/crm/types.ts + components/crm/customer-insights.tsx + components/crm/chase-crm-panel.tsx | numeric lifetime revenue/spend | Legacy numeric-only contract | UI cannot represent Option-A unknown truth | Make monetary fields nullable/held-aware and render truthful unknown state |
+| Communications | lib/actions/appointments.ts calls deliverBookingNotifications and optional sendPaymentReceiptNow; lib/booking-engine/events/emit.ts installs communications booking bridge | existing booking event + delivery pipeline | Separate accepted domain | New canonical fresh-booking path could create provider/send effects before communications acceptance | MUST have a server-controlled default-closed canonical-flow communication boundary; legacy normal booking delivery remains untouched until separate activation. Slice 2 acceptance must prove zero send/provider side effects |
 
-The source inventory must be rerun narrowly at implementation start to catch changes after this design commit. That inventory is a regression guard, not authority to expand scope.
+The source inventory must be rerun narrowly at implementation start to catch changes after this design commit. Newly discovered launch-critical money surfaces listed above are now inside the prepared scope; the preflight remains a regression guard, not permission for unrelated scope expansion.
 
 ## 3. One canonical financial aggregate contract
 
@@ -114,7 +122,7 @@ FinancialAggregateRequest:
 - expectedCurrency — optional when caller requires one Business currency;
 - purpose — reporting / dashboard / reception / customer / summer, for diagnostics only; it must not change math.
 
-All reads are Business-scoped first. No browser receives a service-role credential.
+All reads are Business-scoped first. The aggregate is server-only: resolve the authenticated actor and Business first, then use a trusted server/service client with an explicit immutable business_id filter on every ledger/appointment read. The browser never supplies authority by choosing a businessId, and no browser receives a service-role credential. This follows the accepted private #133 reader pattern and keeps the aggregate independent of later #153 browser-ACL revocation. Cross-tenant tests are mandatory.
 
 ### 3.3 Location truth
 
@@ -161,13 +169,17 @@ This includes, until separately designed and accepted:
 
 A HELD result may still include diagnostic counts/categories without exposing cross-tenant details.
 
+**Scope completeness is mandatory.** EXACT is impossible unless the reader proves it observed the complete requested ledger scope. The implementation must use either SQL-side aggregation or an exact-count/paginated read that continues until every row is consumed. Any row-limit truncation, pagination cut-off, count mismatch, partial page, query error or inability to prove completeness returns UNKNOWN. In particular, the current dashboard-style “latest N rows” pattern can never produce an EXACT aggregate.
+
 ### 3.6 Currency contract
 
 Never add different currencies together.
 
+Ledger classification uses the raw stored currency and the explicit supported Business-currency set. lib/commerce/money.ts normalizeCurrency() is presentation normalization only; because it can coerce unknown values to usd, it MUST NOT classify canonical ledger rows. Unknown/malformed stored currency is HELD.
+
 Return:
 
-- status = EXACT with one or more currencyBuckets when every row in the requested scope is supported;
+- status = EXACT with one or more currencyBuckets only when every row in the requested scope is supported **and the requested scope is proven complete**;
 - each bucket = { currency, collectedCents, paymentCount, depositCents, paymentCents };
 - status = HELD with holdReasons when unsupported/ambiguous rows affect the requested scope;
 - status = UNKNOWN when the read itself is incomplete/unavailable or authority cannot be established.
@@ -229,7 +241,15 @@ ReportsBundle and relevant report types must support held/multi-currency state. 
 
 Existing getLocationScope / withLocationFilter semantics remain. Financial Location totals filter by the canonical appointment relationship, not by guessing active Location for unlinked transactions.
 
-### 4.5 No accidental report redesign
+The current Command Centre collected-money card is deliberately Business-wide, not active-Location-only. Slice 2 preserves that disclosure and scope. Introducing Location scoping there would be a separate product behavior change.
+
+### 4.5 Commission, growth and exports
+
+- lib/reports/compute.ts employee commission is staff-pay-adjacent and may not continue to derive from appointment-price “revenue.” Its final basis is Product Owner decision E1 in section 14; until that basis is proven, commission is HELD/unavailable rather than calculated from a noncanonical number.
+- buildLocationReports growthPct must be HELD-aware whenever its monetary input is HELD/UNKNOWN.
+- CSV/PDF/export paths in lib/actions/reports.ts must preserve HELD/UNKNOWN explicitly; they may not export 0 where financial truth is unavailable.
+
+### 4.6 No accidental report redesign
 
 Slice 2 changes truth sources and bounded disclosure only. It does not redesign Reports navigation, charts, schedules, CSV/PDF breadth or inventory/report feature scope.
 
@@ -360,6 +380,27 @@ The same state/action semantics must pass:
 
 No lost Location/customer selection, unexpected route change, duplicate submit, obscured action, horizontal overflow or inaccessible color-only state.
 
+### 6.7 Mandatory communications containment
+
+The relevant current source is known:
+
+- lib/actions/appointments.ts invokes deliverBookingNotifications after a successful create;
+- the same action can invoke sendPaymentReceiptNow when receipt delivery was requested;
+- lib/booking-engine/events/emit.ts installs the communications booking bridge.
+
+Therefore communications containment is **MUST CHANGE / MUST PROVE**, not an optional preflight.
+
+For the new canonical/durable-operation branch introduced by Slice 2:
+
+1. communication/provider effects are default-closed and are not part of payment success;
+2. the canonical financial branch must not call deliverBookingNotifications or sendPaymentReceiptNow during Slice 2 acceptance;
+3. the existing legacy/normal booking notification behavior remains unchanged for Businesses still on the legacy path;
+4. canonical real-Business activation stays default-off behind the existing admission/readiness boundary until a separate communications integration acceptance reconnects booking confirmations safely;
+5. the Staging synthetic acceptance Business has notifications/marketing/public booking disabled and receipt send unrequested;
+6. tests assert zero booking bridge/send-intent/provider/receipt-send effect for the canonical Slice 2 acceptance path.
+
+This is containment, not communications redesign or activation.
+
 ## 7. Summer readiness
 
 ### UNDERSTAND — BUILD NOW
@@ -483,44 +524,65 @@ This is a proposed prepared-only implementation scope for later Product Owner ap
 
 ### MUST CHANGE / ADD
 
-1. lib/commerce/financial-aggregate/types.ts — NEW canonical aggregate request/result/HOLD contract.
-2. lib/commerce/financial-aggregate/reader.ts — NEW Business-scoped ledger reader/aggregate; no browser credential.
+**Canonical aggregate and safety**
+
+1. lib/commerce/financial-aggregate/types.ts — NEW canonical aggregate request/result/EXACT/HELD/UNKNOWN contract.
+2. lib/commerce/financial-aggregate/reader.ts — NEW server-only Business-scoped complete ledger reader/aggregate; explicit raw-currency validation; no truncated EXACT.
 3. lib/commerce/financial-aggregate/index.ts — NEW exports.
-4. tests/unit/commerce/financial-aggregate.test.ts — NEW pure/source contract including currencies, HOLD shapes and location attribution.
-5. lib/actions/reports.ts — re-source financial inputs; remove customer_payment_events as financial authority.
-6. lib/reports/compute.ts — accept canonical financial result for financial/revenue money fields and keep appointment operational metrics separate.
-7. lib/reports/types.ts — represent EXACT/HELD/UNKNOWN and multi-currency without fake zero.
-8. lib/commerce/dashboard.ts — replace local money sum with shared aggregate; preserve invoice/deposit non-revenue presentation separately.
-9. tests/unit/commerce/dashboard.test.ts or the existing exact dashboard test path discovered at implementation preflight — focused shared-aggregate regression; if no current file exists, add tests/unit/commerce/financial-dashboard.test.ts.
-10. lib/commerce/operator-financial-state.ts — NEW safe canonical #133/#158 operator adapter, no event sequence.
-11. tests/unit/commerce/operator-financial-state.test.ts — NEW state/replay/recovery/privacy contract.
-12. lib/actions/appointments.ts — wire fresh booking payment result/recovery to the accepted durable operation path; remove legacy “retry payment” behavior that could recollect after uncertain state. Do not rewrite edit-booking semantics.
-13. components/booking-sheet/booking-sheet.tsx — retain/rehydrate same operation/payment recovery identity and render canonical operator state.
-14. components/reception/quick-appointment.tsx — same bounded recovery/state wiring.
-15. tests/unit/reception/payment-result-disclosure.test.tsx — extend the existing test for canonical state, lost response, replay, duplicate submit and no-recollect wording.
-16. lib/crm/service.ts — remove appointment-price lifetime money claims from customer profile truth; retain visit/preference metrics and CRM timeline projection.
-17. lib/crm/ai-knowledge.ts — remove appointment-price lifetime money claims; consume cautious commerce/canonical truth.
-18. lib/crm/ai.ts — render unknown/held money truth without formatting it as $0 or a fabricated exact value.
-19. tests/unit/commerce/customer-account.test.ts and tests/unit/commerce/customer-account-unknown.test.tsx — preserve Option A and disagreement semantics while CRM/Summer wiring changes.
-20. lib/actions/reception.ts — replace “Today’s revenue” money source with shared aggregate or explicit held state; preserve appointment/customer/slot metrics.
-21. lib/actions/morning-brief.ts — financial recommendation inputs from canonical aggregate; operational metrics remain appointment-derived.
-22. lib/actions/command-centre.ts — only if its Commerce snapshot type changes require propagation; collectedTodayCents must remain canonical.
-23. lib/chase/insights.ts — only if current numeric KPI types need held/unknown support; never convert HELD to zero.
-24. relevant focused tests for Reception/Morning Brief/Command Centre/Chase existing paths discovered by implementation inventory.
+4. tests/unit/commerce/financial-aggregate.test.ts — NEW positive-set, completeness, currency, location, unsupported-shape and cross-tenant contract.
 
-### MAY CHANGE — only if required by type/UI propagation
+**Reporting / Commerce / Command Centre**
 
-- components/reports/reports-hub.tsx — display held/multi-currency financial states without redesign.
-- components/reception/business-brief.tsx — bounded truthful unavailable/held rendering.
-- components/day-view/morning-brief.tsx — held revenue copy only.
-- components/crm/customer-insights.tsx — replace false lifetime revenue number with unknown/appropriate non-financial insight.
-- components/crm/chase-crm-panel.tsx — avoid fabricated spend display.
-- components/commerce/payments-dashboard.tsx — if snapshot types gain held/multi-currency states.
-- components/day-view/appointment-drawer.tsx and components/booking-sheet/payments-section.tsx — bounded “cache/display only” disclosure if necessary; no recovery logic duplication.
-- lib/commerce/recognize.ts — rename/deprecate/comment only if needed to prevent financial use; no new financial formula.
-- a narrow communication event guard in the exact booking-event source identified at implementation preflight, solely to keep Slice 2 acceptance provider/send-free.
+5. lib/actions/reports.ts — re-source financial inputs, remove customer_payment_events as authority, make exports HELD-aware.
+6. lib/reports/compute.ts — canonical financial inputs; HELD-aware revenue breakdown/location growth; employee commission follows PO decision E1.
+7. lib/reports/types.ts — EXACT/HELD/UNKNOWN and multi-currency representation.
+8. components/reports/reports-hub.tsx — render held/multi-currency financial truth without fake zero; no redesign.
+9. lib/commerce/dashboard.ts — replace local sumSucceededPayments/truncated money math with shared complete aggregate.
+10. tests/unit/commerce/financial-dashboard.test.ts — NEW shared aggregate/dashboard truth regression.
+11. components/commerce/payments-dashboard.tsx — held/multi-currency propagation.
+12. lib/actions/command-centre.ts — propagate canonical Commerce snapshot while preserving Business-wide collected-money scope/copy.
+13. lib/actions/commerce.ts — only the bounded type propagation needed by its second getCommerceDashboardSnapshot consumer.
 
-Every MAY CHANGE path requires a demonstrated compile/product need. Do not modify it merely because it contains the word revenue.
+**Reception / Calendar / Chase money claims**
+
+14. lib/actions/reception.ts + components/reception/business-brief.tsx — canonical/held Today money.
+15. lib/actions/morning-brief.ts + components/day-view/morning-brief.tsx — canonical/held financial brief; keep utilization separate.
+16. lib/actions/appointments.ts — both: (a) re-source its dashboard stats monetary fields and (b) wire fresh-booking canonical operation/result/recovery with mandatory default-closed communication boundary; edit-booking semantics stay intact.
+17. app/(dashboard)/dashboard/calendar/page.tsx + lib/dashboard/insights.ts — propagate canonical/held Calendar financial summary; never say exact “Completed revenue” from appointment price.
+18. lib/booking-engine/queries/range.ts — stop exporting appointment/catalog-price monetary “revenue” as financial authority; preserve utilization counts. Any remaining value must be explicitly operational service value.
+19. lib/chase/analytics.ts + lib/chase/insights.ts + lib/chase/types.ts + components/chase/chase-ops-workspace.tsx — canonical/held money KPIs and revenue deltas; no catalog-price money claim.
+20. focused existing Chase/Reception/Calendar tests plus new held-state cases.
+
+**CRM / customer / employee money claims**
+
+21. lib/crm/service.ts + lib/crm/types.ts — lifetime monetary fields unknown/held under Option A; visit/preference metrics preserved; timeline remains projection-only.
+22. lib/crm/ai-knowledge.ts + lib/crm/ai.ts — Summer/Chase money claims consume canonical/Option-A truth and render unknown honestly.
+23. components/crm/customer-insights.tsx + components/crm/chase-crm-panel.tsx — no fabricated lifetime spend.
+24. lib/crm/chase-hints.ts — remove money threshold based on appointment-derived lifetimeRevenue; retain visit/recency hints.
+25. lib/actions/customers.ts + components/reception/customer-preview.tsx — remove appointment-price customer Revenue claim; show unknown or non-money visit metric.
+26. lib/employees/service.ts + lib/employees/types.ts + components/employees/employee-performance.tsx — implement PO decision E1; no silent appointment-price “Lifetime revenue.”
+27. tests/unit/commerce/customer-account.test.ts + tests/unit/commerce/customer-account-unknown.test.tsx and focused CRM/employee/customer-preview tests — preserve Option A and prove no numeric fake certainty.
+
+**Operator recovery / privacy / communications containment**
+
+28. lib/commerce/operator-financial-state.ts — NEW safe canonical #133/#158 operator adapter; omit raw event_sequence and provider/internal detail.
+29. tests/unit/commerce/operator-financial-state.test.ts — NEW canonical state, stale replay, RECOVER-vs-RECORDED, same-identity recovery and privacy contract.
+30. components/booking-sheet/booking-sheet.tsx — bounded recovery reference, same-identity read/recovery and canonical operator disclosure.
+31. components/reception/quick-appointment.tsx — same canonical recovery/state wiring.
+32. tests/unit/reception/payment-result-disclosure.test.tsx — canonical state, lost response, reload, duplicate click, no-recollect and communication containment.
+33. components/booking-sheet/payments-section.tsx — only the bounded state/disclosure propagation required by Booking Sheet; no parallel recovery logic.
+34. lib/commerce/recognize.ts — update its misleading cross-domain “single source of truth” authoring comment and restrict it explicitly to operational service/visit value; no financial money consumer may call it after Slice 2.
+
+Every path above is included because it currently produces, transports or renders a launch-critical money claim or the canonical recovery path. Implementation preflight may remove a path only with proof that it is unreachable/unused and no operator/customer/Summer financial claim remains.
+
+### MAY CHANGE — only with demonstrated implementation need
+
+- components/day-view/appointment-drawer.tsx — bounded cache/disclosure wording; never recovery authority.
+- a dedicated new lib/commerce/booking-operations/recovery.ts or a bounded extension to lib/commerce/booking-operations/kernel.ts — only if source proof shows same-identity reload recovery cannot be implemented safely through the existing prepared operation/read primitives. It must reuse the existing operation/attempt; no new identity or migration.
+- additional focused test files where the existing test location is absent; document the exact replacement before implementation.
+- lib/notifications/booking-delivery.ts and lib/booking-engine/events/emit.ts — source/test instrumentation only if needed to prove the default-closed canonical path; do not redesign or activate Communications.
+
+The preflight must not expand beyond a newly proven launch-critical money surface without Program Lead reconciliation.
 
 ### MUST NOT CHANGE IN SLICE 2
 
@@ -548,18 +610,22 @@ A new migration becomes a new architecture gate, not an implementation convenien
 
 Live main is currently 31115e6a51b71fc097c279d205065d80e0be3573 while this branch contains the accepted-but-unmerged #133/#158/#134 prerequisite stack.
 
-Slice 2 implementation is **stack-dependent**. It must not be cherry-picked or merged to main ahead of the prerequisite foundations and their governed merge/release sequence. A main merge is not Production authority.
+Slice 2 implementation is **stack-dependent**. It consumes schema/runtime objects supplied by the prerequisite stack, including commerce_booking_operations, customer_payment_events.transaction_id, the #133 projector/reader RPCs and #158 durable-operation functions. It must not be cherry-picked or merged to main ahead of those foundations **or deployed to an environment before their governed migration/application sequence**; doing so is a functional runtime break, not merely a governance violation. A main merge is not Production authority.
 
 ## 12. Acceptance matrix for a future implementation
 
 | Gate | Required proof |
 | --- | --- |
 | Aggregate unit contract | succeeded manual payment/deposit exact; unsupported provider/kind/status/refund/void/adjustment/store-credit/gift-card => HELD; read error => UNKNOWN; no cross-currency sum |
-| Currency | CAD exact; two currencies produce separate buckets / held single-currency consumer; malformed/ambiguous currency held |
+| Completeness | exact-count/pagination or SQL aggregate proves the entire requested scope was consumed; truncation, row cap, count mismatch, partial page or pagination cut-off => UNKNOWN, never EXACT |
+| Currency | CAD exact; two currencies produce separate buckets / held single-currency consumer; malformed/ambiguous currency held; normalizeCurrency() cannot coerce canonical ledger evidence |
 | Location | appointment-linked transaction attributed to stored Location; Business-level transaction not guessed into active Location; cross-Business/mismatched link held |
-| Reporting | financial KPIs match canonical aggregate; customer_payment_events divergence cannot change totals; operational appointment KPIs remain unchanged |
-| Dashboard / Command Centre | same aggregate identity/value; no independent money reducer |
-| CRM | timeline may differ/miss projection without changing ledger total; no double count; monetary lifetime spend remains unknown under Option A |
+| Reporting | financial KPIs match canonical aggregate; customer_payment_events divergence cannot change totals; operational appointment KPIs remain unchanged; service/employee/category/location breakdowns HOLD when attribution is incomplete; location growth is HOLD-aware; commission follows PO decision E1 |
+| Reports export | CSV/PDF/export does not turn HELD/UNKNOWN into 0 or a fabricated numeric value |
+| Dashboard / Command Centre | same aggregate identity/value; no independent money reducer; existing Business-wide Command Centre money scope/disclosure preserved |
+| CRM | timeline may differ/miss projection without changing ledger total; no double count; monetary lifetime spend remains unknown under Option A; customer preview and Chase hints do not use appointment-price money |
+| Employee financial surface | Employee Lifetime revenue / commission follows PO decision E1; no appointment/catalog-price money survives under a financial label |
+| Calendar / Reception / Chase | customer preview Revenue, Business Brief Today revenue, Calendar Completed revenue, Chase today/delta/top-spender claims all use canonical/held truth or an explicitly nonfinancial label approved under E1/product review |
 | Customer account | complete agreeing current sources may show balance; truncated/missing/disagreeing sources fail closed |
 | Receipt | receipt with invoice_id NULL resolves receipt -> transaction -> invoice correctly |
 | Operator happy path | canonical RECORDED/COMPLETE displayed after accepted payment |
@@ -572,7 +638,7 @@ Slice 2 implementation is **stack-dependent**. It must not be cherry-picked or m
 | UNKNOWN | clear hold/do-not-recollect guidance |
 | Event privacy | operator/browser DTO contains no raw event_sequence |
 | Tenant isolation | other Business cannot read operation/attempt/aggregate; no service-role client exposure |
-| Communication | zero provider calls/send intents/receipt sends attributable to Slice 2 acceptance unless separately authorized |
+| Communication | canonical/durable Slice 2 branch never calls deliverBookingNotifications or sendPaymentReceiptNow; booking bridge/send intents/provider/receipt-send deltas remain zero on the synthetic acceptance Business; legacy normal-booking communications path remains unchanged |
 | Retained cohort | old attempts/obligations remain excluded; no sweep/worker |
 | Summer | same canonical amount/state as operator; unknown/held explained, never invented |
 | Responsive | 390×844, 768×1024, 1280×800, 1440×900; no overflow/occlusion/lost selections; keyboard/focus/text states |
@@ -614,21 +680,37 @@ Regression rules:
 
 ## 14. Genuine Product Owner decisions
 
-**None required to send this design to independent review.**
+One genuine Product Owner decision is required at the future implementation gate.
 
-Existing Product Owner/accepted contracts already decide:
+### E1 — Employee “revenue” and commission basis
 
-- ledger is financial authority;
-- customer_payment_events is projection only;
-- Option A keeps lifetime paid/spend/deposits unknown without completeness proof;
-- receipt.invoice_id may remain NULL;
-- no provider/worker/communications activation in this Slice;
-- #153 is a separate cutover;
-- C03 is consumed;
-- retained cohorts are excluded;
-- no Production/GVM authority.
+Current source uses appointment/service-value math for Employee “Lifetime revenue” and for Reports commission. The accepted #133 contract says financial revenue authority is canonical ledger truth, so the current formula cannot silently survive under a money label.
 
-A future implementation approval is still consequential and must be explicit after independent review. A materially new UI/dashboard redesign discovered during implementation would require a new Competitive Product Gate/Product Owner decision, but this design does not propose one.
+Two defensible product contracts remain:
+
+**Option A — canonical collected-money basis.** Employee financial revenue and commission are calculated only from supported canonical ledger transactions attributable through transaction -> same-Business appointment -> staff. Unsupported/held/cross-currency/unattributed scopes hold rather than guessing.
+
+- Advantage: one financial truth; strongest Stripe-like discipline.
+- Tradeoff: “commission” follows collected money rather than completed-service value and may remain unavailable for unsupported scopes.
+
+**Option B — explicitly operational service-value basis.** Rename the current appointment-derived metric so it is plainly nonfinancial (for example “Completed service value”), and do not call it revenue. Monetary commission remains HELD/not calculated until a separate commission-basis contract is approved.
+
+- Advantage: preserves a useful staff-performance measure without pretending it is collected money.
+- Tradeoff: staff performance has no financial commission number until a later approved rule.
+
+**Program Lead recommendation for the implementation gate:** choose Option A only if Chasum intends commission to mean commission on collected money; otherwise choose Option B and keep commission held. The design does not silently make this business-policy decision.
+
+No other Product Owner design decision is needed. Existing accepted decisions already resolve ledger authority, CRM projection-only status, Option A historical incompleteness, receipt independence, no workers/providers/communications activation, #153 separation, retained-cohort exclusion, C03 consumption and no Production/GVM authority.
+
+Routine engineering clarifications now locked by this corrected design:
+
+- canonical ledger currency classification uses raw stored currency, never normalizeCurrency() coercion;
+- canonical aggregate uses a server-only authorized Business context and trusted service client with immutable business_id filtering;
+- existing Command Centre collected-money scope remains Business-wide;
+- the exact current communication hooks are known and default-closed on the canonical branch;
+- CSV/export and all money-bearing types must represent HELD/UNKNOWN explicitly.
+
+The future implementation approval remains consequential and must be explicit after independent review. A materially new UI/dashboard redesign still requires a fresh Competitive Product Gate.
 
 ## 15. World-class, Summer and commercial check
 
