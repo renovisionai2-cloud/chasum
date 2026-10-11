@@ -1,8 +1,16 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-09 America/Toronto (C03 evidence dated 2026-10-10 UTC), documenting supplied accepted connected Staging results. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-11 America/Toronto, recording accepted Slice 2A retained Staging evidence; older C03 evidence remains dated 2026-10-10 UTC. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## #133 Slice 2A — accepted retained Staging validation, 2026-10-11
+
+This records the completed evidence at validation commit `1028e5dd6b9f32eb98d1508b02cc9f7d8bedbbee`, not a new environment probe. Frozen application `cf1e3ae053110f9fc4823368f05dfd73606271f5`; target Staging `wnfahklzaxirftyskctd`. Run `HV133-SLICE2A-STAGING-R1-20261011T041448Z-130dbf2d`; final `SLICE2A_STAGING_VALIDATION_PASS_RETAINED_FIXTURE`, independently accepted as `SLICE2A_FINAL_STAGING_EVIDENCE_ACCEPTED_FOR_PO_MERGE_GATE` under the supplied PO/Program Lead gate.
+
+A1 EXACT CAD5000; A2–A4 HELD; hosted cross-Business refund witness, native response privacy, required SELECT/BYPASSRLS behavior and all six FK hints passed. Temporary 1,002-transaction SCALE proof: month EXACT100 cents, year UNKNOWN / INCOMPLETE_FINANCIAL_EVIDENCE with no partial subtotal. All temporary SCALE transactions/customer/Business/Auth owner/identity were removed. Retained A/B 36 public rows plus two Auth users/two identities were equal before/after; financial digest `9209f8437a6ca74f8635fce41387885c66002a1142c6bd17e2f938cdbd356f4a`.
+
+**DO_NOT_REUSE / DO_NOT_MUTATE_FINANCIAL_HISTORY / DO_NOT_DELETE_WITHOUT_PRODUCT_OWNER_GATE.** [Retained scope and identities](../validation/issue-133-slice2a-staging/RETAINED_FIXTURE.md); [result and limits](../validation/issue-133-slice2a-staging/RESULT.md); [machine evidence](../validation/issue-133-slice2a-staging/evidence.json). No current serving deployment, browser/UI or Production/GVM acceptance is inferred. No hosted contact occurs in this merge-preparation closeout. #153 visibility/FK/count dependencies remain REQUIRED_BEFORE_PRODUCTION; no permission or worker/provider activation is authorized.
 
 ## #133/#158 C03 — accepted connected Staging observation
 

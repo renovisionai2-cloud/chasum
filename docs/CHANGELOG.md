@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-11 — #133 Slice 2A accepted validation; merge preparation only
+
+- Prepared canonical `commerce_transactions` collected-money EXACT / HELD / UNKNOWN truth across Reports, Commerce, Command Centre, Reception, CRM, Chase and Summer, with refund contradiction witnesses, operator recovery visibility and E1-B Completed service value. No commission engine or Slice 2B writer cutover.
+- Recorded accepted local I1, exact application review, governed Staging A1–A4 / 1,002-row scale proof, 37 operator regressions and final independent evidence acceptance. Application `cf1e3ae053110f9fc4823368f05dfd73606271f5`; final evidence `1028e5dd6b9f32eb98d1508b02cc9f7d8bedbbee`. Retained A/B remains protected; temporary SCALE was removed under the prior gate.
+- Carried forward the 1,000-root fail-closed limit as LAUNCH_SAFE_KNOWN_LIMITATION, annual-scope scalability follow-up, browser/UI acceptance and #153 REQUIRED_BEFORE_PRODUCTION interface. Full #134/#158/#133 dependency-stack Draft integration preparation is authorized; merge, deployment, Production/GVM, technician deposits and Slice 2B are not.
+- Permanently recorded Darshan's manual specialist-dispatch workflow: ChatGPT prepares/reconciles; Darshan dispatches and returns reports; work approval does not authorize automatic agent dispatch. No accepted evidence, executable source, schema, fixture or runtime state changed in this closeout.
+
 ### 2026-10-09 — #133/#158 C03 accepted validation documentation closeout
 
 - Recorded the supplied accepted single-shot connected Staging CAD50 E-Transfer deposit proof: exactly-once financial/projection truth, stable replay, final admission disabled, zero communication side effects and unchanged retained state/digests. C03 is consumed and must never be rerun; C01/C02 STOP_ZERO_WRITES history is preserved.
