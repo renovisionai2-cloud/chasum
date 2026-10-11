@@ -104,3 +104,6 @@ describe("M1B server location guard", () => {
   });
 
 });
+
+// Financial dashboard reads are separate from the writer/Location contract under test.
+vi.mock("@/lib/commerce/financial-aggregate", () => ({ readFinancialAggregate: vi.fn(), singleFinancialAmount: vi.fn() }));

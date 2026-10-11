@@ -1,3 +1,4 @@
+import { unknownMoney, type FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 /**
  * Read-only CRM projections for Summer + Chase.
  * Agents may read preferences and history; they must not mutate CRM directly.
@@ -24,7 +25,7 @@ export type SummerCrmSnapshot = {
   nextAppointment: string | null;
   upcomingCount: number;
   lifetimeVisits: number;
-  lifetimeSpend: number;
+  lifetimeSpend: FinancialAmount;
   /** Non-private notes only */
   allowedNotes: Array<{ body: string; noteType: string; pinned: boolean }>;
   upcomingAppointments: Array<{
@@ -45,7 +46,7 @@ export type ChaseCrmAnalytics = {
   highValue: Array<{
     id: string;
     name: string;
-    lifetimeSpend: number;
+    lifetimeSpend: FinancialAmount;
     visits: number;
   }>;
   inactive: Array<{ id: string; name: string; lastActivity: string | null }>;
@@ -53,7 +54,7 @@ export type ChaseCrmAnalytics = {
     activeCustomers: number;
     vipCount: number;
     repeatBookingRate: number;
-    averageLifetimeSpend: number;
+    averageLifetimeSpend: FinancialAmount;
   };
 };
 
@@ -143,20 +144,17 @@ export async function getChaseCrmAnalytics(
   const rows = customers ?? [];
   const appts = appointments ?? [];
 
-  const spendByCustomer = new Map<
+  const visitsByCustomer = new Map<
     string,
-    { spend: number; visits: number; lastVisit: string | null }
+    { visits: number; lastVisit: string | null }
   >();
   for (const a of appts) {
     const cid = a.customer_id as string;
-    const cur = spendByCustomer.get(cid) ?? {
-      spend: 0,
+    const cur = visitsByCustomer.get(cid) ?? {
       visits: 0,
       lastVisit: null,
     };
     if (a.status === "completed") {
-      const price = (a.service as { price?: number } | null)?.price ?? 0;
-      cur.spend += Number(price);
       cur.visits += 1;
     }
     const start = a.start_time as string;
@@ -166,7 +164,7 @@ export async function getChaseCrmAnalytics(
     ) {
       cur.lastVisit = start;
     }
-    spendByCustomer.set(cid, cur);
+    visitsByCustomer.set(cid, cur);
   }
 
   const overdueFollowUp: ChaseCrmAnalytics["overdueFollowUp"] = [];
@@ -176,17 +174,14 @@ export async function getChaseCrmAnalytics(
   let activeCustomers = 0;
   let vipCount = 0;
   let repeaters = 0;
-  let totalSpend = 0;
 
   for (const c of rows) {
     const status = (c.crm_status as string) ?? "active";
     if (status === "active" || status === "vip") activeCustomers += 1;
     if (c.is_vip || status === "vip") vipCount += 1;
 
-    const stats = spendByCustomer.get(c.id as string);
-    const spend = stats?.spend ?? 0;
+    const stats = visitsByCustomer.get(c.id as string);
     const visits = stats?.visits ?? 0;
-    totalSpend += spend;
     if (visits >= 2) repeaters += 1;
 
     const name = displayCustomerName(
@@ -216,24 +211,24 @@ export async function getChaseCrmAnalytics(
       });
     }
 
-    if (spend >= 200 || visits >= 5) {
+    if (visits >= 5) {
       highValue.push({
         id: c.id as string,
         name,
-        lifetimeSpend: spend,
+        lifetimeSpend: unknownMoney("LIFETIME_HISTORY_UNVERIFIED"),
         visits,
       });
     }
   }
 
   overdueFollowUp.sort((a, b) => b.daysSince - a.daysSince);
-  highValue.sort((a, b) => b.lifetimeSpend - a.lifetimeSpend);
+  highValue.sort((a, b) => b.visits - a.visits);
   inactive.sort((a, b) =>
     String(a.lastActivity).localeCompare(String(b.lastActivity)),
   );
 
   const withVisits = rows.filter(
-    (c) => (spendByCustomer.get(c.id as string)?.visits ?? 0) > 0,
+    (c) => (visitsByCustomer.get(c.id as string)?.visits ?? 0) > 0,
   ).length;
 
   return {
@@ -245,10 +240,7 @@ export async function getChaseCrmAnalytics(
       vipCount,
       repeatBookingRate:
         withVisits > 0 ? Math.round((repeaters / withVisits) * 100) : 0,
-      averageLifetimeSpend:
-        rows.length > 0
-          ? Math.round((totalSpend / rows.length) * 100) / 100
-          : 0,
+      averageLifetimeSpend: unknownMoney("LIFETIME_HISTORY_UNVERIFIED"),
     },
   };
 }

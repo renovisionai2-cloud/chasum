@@ -234,9 +234,9 @@ export async function getCommandCentreSnapshot(): Promise<CommandCentreSnapshot>
     nextSetupStep,
   });
 
-  const outstandingCount = money.available
+  const outstandingCount = money.available && money.outstandingInvoicesCents.state === "EXACT" && money.outstandingDepositsCents.state === "EXACT"
     ? money.outstandingInvoicesCount + money.outstandingDepositsCount
-    : 0;
+    : null;
 
   const scopeMode = locationScope.mode;
   const locationName =

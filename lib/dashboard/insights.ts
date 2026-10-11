@@ -1,3 +1,4 @@
+import { financialAmountText, type FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 import type { AiEmployeeId } from "@/lib/ai-workforce/types";
 
 export type DashboardInsight = {
@@ -100,7 +101,7 @@ export function buildDashboardInsights(input: InsightInput): DashboardInsight[] 
 export function buildAiSummary(input: {
   todayCount: number;
   pendingConfirmations: number;
-  todayRevenue: number;
+  todayRevenue: FinancialAmount;
   weekCount: number;
 }): string {
   const parts: string[] = [];
@@ -121,9 +122,9 @@ export function buildAiSummary(input: {
     );
   }
 
-  if (input.todayRevenue > 0) {
+  if (input.todayRevenue) {
     parts.push(
-      `Completed revenue today is $${input.todayRevenue.toFixed(0)}.`,
+      `Payments collected today: ${financialAmountText(input.todayRevenue)}.`,
     );
   }
 

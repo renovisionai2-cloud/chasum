@@ -1,4 +1,5 @@
 "use server";
+import { readFinancialAggregate, singleFinancialAmount } from "@/lib/commerce/financial-aggregate";
 
 import { parseISO } from "date-fns";
 import { getOrCreateBusiness } from "@/lib/actions/business";
@@ -86,7 +87,6 @@ export async function getDashboardStats() {
   weekEnd.setHours(23, 59, 59, 999);
 
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
 
   function appointmentFilter() {
     return scope.mode === "single"
@@ -111,20 +111,6 @@ export async function getDashboardStats() {
   const previousWeekEnd = new Date(weekStart);
   previousWeekEnd.setMilliseconds(-1);
 
-  const previousMonthStart = new Date(
-    now.getFullYear(),
-    now.getMonth() - 1,
-    1,
-  );
-  const previousMonthEnd = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    0,
-    23,
-    59,
-    59,
-  );
-
   const [
     todayRes,
     weekRes,
@@ -132,14 +118,11 @@ export async function getDashboardStats() {
     upcomingRes,
     todayApptsRes,
     newCustomersRes,
-    revenueRes,
     weekSeriesRes,
     yesterdayRes,
     lastWeekSameDayRes,
     previousWeekRes,
-    previousMonthRevenueRes,
     pendingRes,
-    todayCompletedRevenueRes,
     recentCustomersRes,
     recentBookingsRes,
     businessAlertsRes,
@@ -187,16 +170,6 @@ export async function getDashboardStats() {
       .limit(5),
     supabase
       .from("appointments")
-      .select(
-        "status, price_cents, amount_paid_cents, deposit_cents, payment_status, service:services(price)",
-      )
-      .match(apptFilter)
-      .neq("status", "cancelled")
-      .neq("status", "no_show")
-      .gte("start_time", monthStart.toISOString())
-      .lte("start_time", monthEnd.toISOString()),
-    supabase
-      .from("appointments")
       .select("start_time")
       .match(apptFilter)
       .neq("status", "cancelled")
@@ -225,30 +198,10 @@ export async function getDashboardStats() {
       .lte("start_time", previousWeekEnd.toISOString()),
     supabase
       .from("appointments")
-      .select(
-        "status, price_cents, amount_paid_cents, deposit_cents, payment_status, service:services(price)",
-      )
-      .match(apptFilter)
-      .neq("status", "cancelled")
-      .neq("status", "no_show")
-      .gte("start_time", previousMonthStart.toISOString())
-      .lte("start_time", previousMonthEnd.toISOString()),
-    supabase
-      .from("appointments")
       .select("id", { count: "exact", head: true })
       .match(apptFilter)
       .eq("status", "pending")
       .gte("start_time", now.toISOString()),
-    supabase
-      .from("appointments")
-      .select(
-        "status, price_cents, amount_paid_cents, deposit_cents, payment_status, service:services(price)",
-      )
-      .match(apptFilter)
-      .neq("status", "cancelled")
-      .neq("status", "no_show")
-      .gte("start_time", todayStart.toISOString())
-      .lte("start_time", todayEnd.toISOString()),
     supabase
       .from("customers")
       .select("id, name, email, created_at")
@@ -278,27 +231,9 @@ export async function getDashboardStats() {
     .eq("business_id", business.id)
     .gte("created_at", monthStart.toISOString());
 
-  type RevenueApptRow = {
-    status?: string | null;
-    price_cents?: number | null;
-    amount_paid_cents?: number | null;
-    deposit_cents?: number | null;
-    payment_status?: string | null;
-    service: { price?: number } | null;
-  };
 
-  const { sumRecognizedRevenueDollars } = await import(
-    "@/lib/commerce/recognize"
-  );
-
-  const revenue = sumRecognizedRevenueDollars(
-    (revenueRes.data as RevenueApptRow[] | null) ?? [],
-  );
-  const previousMonthRevenue = sumRecognizedRevenueDollars(
-    (previousMonthRevenueRes.data as RevenueApptRow[] | null) ?? [],
-  );
-  const todayRevenue = sumRecognizedRevenueDollars(
-    (todayCompletedRevenueRes.data as RevenueApptRow[] | null) ?? [],
+  const [revenue, previousMonthRevenue, todayRevenue] = await Promise.all(
+    (["month", "previousMonth", "today"] as const).map(period => readFinancialAggregate({ period, ...(scope.mode === "single" ? { locationId: scope.locationId } : {}) }).then(singleFinancialAmount)),
   );
 
   const weekDayCounts = Array.from({ length: 7 }, (_, i) => {

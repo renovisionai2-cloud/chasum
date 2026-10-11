@@ -21,7 +21,6 @@ import type {
 } from "@/lib/employees/types";
 import {
   appointmentRecognizedCents,
-  isActiveBooking,
 } from "@/lib/commerce/recognize";
 import { createClient } from "@/lib/supabase/server";
 import { logQueryError } from "@/lib/supabase/errors";
@@ -103,7 +102,7 @@ function emptyPerformance(): EmployeePerformance {
     upcomingAppointments: 0,
     cancelledAppointments: 0,
     noShowAppointments: 0,
-    lifetimeRevenue: 0,
+    completedServiceValue: 0,
     completionRate: 0,
     noShowRate: 0,
   };
@@ -225,7 +224,6 @@ function computeFromRows(
   let cancelled = 0;
   let noShow = 0;
   let revenue = 0;
-  let booked = 0;
 
   for (const row of data) {
     const status = row.status as string;
@@ -239,7 +237,6 @@ function computeFromRows(
       continue;
     }
 
-    if (isActiveBooking(status)) booked += 1;
     if (status === "completed") completed += 1;
     else if (start >= now) upcoming += 1;
 
@@ -248,11 +245,11 @@ function computeFromRows(
 
   const decided = completed + cancelled + noShow;
   return {
-    completedAppointments: Math.max(completed, booked),
+    completedAppointments: completed,
     upcomingAppointments: upcoming,
     cancelledAppointments: cancelled,
     noShowAppointments: noShow,
-    lifetimeRevenue: revenue,
+    completedServiceValue: revenue,
     completionRate: decided > 0 ? Math.round((completed / decided) * 1000) / 10 : 0,
     noShowRate: decided > 0 ? Math.round((noShow / decided) * 1000) / 10 : 0,
   };
@@ -313,7 +310,7 @@ export function toEmployeeAiExport(profile: EmployeeProfile) {
     bookingRules: profile.booking_rules,
     performance: {
       completedAppointments: profile.performance.completedAppointments,
-      lifetimeRevenue: profile.performance.lifetimeRevenue,
+      completedServiceValue: profile.performance.completedServiceValue,
       completionRate: profile.performance.completionRate,
       noShowRate: profile.performance.noShowRate,
       upcomingAppointments: profile.performance.upcomingAppointments,

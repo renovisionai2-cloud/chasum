@@ -1,5 +1,7 @@
 "use server";
 
+import { readOperatorBooking, readOperatorBookingHistory, readOperatorPayment } from "@/lib/commerce/operator-financial-state";
+
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
   createInvoiceForAppointment,
@@ -227,3 +229,8 @@ export async function listRecentTransactionsAction(limit = 40) {
   const business = await getOrCreateBusiness();
   return listTransactions({ businessId: business.id, limit });
 }
+
+/** Read-only canonical operator disclosure. Each reader resolves server authority. */
+export async function loadOperatorBooking(operationId: string) { return readOperatorBooking(operationId); }
+export async function loadOperatorBookingHistory() { return readOperatorBookingHistory(); }
+export async function loadOperatorPayment(attemptId: string) { return readOperatorPayment({ mode: "one", attemptId }); }

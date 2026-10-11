@@ -1,3 +1,4 @@
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
 import { SetupChecklist } from "@/components/dashboard/setup-checklist";
 import { StatusBadge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { StatCard } from "@/components/ui/stat-card";
 import { getCommandCentreSnapshot } from "@/lib/actions/command-centre";
 import { formatAppointmentEmailClock } from "@/lib/communications/appointment-datetime";
-import { formatMoneyCents } from "@/lib/commerce/money";
 import { receptionHref } from "@/lib/dashboard/command-centre";
 import { calendarDateInTimezone } from "@/lib/business/datetime";
 import {
@@ -333,9 +333,9 @@ export async function CommandCentre() {
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             <StatCard
               title="Gross payments collected today"
-              value={formatMoneyCents(money.collectedTodayCents, snapshot.currency)}
+              value={financialAmountText(money.collectedTodayCents)}
               description={
-                money.collectedTodayCents === 0
+                money.collectedTodayCents.state === "EXACT" && money.collectedTodayCents.cents === 0
                   ? "No succeeded payments recorded for this business day"
                   : "Succeeded payments and deposits recorded today"
               }
@@ -345,14 +345,11 @@ export async function CommandCentre() {
             />
             <StatCard
               title="Outstanding invoices"
-              value={formatMoneyCents(
-                money.outstandingInvoicesCents,
-                snapshot.currency,
-              )}
+              value={financialAmountText(money.outstandingInvoicesCents)}
               description={
                 money.outstandingInvoicesCount === 1
                   ? "1 open invoice"
-                  : `${money.outstandingInvoicesCount} open invoices`
+                  : "Document list; complete balance unverified"
               }
               icon={Wallet}
               href="/dashboard/payments"
@@ -360,14 +357,11 @@ export async function CommandCentre() {
             />
             <StatCard
               title="Outstanding deposits / balances"
-              value={formatMoneyCents(
-                money.outstandingDepositsCents,
-                snapshot.currency,
-              )}
+              value={financialAmountText(money.outstandingDepositsCents)}
               description={
                 money.outstandingDepositsCount === 1
                   ? "1 booking with an amount due"
-                  : `${money.outstandingDepositsCount} bookings with an amount due`
+                  : "Configured requirements are not collection evidence"
               }
               icon={Wallet}
               href="/dashboard/payments"

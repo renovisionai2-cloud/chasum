@@ -1,5 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@/lib/actions/business", () => ({ requireBusiness: async () => ({ id: "biz" }) }));
+vi.mock("@/lib/commerce/financial-aggregate", () => ({ readFinancialAggregate: async () => ({ state: "UNKNOWN", reason: "INCOMPLETE" }), singleFinancialAmount: (value: unknown) => value }));
 const mocks = vi.hoisted(() => ({ client: vi.fn(), log: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.client }));
 vi.mock("@/lib/supabase/errors", () => ({ logQueryError: mocks.log, isSoftSchemaFallbackAllowed: () => false }));

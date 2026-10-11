@@ -3,7 +3,7 @@ import { buildChaseInsights } from "@/lib/chase/insights";
 import type { ChaseKpis } from "@/lib/chase/types";
 
 const baseKpis: ChaseKpis = {
-  todayRevenue: 0,
+  todayRevenue: { state: "EXACT", cents: 0, currency: "cad" },
   todayAppointments: 3,
   weekBookings: 20,
   staffUtilizationPct: 42,

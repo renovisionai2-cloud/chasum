@@ -1,3 +1,4 @@
+import { type FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 /**
  * Command Centre — pure helpers.
  * Facts must come from loaded snapshot fields. No fabricated metrics.
@@ -35,10 +36,10 @@ export type CommandCentreSummerFact = {
 export type CommandCentreMoneyView =
   | {
       available: true;
-      collectedTodayCents: number;
-      outstandingInvoicesCents: number;
+      collectedTodayCents: FinancialAmount;
+      outstandingInvoicesCents: FinancialAmount;
       outstandingInvoicesCount: number;
-      outstandingDepositsCents: number;
+      outstandingDepositsCents: FinancialAmount;
       outstandingDepositsCount: number;
     }
   | {
@@ -127,10 +128,10 @@ export function buildDailySummary(input: {
 export function presentCommerceMoney(input: {
   schemaReady: boolean;
   schemaMessage: string | null;
-  collectedTodayCents: number;
-  outstandingInvoicesCents: number;
+  collectedTodayCents: FinancialAmount;
+  outstandingInvoicesCents: FinancialAmount;
   outstandingInvoicesCount: number;
-  outstandingDepositsCents: number;
+  outstandingDepositsCents: FinancialAmount;
   outstandingDepositsCount: number;
 }): CommandCentreMoneyView {
   if (!input.schemaReady) {
@@ -198,8 +199,7 @@ export function buildAttentionItems(input: {
 
   if (input.money.available) {
     if (
-      input.money.outstandingInvoicesCount > 0 ||
-      input.money.outstandingInvoicesCents > 0
+      input.money.outstandingInvoicesCents.state === "EXACT" && input.money.outstandingInvoicesCents.cents > 0
     ) {
       items.push({
         id: "invoices",
@@ -213,8 +213,7 @@ export function buildAttentionItems(input: {
       });
     }
     if (
-      input.money.outstandingDepositsCount > 0 ||
-      input.money.outstandingDepositsCents > 0
+      input.money.outstandingDepositsCents.state === "EXACT" && input.money.outstandingDepositsCents.cents > 0
     ) {
       items.push({
         id: "deposits",
@@ -237,7 +236,7 @@ export function buildSummerFacts(input: {
   appointmentsToday: number;
   nextAppointmentClock: string | null;
   pendingConfirmations: number;
-  outstandingCount: number;
+  outstandingCount: number | null;
   attentionCount: number;
 }): CommandCentreSummerFact[] {
   const facts: CommandCentreSummerFact[] = [];
@@ -289,7 +288,7 @@ export function buildSummerFacts(input: {
     });
   }
 
-  if (input.outstandingCount > 0) {
+  if (input.outstandingCount != null && input.outstandingCount > 0) {
     facts.push({
       id: "outstanding",
       text:

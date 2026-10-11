@@ -1,4 +1,6 @@
 "use client";
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
+
 
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
 import { cn } from "@/lib/utils";
@@ -51,7 +53,7 @@ function Metric({
         <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
-        <p className="truncate text-sm font-semibold tabular-nums leading-tight">
+        <p className="break-words text-sm font-semibold tabular-nums leading-tight">
           {value}
         </p>
         {hint ? (
@@ -63,7 +65,7 @@ function Metric({
 }
 
 export function MorningBrief({ brief }: { brief: MorningBriefData }) {
-  const revenueDelta =
+  const collectedDelta =
     brief.chase.revenueDeltaPct == null
       ? null
       : `${brief.chase.revenueDeltaPct > 0 ? "+" : ""}${brief.chase.revenueDeltaPct}%`;
@@ -93,8 +95,9 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
           tone="default"
         />
         <Metric
-          label="Revenue"
-          value={`$${brief.todayRevenue.toFixed(0)}`}
+          label="Collected (current Location)"
+          value={financialAmountText(brief.todayRevenue)}
+          hint="Current appointment Location; later edits can move attribution"
           icon={DollarSign}
           tone="success"
         />
@@ -123,10 +126,10 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
         />
         <Metric
           label="Outstanding"
-          value={String(brief.outstandingPayments)}
-          hint="Payments due"
+          value={brief.outstandingPayments == null ? "Unknown — unverified" : String(brief.outstandingPayments)}
+          hint="Review canonical payment state before collection"
           icon={Wallet}
-          tone={brief.outstandingPayments > 0 ? "warning" : "default"}
+          tone={brief.outstandingPayments != null && brief.outstandingPayments > 0 ? "warning" : "default"}
         />
       </div>
 
@@ -158,9 +161,9 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
           <div className="min-w-0">
             <p className="text-xs font-semibold">
               Chase insights
-              {revenueDelta ? (
+              {collectedDelta ? (
                 <span className="ml-2 font-medium text-success">
-                  Revenue {revenueDelta}
+                  Collected {collectedDelta}
                 </span>
               ) : null}
             </p>
@@ -169,7 +172,7 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
             </p>
             <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
               <span>{brief.chase.availableSlots} open slots</span>
-              {brief.chase.overdueCustomers > 0 ? (
+              {brief.chase.overdueCustomers != null && brief.chase.overdueCustomers > 0 ? (
                 <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
                   <AlertTriangle className="size-3" aria-hidden />
                   {brief.chase.overdueCustomers} overdue

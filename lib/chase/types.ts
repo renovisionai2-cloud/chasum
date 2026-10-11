@@ -1,3 +1,4 @@
+import { type FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 /**
  * Chase Operations Manager — contracts.
  * Chase recommends; owners decide. Never mutates business data.
@@ -23,7 +24,7 @@ export type ChaseAlert = {
 };
 
 export type ChaseKpis = {
-  todayRevenue: number;
+  todayRevenue: FinancialAmount;
   todayAppointments: number;
   weekBookings: number;
   staffUtilizationPct: number | null;
@@ -39,7 +40,7 @@ export type ChaseCustomerAnalytics = {
   newCustomers: number;
   returningCustomers: number;
   retentionRatePct: number;
-  lifetimeValueAvg: number;
+  lifetimeValueAvg: FinancialAmount;
   inactive: Array<{ id: string; name: string; detail: string }>;
   overdueFollowUp: Array<{
     id: string;
@@ -49,7 +50,7 @@ export type ChaseCustomerAnalytics = {
   highValue: Array<{
     id: string;
     name: string;
-    lifetimeSpend: number;
+    lifetimeSpend: FinancialAmount;
     visits: number;
   }>;
   averageVisitFrequency: number | null;
@@ -125,16 +126,16 @@ export type ChaseOperationsSnapshot = {
   upcomingClosures: ChaseUpcomingClosure[];
   forecast: ChaseForecastHooks;
   pendingConfirmations: number;
-  outstandingDeposits: number;
+  outstandingDeposits: number | null;
   commerce: {
-    revenueTodayCents: number;
-    revenueWeekCents: number;
-    revenueMonthCents: number;
-    outstandingInvoicesCents: number;
-    outstandingDepositsCents: number;
-    refundsTrendCents: number;
-    averageTransactionCents: number | null;
-    averageCustomerValueCents: number | null;
+    revenueTodayCents: FinancialAmount;
+    revenueWeekCents: FinancialAmount;
+    revenueMonthCents: FinancialAmount;
+    outstandingInvoicesCents: FinancialAmount;
+    outstandingDepositsCents: FinancialAmount;
+    refundsTrendCents: FinancialAmount;
+    averageTransactionCents: FinancialAmount;
+    averageCustomerValueCents: FinancialAmount;
   };
   communications: {
     sentToday: number;

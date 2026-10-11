@@ -87,7 +87,7 @@ export type EmployeePerformance = {
   upcomingAppointments: number;
   cancelledAppointments: number;
   noShowAppointments: number;
-  lifetimeRevenue: number;
+  completedServiceValue: number;
   completionRate: number;
   noShowRate: number;
 };

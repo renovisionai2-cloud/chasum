@@ -142,6 +142,7 @@ export function PaymentsSection({
 
   return (
     <section className="space-y-3" aria-labelledby="bs-pay-heading">
+      <p className="text-sm text-muted-foreground">Appointment cache / configured requirements, not canonical collected money. Verify payment history before collecting again.</p>
       <div>
         <h3 id="bs-pay-heading" className="text-sm font-semibold tracking-tight">
           Balance

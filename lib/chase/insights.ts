@@ -20,7 +20,7 @@ function insight(
 export function buildChaseInsights(input: {
   kpis: ChaseKpis;
   pendingConfirmations: number;
-  outstandingDeposits: number;
+  outstandingDeposits: number | null;
   topServiceName: string | null;
   topStaffName: string | null;
   topStaffUtilPct: number | null;
@@ -37,7 +37,7 @@ export function buildChaseInsights(input: {
       list.push(
         insight(
           "rev-up",
-          `Revenue is up ${delta}% versus last week`,
+          `Payments collected are up ${delta}% versus last week`,
           "Protect high-value slots and keep popular services well staffed.",
           delta >= 14 ? "high" : "medium",
           "revenue",
@@ -47,7 +47,7 @@ export function buildChaseInsights(input: {
       list.push(
         insight(
           "rev-down",
-          `Revenue is down ${Math.abs(delta)}% versus last week`,
+          `Payments collected are down ${Math.abs(delta)}% versus last week`,
           "Review quiet hours and outstanding confirmations before adding promotions.",
           "high",
           "revenue",
@@ -84,7 +84,7 @@ export function buildChaseInsights(input: {
     list.push(
       insight(
         "svc-top",
-        `${input.topServiceName} leads service revenue`,
+        `${input.topServiceName} leads service bookings`,
         "Keep inventory and preferred employees aligned to this service.",
         "low",
         "bookings",
@@ -96,7 +96,7 @@ export function buildChaseInsights(input: {
     list.push(
       insight(
         "vip-inactive",
-        `${input.vipInactiveCount} high-value or overdue guests need follow-up`,
+        `${input.vipInactiveCount} frequent or overdue guests need follow-up`,
         "Review CRM overdue and inactive lists — outreach stays owner-approved.",
         "high",
         "customers",
@@ -128,7 +128,7 @@ export function buildChaseInsights(input: {
     );
   }
 
-  if (input.outstandingDeposits > 0) {
+  if (input.outstandingDeposits != null && input.outstandingDeposits > 0) {
     list.push(
       insight(
         "deposits",
@@ -144,7 +144,7 @@ export function buildChaseInsights(input: {
     const hasActivity =
       kpis.todayAppointments > 0 ||
       kpis.weekBookings > 0 ||
-      kpis.todayRevenue > 0;
+      (kpis.todayRevenue.state === "EXACT" && kpis.todayRevenue.cents > 0);
     if (!hasActivity) {
       list.push(
         insight(
@@ -174,7 +174,7 @@ export function buildChaseInsights(input: {
 
 export function buildChaseAlerts(input: {
   pendingConfirmations: number;
-  outstandingDeposits: number;
+  outstandingDeposits: number | null;
   cancellationRatePct: number | null;
   availableSlots: number;
   todayAppointments: number;
@@ -219,8 +219,8 @@ export function buildChaseAlerts(input: {
   if (input.revenueWeekDeltaPct != null && input.revenueWeekDeltaPct <= -15) {
     alerts.push({
       id: "revenue-below",
-      title: "Revenue below recent pace",
-      body: `Week revenue is down ${Math.abs(input.revenueWeekDeltaPct)}% versus the prior week.`,
+      title: "Collected money below recent pace",
+      body: `Week collected money is down ${Math.abs(input.revenueWeekDeltaPct)}% versus the prior week.`,
       severity: "critical",
     });
   }
@@ -234,7 +234,7 @@ export function buildChaseAlerts(input: {
     });
   }
 
-  if (input.outstandingDeposits > 0) {
+  if (input.outstandingDeposits != null && input.outstandingDeposits > 0) {
     alerts.push({
       id: "deposits",
       title: "Outstanding deposits",

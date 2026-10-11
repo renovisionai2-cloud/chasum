@@ -253,7 +253,8 @@ export function AppointmentDrawer({
             </p>
           </Section>
 
-          <Section title="Payment summary">
+          <Section title="Appointment payment cache">
+            <p className="text-sm text-muted-foreground">Derived appointment values; canonical collection may be unsynchronized. Verify payment history before collecting again.</p>
             {appointmentTotal > 0 ? (
               <dl className="space-y-1.5 text-sm">
                 <div className="flex justify-between gap-3">
@@ -371,7 +372,7 @@ export function AppointmentDrawer({
               }}
             >
               <Banknote className="size-3.5" />
-              Collect payment
+              Review payment
             </Button>
             <Button
               type="button"

@@ -1,4 +1,6 @@
 "use server";
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
+import { readFinancialAggregate, singleFinancialAmount } from "@/lib/commerce/financial-aggregate";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getLocationScope } from "@/lib/actions/location";
@@ -223,7 +225,11 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
 
   const activeEmployees = staff.filter((s) => s.is_active !== false).length;
 
+  const [today, week, month, year] = await Promise.all(
+    (["today", "week", "month", "year"] as const).map(period => readFinancialAggregate({ period, ...(scope.mode === "single" ? { locationId: scope.locationId } : {}) }).then(singleFinancialAmount)),
+  );
   const executive = buildExecutive({
+    collected: { today, week, month, year },
     now,
     appointments,
     customers,
@@ -284,7 +290,7 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
     staffByLocation,
     now,
   );
-  const financial = buildFinancial(appointments, payments, now);
+  const financial = buildFinancial(appointments, payments, now, month);
   const inventory = buildInventoryPlaceholder();
   const schedules = await listSchedules(business.id);
 
@@ -298,6 +304,7 @@ export const getReportsBundle = cache(async function getReportsBundle(): Promise
   });
 
   return {
+    financialScope: scope.mode === "single" ? "Current appointment Location attribution; later Location edits can move historical attribution." : "Business-wide collected money; ledger occurred_at in the Business timezone.",
     currency: normalizeCurrency(business.currency),
     executive,
     revenue,
@@ -426,23 +433,23 @@ export async function buildReportCsv(
       const e = bundle.executive;
       headers = ["Metric", "Value"];
       rows = [
-        ["Revenue Today", e.revenueToday],
-        ["Revenue Week", e.revenueWeek],
-        ["Revenue Month", e.revenueMonth],
-        ["Revenue Year", e.revenueYear],
+        ["Payments collected today", financialAmountText(e.revenueToday)],
+        ["Payments collected this week", financialAmountText(e.revenueWeek)],
+        ["Payments collected this month", financialAmountText(e.revenueMonth)],
+        ["Payments collected this year", financialAmountText(e.revenueYear)],
         ["Appointments Today", e.appointmentsToday],
         ["Upcoming", e.upcomingAppointments],
         ["New Customers", e.newCustomers],
         ["Returning Customers", e.returningCustomers],
         ["Active Employees", e.activeEmployees],
-        ["Outstanding Invoices ($)", e.outstandingInvoicesCents / 100],
-        ["Membership Revenue ($)", e.membershipRevenueCents / 100],
-        ["Gift Card Revenue ($)", e.giftCardRevenueCents / 100],
+        ["Outstanding Invoices ($)", financialAmountText(e.outstandingInvoicesCents)],
+        ["Membership collection — unverified", financialAmountText(e.membershipRevenueCents)],
+        ["Gift card collection — unverified", financialAmountText(e.giftCardRevenueCents)],
       ];
       break;
     }
     case "revenue":
-      headers = ["Dimension", "Label", "Value"];
+      headers = ["Completed service value (operational, not collected money)", "Label", "Value"];
       rows = [
         ...bundle.revenue.byEmployee.map((r) => ["Employee", r.label, r.value]),
         ...bundle.revenue.byLocation.map((r) => ["Location", r.label, r.value]),
@@ -468,7 +475,7 @@ export async function buildReportCsv(
       rows = [
         ...bundle.customers.topCustomers.map((c) => [
           c.label,
-          "Lifetime value",
+          "Completed visits",
           c.value,
         ]),
         ...bundle.customers.inactiveCustomers.map((c) => [
@@ -481,7 +488,7 @@ export async function buildReportCsv(
     case "employees":
       headers = [
         "Employee",
-        "Revenue",
+        "Completed service value (operational)",
         "Completed",
         "Avg minutes",
         "Commission ($)",
@@ -492,16 +499,16 @@ export async function buildReportCsv(
         e.revenue,
         e.completed,
         e.averageServiceMinutes,
-        e.commissionCents / 100,
+        "Not configured",
         e.productivity,
       ]);
       break;
     case "services":
-      headers = ["Service", "Bookings / Revenue"];
+      headers = ["Service", "Bookings / Completed service value (operational)"];
       rows = [
         ...bundle.services.mostPopular.map((s) => [s.label, s.value]),
         ...bundle.services.revenueByService.map((s) => [
-          `${s.label} revenue`,
+          `${s.label} completed service value (operational)`,
           s.value,
         ]),
       ];
@@ -509,7 +516,7 @@ export async function buildReportCsv(
     case "locations":
       headers = [
         "Location",
-        "Revenue",
+        "Collected (current appointment Location)",
         "Appointments",
         "Customers",
         "Employees",
@@ -518,25 +525,25 @@ export async function buildReportCsv(
       ];
       rows = bundle.locations.map((l) => [
         l.name,
-        l.revenue,
+        financialAmountText(l.revenue),
         l.appointments,
         l.customers,
         l.employees,
         l.occupancyPct,
-        l.growthPct,
+        "Unknown — unverified",
       ]);
       break;
     case "financial": {
       const f = bundle.financial;
       headers = ["Metric", "Amount ($)"];
       rows = [
-        ["Invoices", f.invoicesCents / 100],
-        ["Payments", f.paymentsCents / 100],
-        ["Refunds", f.refundsCents / 100],
-        ["Taxes", f.taxesCents / 100],
-        ["Discounts", f.discountsCents / 100],
-        ["Deposits", f.depositsCents / 100],
-        ["Outstanding", f.outstandingCents / 100],
+        ["Invoices", financialAmountText(f.invoicesCents)],
+        ["Payments collected", financialAmountText(f.paymentsCents)],
+        ["Refunds", financialAmountText(f.refundsCents)],
+        ["Taxes", financialAmountText(f.taxesCents)],
+        ["Discounts", financialAmountText(f.discountsCents)],
+        ["Configured deposit requirements — unverified", financialAmountText(f.depositsCents)],
+        ["Outstanding", financialAmountText(f.outstandingCents)],
       ];
       break;
     }
@@ -561,7 +568,7 @@ export async function buildReportCsv(
   });
 
   return {
-    csv: rowsToCsv(headers, rows),
+    csv: rowsToCsv(headers, [["Scope", bundle.financialScope], ...rows]),
     filename: `chasum-${reportType}-${new Date().toISOString().slice(0, 10)}.csv`,
   };
 }

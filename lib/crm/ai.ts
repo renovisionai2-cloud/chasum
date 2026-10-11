@@ -1,3 +1,4 @@
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
 /**
  * Spark / Chase CRM AI hooks — read-only analytics today; pluggable providers later.
  * Summer/Chase must not mutate CRM; booking changes go through the Booking Engine.
@@ -61,7 +62,7 @@ class ChaseCrmProvider implements CrmAiProvider {
         snapshot.preferredServices.length
           ? `Recent services: ${snapshot.preferredServices.join(", ")}`
           : null,
-        `Lifetime visits ${snapshot.lifetimeVisits} · spend $${snapshot.lifetimeSpend.toFixed(0)}`,
+        `Lifetime visits ${snapshot.lifetimeVisits} · spend ${financialAmountText(snapshot.lifetimeSpend)}`,
         snapshot.nextAppointment
           ? `Next visit scheduled · ${snapshot.upcomingCount} upcoming`
           : "No upcoming appointments",
@@ -101,11 +102,11 @@ class ChaseCrmProvider implements CrmAiProvider {
     if (input.kind === "top_spenders") {
       return {
         kind: input.kind,
-        summary: `High-value customers: avg lifetime spend $${analytics.retention.averageLifetimeSpend.toFixed(0)}. ${analytics.retention.vipCount} VIP profiles.`,
+        summary: `Frequent customers: lifetime spend ${financialAmountText(analytics.retention.averageLifetimeSpend)}. ${analytics.retention.vipCount} VIP profiles.`,
         items: analytics.highValue.map((c) => ({
           id: c.id,
           label: c.name,
-          detail: `$${c.lifetimeSpend.toFixed(0)} · ${c.visits} visits`,
+          detail: `${financialAmountText(c.lifetimeSpend)} · ${c.visits} visits`,
         })),
         ready: true,
       };

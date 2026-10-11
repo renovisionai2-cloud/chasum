@@ -67,7 +67,6 @@ export async function queryUtilizationProjection(input: {
   let bookedMinutes = 0;
   let completed = 0;
   let noShows = 0;
-  let revenue = 0;
 
   for (const row of rows) {
     const start = new Date(row.start_time as string).getTime();
@@ -75,9 +74,6 @@ export async function queryUtilizationProjection(input: {
     bookedMinutes += Math.max(0, Math.round((end - start) / 60_000));
     if (row.status === "completed") {
       completed += 1;
-      const price =
-        (row.service as { price?: number } | null)?.price ?? 0;
-      revenue += Number(price);
     }
     if (row.status === "no_show") noShows += 1;
   }
@@ -87,7 +83,6 @@ export async function queryUtilizationProjection(input: {
     bookedMinutes,
     completed,
     noShows,
-    revenue,
     rows,
   };
 }
