@@ -118,3 +118,15 @@ Public retained rows: 36. Auth users: 2. Auth email identities: 2. No new projec
 ## Accepted hosted results
 
 A1 EXACT CAD5000 collected/deposit cents; A2/A3/A4 HELD with REFUND_EVIDENCE_INCONSISTENT. A2 and A3 domain results identical. N1 cross-business witness, privacy, customer embed, all six FK hints and foreign-customer fail-closed control passed. Original raw responses are preserved unchanged in this directory.
+
+## Final SCALE continuation
+
+The separate PO-approved SCALE owner/business/customer and 1,002 unbound transactions were created for the remaining scale proof and then fully removed. Owner SCALE and its Auth identity were deleted through the supported Admin API. They are not retained fixture rows.
+
+SCALE owner: 0fc887eb-473a-4463-a5be-1e118a475d10; slice2a-scale-20261011t182636z-1448c49d@validation.invalid
+Business SCALE: e6528bec-9720-41c7-b941-953eb58fb31a
+Customer SCALE: 114bb85b-5530-4fb8-9b52-dacec2470065
+
+All 36 retained public A/B rows and both owners/email identities remain unchanged against the baseline full-row snapshots. Financial digest SHA-256: 9209f8437a6ca74f8635fce41387885c66002a1142c6bd17e2f938cdbd356f4a. No A/B attempt, transaction, refund, appointment or support row was modified.
+
+Final aggregate validation status: SLICE2A_STAGING_VALIDATION_PASS_RETAINED_FIXTURE. This does not erase the original failed-run history or relax any retention rule.
