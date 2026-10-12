@@ -1,5 +1,7 @@
+// @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ record: vi.fn(), refund: vi.fn(), refresh: vi.fn() }));
+vi.mock("server-only", () => ({}));
 vi.mock("@/lib/actions/business", () => ({ getOrCreateBusiness: async () => ({ id: "biz", currency: "cad" }) }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ auth: { getUser: async () => ({ data: { user: { id: "actor" } } }) } }) }));
 vi.mock("@/lib/commerce", () => ({ recordCommercePayment: mocks.record, processCommerceRefund: mocks.refund, parsePaymentMethod: () => "cash" }));

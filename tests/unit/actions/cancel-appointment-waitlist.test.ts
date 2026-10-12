@@ -13,6 +13,7 @@ const {
   getOrCreateBusiness: vi.fn(),
 }));
 
+vi.mock("server-only", () => ({}));
 vi.mock("@/lib/actions/business", () => ({
   getOrCreateBusiness: (...args: unknown[]) => getOrCreateBusiness(...args),
 }));
