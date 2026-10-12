@@ -1,3 +1,4 @@
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
 import Link from "next/link";
 import type { ChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
 
@@ -25,7 +26,7 @@ export function ChaseCrmPanel({ analytics }: { analytics: ChaseCrmAnalytics }) {
         />
         <Metric
           label="Avg spend"
-          value={`$${analytics.retention.averageLifetimeSpend.toFixed(0)}`}
+          value={`${financialAmountText(analytics.retention.averageLifetimeSpend)}`}
         />
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
@@ -39,12 +40,12 @@ export function ChaseCrmPanel({ analytics }: { analytics: ChaseCrmAnalytics }) {
           }))}
         />
         <List
-          title="High value"
-          empty="No high-value signals yet"
+          title="Frequent guests"
+          empty="No frequent-visit signals yet"
           items={analytics.highValue.map((c) => ({
             id: c.id,
             label: c.name,
-            detail: `$${c.lifetimeSpend.toFixed(0)}`,
+            detail: `${c.visits} completed visits · spend ${financialAmountText(c.lifetimeSpend)}`,
           }))}
         />
         <List

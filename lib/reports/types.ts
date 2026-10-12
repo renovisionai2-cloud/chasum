@@ -1,3 +1,4 @@
+import type { FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 export type ReportType =
   | "executive"
   | "revenue"
@@ -25,18 +26,18 @@ export type ChartPoint = {
 };
 
 export type ExecutiveDashboard = {
-  revenueToday: number;
-  revenueWeek: number;
-  revenueMonth: number;
-  revenueYear: number;
+  revenueToday: FinancialAmount;
+  revenueWeek: FinancialAmount;
+  revenueMonth: FinancialAmount;
+  revenueYear: FinancialAmount;
   appointmentsToday: number;
   upcomingAppointments: number;
   newCustomers: number;
   returningCustomers: number;
   activeEmployees: number;
-  outstandingInvoicesCents: number;
-  membershipRevenueCents: number;
-  giftCardRevenueCents: number;
+  outstandingInvoicesCents: FinancialAmount;
+  membershipRevenueCents: FinancialAmount;
+  giftCardRevenueCents: FinancialAmount;
 };
 
 export type AppointmentReport = {
@@ -55,7 +56,7 @@ export type AppointmentReport = {
 export type CustomerReport = {
   newCustomers: number;
   returningCustomers: number;
-  lifetimeValueAvg: number;
+  lifetimeValueAvg: FinancialAmount;
   retentionRate: number;
   growthSeries: ChartPoint[];
   birthdaysThisMonth: NamedMetric[];
@@ -70,7 +71,7 @@ export type EmployeeReportRow = {
   completed: number;
   averageRating: number | null;
   averageServiceMinutes: number;
-  commissionCents: number;
+  commissionCents: null;
   productivity: number;
 };
 
@@ -87,22 +88,22 @@ export type ServiceReport = {
 export type LocationReportRow = {
   id: string;
   name: string;
-  revenue: number;
+  revenue: FinancialAmount;
   appointments: number;
   customers: number;
   employees: number;
   occupancyPct: number;
-  growthPct: number;
+  growthPct: null;
 };
 
 export type FinancialReport = {
-  invoicesCents: number;
-  paymentsCents: number;
-  refundsCents: number;
-  taxesCents: number;
-  discountsCents: number;
-  depositsCents: number;
-  outstandingCents: number;
+  invoicesCents: FinancialAmount;
+  paymentsCents: FinancialAmount;
+  refundsCents: FinancialAmount;
+  taxesCents: FinancialAmount;
+  discountsCents: FinancialAmount;
+  depositsCents: FinancialAmount;
+  outstandingCents: FinancialAmount;
 };
 
 export type InventoryReport = {
@@ -146,7 +147,7 @@ export type BusinessIntelligenceSnapshot = {
   businessId: string;
   generatedAt: string;
   executive: ExecutiveDashboard;
-  revenueMonth: number;
+  revenueMonth: FinancialAmount;
   appointmentsMonth: number;
   customerCount: number;
   topServices: NamedMetric[];
@@ -154,6 +155,7 @@ export type BusinessIntelligenceSnapshot = {
 };
 
 export type ReportsBundle = {
+  financialScope: string;
   currency: string;
   executive: ExecutiveDashboard;
   revenue: RevenueBreakdown;

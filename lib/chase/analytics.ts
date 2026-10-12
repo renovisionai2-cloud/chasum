@@ -24,20 +24,13 @@ import { getChaseCrmAnalytics } from "@/lib/crm/ai-knowledge";
 import { getChaseCommerceMetrics } from "@/lib/commerce";
 import { getChaseCommunicationsMetrics } from "@/lib/communications";
 import { createClient } from "@/lib/supabase/server";
-import { addDays, format, startOfWeek, subDays } from "date-fns";
+import { addDays, format, startOfWeek } from "date-fns";
 
 function pct(n: number, d: number): number | null {
   if (d <= 0) return null;
   return Math.round((n / d) * 1000) / 10;
 }
 
-function deltaPct(current: number, previous: number): number | null {
-  if (previous > 0) {
-    return Math.round(((current - previous) / previous) * 100);
-  }
-  if (current > 0) return 100;
-  return null;
-}
 
 async function loadSummerActivity(
   businessId: string,
@@ -178,16 +171,12 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
   todayEnd.setHours(23, 59, 59, 999);
 
   const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-  const priorWeekStart = subDays(weekStart, 7);
-  const priorWeekEnd = subDays(weekStart, 1);
-  priorWeekEnd.setHours(23, 59, 59, 999);
 
   const [
     brief,
     reports,
     crm,
     weekUtil,
-    priorWeekUtil,
     summer,
     closuresPack,
     commerce,
@@ -201,12 +190,6 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
       businessId: business.id,
       startIso: weekStart.toISOString(),
       endIso: todayEnd.toISOString(),
-      locationId,
-    }),
-    queryUtilizationProjection({
-      businessId: business.id,
-      startIso: priorWeekStart.toISOString(),
-      endIso: priorWeekEnd.toISOString(),
       locationId,
     }),
     loadSummerActivity(business.id, todayStart, todayEnd),
@@ -236,7 +219,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
   const capacityMinutes = staffCount * 8 * 60 * Math.min(daysIntoWeek, 7);
   const staffUtilizationPct = pct(weekUtil.bookedMinutes, capacityMinutes);
 
-  const revenueWeekDeltaPct = deltaPct(weekUtil.revenue, priorWeekUtil.revenue);
+  const revenueWeekDeltaPct = null; // No comparison without matching complete canonical periods.
 
   const kpis: ChaseKpis = {
     todayRevenue: brief.todayRevenue,
@@ -265,7 +248,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
       label: m.label,
       value: m.value,
     })),
-    popularEmployees: reports.revenue.byEmployee.slice(0, 6),
+    popularEmployees: reports.employees.slice(0, 6).map(e => ({ label: e.name, value: e.completed })),
     bookingLeadTimeDaysAvg: null, // not computed yet — never invent
     completed: appt.completed,
     cancelled: appt.cancelled,
@@ -378,10 +361,7 @@ export async function getChaseOperationsSnapshot(): Promise<ChaseOperationsSnaps
     upcomingClosures: closuresPack.closures,
     forecast: CHASE_FORECAST_HOOKS,
     pendingConfirmations: brief.pendingConfirmations,
-    outstandingDeposits:
-      commerce.outstandingDepositsCents > 0
-        ? Math.round(commerce.outstandingDepositsCents / 100)
-        : brief.outstandingPayments,
+    outstandingDeposits: null,
     commerce,
     communications,
   };

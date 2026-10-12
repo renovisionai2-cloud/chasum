@@ -1,0 +1,225 @@
+{
+  "schema_version": "hv134-retained-continuation-v1",
+  "status": "PREPARED_ONLY_NOT_AUTHORIZED_TO_EXECUTE",
+  "continuation_id": "HV134-20261006-C01",
+  "competitive_product_gate": "NOT_APPLICABLE_INTERNAL_LOCKED_FINANCIAL_TEST_TOOLING",
+  "launch_classification": "LAUNCH_REQUIRED_VALIDATION_DEPENDENCY",
+  "authoring_baseline": {
+    "head": "f4af73d1f058ecee0923a0e60d29f465d7cfe8bb",
+    "main": "31115e6a51b71fc097c279d205065d80e0be3573"
+  },
+  "project": {
+    "ref": "wnfahklzaxirftyskctd",
+    "management_query_url": "https://api.supabase.com/v1/projects/wnfahklzaxirftyskctd/database/query",
+    "observer_role": "postgres",
+    "writer_role": "service_role",
+    "credential_env": "HV134_C01_STAGING_MANAGEMENT_TOKEN"
+  },
+  "package_members": [
+    "PLAN.md",
+    "harness.py",
+    "manifest.json",
+    "sql_contract.py",
+    "tests/test_harness.py"
+  ],
+  "applied_identity": {
+    "foundation": {
+      "version": "20261005032107",
+      "name": "issue_134_payment_attempt_foundation",
+      "sql_sha256": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47"
+    },
+    "r1a": {
+      "version": "20261005170446",
+      "name": "issue_134_r1a_manual_payment_kernel",
+      "sql_sha256": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+      "admit_body_sha256": "110485eb1eb2a86fd2eec72507fdf8beb7304aae92251ddef598162d05dd5847",
+      "commit_body_sha256": "e6acc9a31613b2f039305cf5169871e9b433839b4077b83d0858246194f46b15"
+    }
+  },
+  "immutable_local_sources": {
+    "../../reviews/issue-134-hv134-run02-stop.md": "cb9df408949013060b2081085c472c48fd16943162e378c7e91c545b454fc5a8",
+    "../../reviews/evidence/issue-134-run02-readonly.json": "ad63f7fd45c8513dfc87297212749f116ccd806b290c5583caab3bd4613a63ca",
+    "../issue-134-r1a-v2/PLAN.md": "b8d27816ef81166f9b45a74dcde8b3b256f5db401837e617c06efb29922fe489",
+    "../issue-134-r1a-v2/fixture.json": "037eee2063803b0a71d8d94f40fed3ec782c6e0b65555de4da5b44912029b117",
+    "../issue-134-r1a-v2/hosted_validation.py": "6dc3dbf2751f2e67b9e00ee4473c1f3a91135ceef3b1955d21d9f90a3e2611b4",
+    "../issue-134-r1a-v2/evidence/HV134-20261006-R1A-02/evidence.jsonl": "d35d4b7a5ccc678ae0ba085732c160d59e6db77e3e2640d5af187c18bcc7a397",
+    "../issue-134-r1a-v2/evidence/HV134-20261006-R1A-02/run-manifest.jsonl": "2e54d8a0069f29792335256b967242ec0c59f8a8920451c1320fc758d306dd7f",
+    "../../../supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+    "../../../supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7"
+  },
+  "scope": {
+    "actors": {
+      "a": "54198e77-156c-4add-9b25-7c06acfdb3f8",
+      "b": "0b1e93fc-3e93-4e81-ad60-e51eb8c38302"
+    },
+    "businesses": {
+      "a": "b09a3b19-dcd3-4156-9c93-ace2e31e1aa7",
+      "b": "d8e40f1b-fcd1-4161-841e-a16956faeb2e"
+    },
+    "locations": {
+      "a": "41d1f31b-d762-47da-8235-b0c2ca97cdd8",
+      "b": "c4d18eab-0079-4af1-82a5-494d26980cb5"
+    },
+    "customers": {
+      "a1": "64793504-1304-498b-90a2-1ea5cc92bbf4",
+      "a2": "acc8c6b0-18d6-4747-a0bb-27228bb66347",
+      "b1": "6312bb17-5cc7-4ce6-bbf5-472965255ffd"
+    },
+    "appointments": {
+      "a1": "d6b08433-95d0-44c9-a101-e61bc281632e",
+      "a2": "95e396c6-ed39-4cd2-b333-317d9550c7e8"
+    },
+    "service": "ad9e38f1-e540-495b-8de8-c1f205d9b9b2",
+    "staff": "f3dcd1eb-da90-4874-8e57-b7e531599f88"
+  },
+  "retained_financial": {
+    "d1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000001",
+      "attempt_id": "c49d40f5-dfa6-417c-b1cf-25712e5b58d6",
+      "ledger_id": "84eb8017-b1e4-49d6-9c47-ef7084cbc163",
+      "source": "quick_appointment",
+      "customer": "a1",
+      "appointment": "a1",
+      "payment_kind": "deposit",
+      "method": "e_transfer",
+      "state": "ACCEPTED",
+      "amount_cents": 5000
+    },
+    "d2": {
+      "attempt_key": "13400000-0000-4000-8000-000000000002",
+      "attempt_id": "b5451223-c034-4efa-ac2d-47442cdadea1",
+      "ledger_id": "04048de5-a9bb-4772-897b-73027366d893",
+      "source": "collect_payment",
+      "customer": "a1",
+      "appointment": "a1",
+      "payment_kind": "payment",
+      "method": "cash",
+      "state": "ACCEPTED",
+      "amount_cents": 5000
+    },
+    "f1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000003",
+      "attempt_id": "869de0be-05fa-45b6-85cc-2e57dfc41840",
+      "ledger_id": "1a0a40f1-7b77-4fb4-9266-004da77c5676",
+      "source": "payments_dashboard",
+      "customer": "a1",
+      "appointment": "a2",
+      "payment_kind": "payment",
+      "method": "debit_card",
+      "state": "ACCEPTED",
+      "amount_cents": 8000
+    },
+    "r1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000005",
+      "attempt_id": "652cfd32-b42c-49a4-b4ff-ce4df47c1891",
+      "ledger_id": null,
+      "source": "collect_payment",
+      "customer": "a1",
+      "appointment": "a2",
+      "payment_kind": "payment",
+      "method": "cash",
+      "state": "REQUESTED",
+      "amount_cents": 1300
+    }
+  },
+  "new_scope": {
+    "c1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000006",
+      "source": "customer_billing",
+      "business": "a",
+      "customer": "a1",
+      "appointment": null,
+      "actor": "a",
+      "payment_kind": "payment",
+      "amount_cents": 100,
+      "currency": "cad",
+      "method": "cash",
+      "provider_route": "manual",
+      "purpose": "PROPOSED_NEW_SYNTHETIC_CAD1_CONCURRENCY_EFFECT_REQUIRES_PO_APPROVAL"
+    },
+    "n1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000004",
+      "source": "customer_billing",
+      "business": "a",
+      "customer": "a1",
+      "appointment": null,
+      "actor": "a",
+      "payment_kind": "payment",
+      "amount_cents": 2500,
+      "currency": "cad",
+      "method": "other",
+      "provider_route": "manual",
+      "purpose": "COMPLETE_PREVIOUSLY_UNADMITTED_REQUEST_ONLY_AFTER_C1_PASS"
+    }
+  },
+  "known_initial": {
+    "parent_public_rows": 53,
+    "financial_public_rows": 27,
+    "public_rows": 80,
+    "attempts": 4,
+    "events": 8,
+    "linked_ledgers": 3,
+    "ledger_total_cents": 18000,
+    "obligations": 12,
+    "pending_obligations": 12,
+    "not_required_obligations": 0,
+    "sequence_last_value": "11",
+    "sequence_is_called": true,
+    "auth_users": 2,
+    "auth_identities": 2
+  },
+  "expected_final": {
+    "parent_public_rows": 53,
+    "financial_public_rows": 37,
+    "public_rows": 90,
+    "attempts": 6,
+    "accepted_attempts": 4,
+    "requested_attempts": 2,
+    "events": 11,
+    "requested_events": 6,
+    "accepted_events": 4,
+    "conflict_events": 1,
+    "linked_ledgers": 4,
+    "ledger_total_cents": 18100,
+    "currency": "cad",
+    "obligations": 16,
+    "pending_obligations": 15,
+    "not_required_obligations": 1,
+    "sequence_last_value": "14",
+    "sequence_is_called": true,
+    "auth_users": 2,
+    "auth_identities": 2
+  },
+  "noncohort_baselines": {
+    "businesses": ["4", "7fc3e1697a000ca2620ecc661e151073"],
+    "customers": ["3", "35d24c7d31b9ff7c098653ff5c9ec84e"],
+    "appointments": ["11", "2fc6bcb1fb8600261ed23ee6fb992f74"],
+    "commerce_transactions": ["2", "411372ed782289a869775cd2f87dd94c"]
+  },
+  "execution_allowlist": [
+    "observer-visibility-holder",
+    "observer-visibility-waiter",
+    "observer-visibility-read",
+    "preflight",
+    "c1-admit",
+    "c1-holder",
+    "c1-holder-ready",
+    "c1-worker-1",
+    "c1-worker-2",
+    "c1-durable-reconcile",
+    "n1-admit",
+    "final-reconcile"
+  ],
+  "prohibited": [
+    "AUTH_API",
+    "SERVICE_ROLE_KEY",
+    "PROVISIONING",
+    "D1_D2_F1_R1_CALLS",
+    "CLEANUP_RESET_RETRY_FLAGS",
+    "DDL_GRANT",
+    "PROXY_REDIRECT_WEAK_TLS",
+    "AUTOMATIC_RETRY_AFTER_AMBIGUOUS_WRITE",
+    "PROVIDER_SEND",
+    "PRODUCTION_OR_GVM"
+  ]
+}

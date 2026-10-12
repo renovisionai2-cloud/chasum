@@ -1,3 +1,4 @@
+import { type FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 import type { CommunicationRecord, FollowUpReminder } from "@/lib/communication/types";
 import type {
   AppointmentStatus,
@@ -77,10 +78,10 @@ export type CrmTimelineItem = {
 };
 
 export type CrmInsights = {
-  lifetimeRevenue: number;
+  lifetimeRevenue: FinancialAmount;
   totalAppointments: number;
   completedAppointments: number;
-  averageSpend: number;
+  averageSpend: FinancialAmount;
   noShowRate: number;
   cancellationRate: number;
   preferredEmployeeName: string | null;

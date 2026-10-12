@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AvailabilityContext, BookingIntent } from "@/lib/booking-engine/types";
 import { publicBookingPersistence } from "@/lib/booking-engine/adapters/public";
-import { sessionBookingPersistence } from "@/lib/booking-engine/persistence";
+import {
+  durableOperationBookingPersistence,
+  sessionBookingPersistence,
+} from "@/lib/booking-engine/persistence";
 
 const rpcCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
+const serviceRpcCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
 const appointmentInserts: unknown[] = [];
 let rpcResult: { data: string | null; error: { message: string } | null } = {
   data: "appt-public",
@@ -105,6 +109,21 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import { createBooking } from "@/lib/booking-engine/mutations/create";
 
+async function writeDurableAppointment(args: Record<string, unknown>) {
+  serviceRpcCalls.push({
+    name: "persist_booking_operation_appointment_v1",
+    args,
+  });
+  return {
+    data: [{
+      outcome: "CREATED",
+      operation_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      appointment_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    }],
+    error: null,
+  };
+}
+
 const context: AvailabilityContext = {
   businessId: "biz-1",
   locationId: "loc-1",
@@ -152,6 +171,7 @@ function namedStaffIntent(
 describe("createBooking persistence strategy seam", () => {
   beforeEach(() => {
     rpcCalls.length = 0;
+    serviceRpcCalls.length = 0;
     appointmentInserts.length = 0;
     rpcResult = { data: "appt-public", error: null };
     emitBookingEvent.mockClear();
@@ -278,6 +298,87 @@ describe("createBooking persistence strategy seam", () => {
     expect(result.data?.appointmentId).toBe("appt-session");
     expect(rpcCalls).toEqual([]);
     expect(appointmentInserts).toHaveLength(1);
+  });
+
+  it("uses the operation-tagged RPC with exact zero financial values and no compatibility fallback", async () => {
+    const expected = {
+      operationId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      actorId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      customerId: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      requestedEnd: "2026-08-28T17:00:00.000Z",
+      requestedStatus: "confirmed" as const,
+      durationMinutes: 30,
+      appointmentNotes: null,
+      roomId: null,
+      resourceIds: [],
+      packageId: null,
+      packageName: null,
+      subtotalCents: 0,
+      taxCents: 0,
+      depositRequiredCents: 0,
+    };
+    const result = await createBooking(
+      namedStaffIntent({
+        customerId: expected.customerId,
+        priceCents: 0,
+        taxCents: 0,
+        depositCents: 0,
+        durableOperation: expected,
+      }),
+      durableOperationBookingPersistence(expected, writeDurableAppointment),
+    );
+
+    expect(result).toMatchObject({
+      phase: "success",
+      data: { appointmentId: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb" },
+    });
+    expect(appointmentInserts).toEqual([]);
+    expect(rpcCalls).toEqual([]);
+    expect(serviceRpcCalls).toHaveLength(1);
+    expect(serviceRpcCalls[0]).toMatchObject({
+      name: "persist_booking_operation_appointment_v1",
+      args: {
+        p_operation_id: expected.operationId,
+        p_customer_id: expected.customerId,
+        p_subtotal_cents: 0,
+        p_tax_cents: 0,
+        p_deposit_required_cents: 0,
+      },
+    });
+  });
+
+  it("refuses a changed durable snapshot before privileged persistence", async () => {
+    const expected = {
+      operationId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      actorId: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      customerId: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      requestedEnd: "2026-08-28T17:00:00.000Z",
+      requestedStatus: "confirmed" as const,
+      durationMinutes: 30,
+      appointmentNotes: null,
+      roomId: null,
+      resourceIds: [],
+      packageId: null,
+      packageName: null,
+      subtotalCents: 20_000,
+      taxCents: 0,
+      depositRequiredCents: 0,
+    };
+    const result = await createBooking(
+      namedStaffIntent({
+        customerId: expected.customerId,
+        priceCents: 19_999,
+        durableOperation: expected,
+      }),
+      durableOperationBookingPersistence(expected, writeDurableAppointment),
+    );
+
+    expect(result).toEqual({
+      phase: "rollback",
+      error: "DURABLE_BOOKING_PRICING_CHANGED",
+    });
+    expect(serviceRpcCalls).toEqual([]);
+    expect(appointmentInserts).toEqual([]);
   });
 
   it("emits appointment.created exactly once for session and public_rpc success, and never on persist failure", async () => {

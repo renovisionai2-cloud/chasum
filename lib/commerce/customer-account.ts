@@ -1,3 +1,6 @@
+import { requireBusiness } from "@/lib/actions/business";
+import { readFinancialAggregate, singleFinancialAmount } from "./financial-aggregate";
+import { unknownMoney } from "./financial-aggregate/types";
 import { commerceDiagnosticMessage } from "@/lib/commerce/diagnostics";
 import {
   CUSTOMER_ACCOUNT_TENANT_SCOPE,
@@ -116,10 +119,16 @@ export async function getSummerCommerceSnapshot(
   customerId: string,
 ) {
   const account = await getCustomerCommerceAccount(businessId, customerId);
+  const currentBusiness = await requireBusiness().catch(() => null);
+  const collectedThisMonth = currentBusiness?.id === businessId
+    ? singleFinancialAmount(await readFinancialAggregate({ period: "month", customerId }))
+    : unknownMoney("AUTHORITY_UNAVAILABLE");
   const openInvoices = account.invoices.filter((i) =>
     ["open", "partial", "overdue"].includes(i.status),
   );
   return {
+    collectedThisMonth,
+    financialAction: "CLOSED" as const,
     financialStatus: account.financialStatus,
     outstandingBalanceCents: account.outstandingBalanceCents,
     lifetimeSpendCents: account.lifetimeSpendCents,
@@ -134,6 +143,6 @@ export async function getSummerCommerceSnapshot(
       dueDate: i.dueDate,
       status: i.status,
     })),
-    note: "Lifetime paid, spend and deposit totals are unverified because history may be incomplete. Current outstanding may be stated when successfully read, untruncated appointment, invoice and payment sources agree; unavailable, truncated or disagreeing sources remain unknown and need review. Summer may explain individual invoice balances and request deposits — never process card payments directly.",
+    note: "Lifetime paid, spend and deposit totals are unverified because history may be incomplete. Current outstanding may be stated when successfully read, untruncated appointment, invoice and payment sources agree; unavailable, truncated or disagreeing sources remain unknown and need review. Summer may explain document balances. Never recommend recollection from unknown evidence or recorded outcomes; financial ACT remains closed.",
   };
 }

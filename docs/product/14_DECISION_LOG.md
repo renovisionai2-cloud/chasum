@@ -9,6 +9,7 @@ Record of significant product and architecture decisions.
 
 ---
 
+| 2026-10-11 | Permanent Chasum Development manual-dispatch default, effective immediately: ChatGPT coordinates/prepares prompts → Darshan manually dispatches → specialists execute separately → Darshan returns consolidated reports → ChatGPT reconciles the next gate | Work approval does not authorize agent dispatch; substantial embedded specialist execution requires Darshan's explicit execution request. One bounded implementer; independent Claude review. Full reports in one markdown code block. See [AGENTS.md](../../AGENTS.md#permanent-manual-specialist-dispatch--product-owner-directive). | Active — Product Owner directive |
 | 2026-09-14 | [Bible §7](../company/CHASUM_BIBLE.md#7-ai-philosophy): Summer is the canonical AI Business Manager / intelligence layer | Shared authoritative operating truth; legacy agent names do not override direction or create disconnected chatbot products | ✅ Active — PO locked direction |
 | 2026-07 | Multi-tenant via `businesses` table + RLS | Supabase-native; simple owner model | ✅ Active |
 | 2026-07 | Public booking via SECURITY DEFINER RPCs | Prevent PII leakage; single validation path | ✅ Active |

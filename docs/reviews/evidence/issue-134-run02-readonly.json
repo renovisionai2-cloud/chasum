@@ -1,0 +1,44 @@
+{
+  "provenance": "Coordinator compilation of native Supabase read-only observations, 2026-10-06 14:38\u201314:47 UTC; no execution retry",
+  "run": "HV134-20261006-R1A-02",
+  "package_sha256": "9b96fdda79170f23cf467082187123d8651a85fb3c91d6d9cc3600583f8ab968",
+  "status": "STOP_PRESERVE_PARTIAL_NOT_ACCEPTED",
+  "original_evidence_sha256": {
+    "evidence.jsonl": "d35d4b7a5ccc678ae0ba085732c160d59e6db77e3e2640d5af187c18bcc7a397",
+    "run-manifest.jsonl": "2e54d8a0069f29792335256b967242ec0c59f8a8920451c1320fc758d306dd7f"
+  },
+  "retained": {
+    "auth_users": 2,
+    "auth_identities": 2,
+    "businesses": 2,
+    "parent_public_rows": 53,
+    "attempts": 4,
+    "accepted_attempts": 3,
+    "requested_attempts": 1,
+    "events": 8,
+    "linked_ledgers": 3,
+    "ledger_total_cents": 18000,
+    "currency": "cad",
+    "pending_obligations": 12,
+    "public_rows": 80,
+    "sequence_last_value": "11",
+    "sequence_is_called": true
+  },
+  "n1_admitted": false,
+  "exact_worker_reply_pair_preserved": false,
+  "duplicate_attempt_links": 0,
+  "financial_tuple_mismatches": 0,
+  "tenant_messages_documents_mirrors": 0,
+  "active_hv134_transactions": 0,
+  "noncohort_baselines_unchanged": [
+    "businesses",
+    "customers",
+    "appointments",
+    "commerce_transactions"
+  ],
+  "both_applied_migration_hashes_unchanged": true,
+  "follow_on_financial_actions": 0,
+  "follow_on_package_ready": false,
+  "follow_on_authoring_dispatch": "BLOCKED_BY_TOOL_SAFETY_NOT_RETRIED",
+  "read_only_reconciliation_completed": true
+}

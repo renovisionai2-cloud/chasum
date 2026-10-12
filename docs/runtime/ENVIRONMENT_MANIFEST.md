@@ -1,8 +1,125 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-03 for the first governed real Production release and PR #131 acceptance. Earlier Preview/Staging, accepted Production, Issue #102 and GVM data records remain intact and historical.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-11 America/Toronto, recording accepted Slice 2A retained Staging evidence; older C03 evidence remains dated 2026-10-10 UTC. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## #133 Slice 2A — accepted retained Staging validation, 2026-10-11
+
+This records the completed evidence at validation commit `1028e5dd6b9f32eb98d1508b02cc9f7d8bedbbee`, not a new environment probe. Frozen application `cf1e3ae053110f9fc4823368f05dfd73606271f5`; target Staging `wnfahklzaxirftyskctd`. Run `HV133-SLICE2A-STAGING-R1-20261011T041448Z-130dbf2d`; final `SLICE2A_STAGING_VALIDATION_PASS_RETAINED_FIXTURE`, independently accepted as `SLICE2A_FINAL_STAGING_EVIDENCE_ACCEPTED_FOR_PO_MERGE_GATE` under the supplied PO/Program Lead gate.
+
+A1 EXACT CAD5000; A2–A4 HELD; hosted cross-Business refund witness, native response privacy, required SELECT/BYPASSRLS behavior and all six FK hints passed. Temporary 1,002-transaction SCALE proof: month EXACT100 cents, year UNKNOWN / INCOMPLETE_FINANCIAL_EVIDENCE with no partial subtotal. All temporary SCALE transactions/customer/Business/Auth owner/identity were removed. Retained A/B 36 public rows plus two Auth users/two identities were equal before/after; financial digest `9209f8437a6ca74f8635fce41387885c66002a1142c6bd17e2f938cdbd356f4a`.
+
+**DO_NOT_REUSE / DO_NOT_MUTATE_FINANCIAL_HISTORY / DO_NOT_DELETE_WITHOUT_PRODUCT_OWNER_GATE.** [Retained scope and identities](../validation/issue-133-slice2a-staging/RETAINED_FIXTURE.md); [result and limits](../validation/issue-133-slice2a-staging/RESULT.md); [machine evidence](../validation/issue-133-slice2a-staging/evidence.json). No current serving deployment, browser/UI or Production/GVM acceptance is inferred. No hosted contact occurs in this merge-preparation closeout. #153 visibility/FK/count dependencies remain REQUIRED_BEFORE_PRODUCTION; no permission or worker/provider activation is authorized.
+
+## #133/#158 C03 — accepted connected Staging observation
+
+**Observed interval:** `2026-10-10T02:48:09.368060+00:00`–`2026-10-10T02:48:29.572203+00:00` (2026-10-09 22:48:09–22:48:29 America/Toronto), from first/final local evidence `observed_at` metadata. **Actual target:** Chasum Staging only `wnfahklzaxirftyskctd`; same-Management-bearer identity returned exact ref / `ACTIVE_HEALTHY` before any mutation. This is a dated completed-run observation, not a fresh runtime query in this documentation closeout.
+
+Run `HV133-158-20261009-C03-9b8c5783`; exact package `0314e6d3694002e16e051a3789c1949035e76023`, tree `0b57a9aa88366b8cb9d397620e63483d883ac807`, aggregate `3653c35027a98ff86e647e737252dbd97353da959ad075be2c91c367919002e9`. Append-only evidence at `/Users/darshan/chasum-evidence/issue133-connected-staging/HV133-158-20261009-C03-9b8c5783/evidence.jsonl`: 216221 bytes / 83 records / SHA-256 `d703df6fe6d43759d7949bc8093d33eb5ce8ab8d629398f61bc4f5d17c56f747`. Final `phase=final`, `status=CONNECTED_BACKEND_PASS`, `hosted_validation_run=true`. Program Lead exact SHA/full hash-chain recomputation PASS; Claude verdict **CONNECTED_STAGING_C03_ACCEPTED_WITH_NONBLOCKING_LIMITATIONS**, with disclosed inability to independently hash because of its shell allowlist. [Exact result](../reviews/issue-133-connected-staging-c03-result.md); [audit](../reviews/issue-133-connected-staging-c03-review.md).
+
+Retained synthetic state: one accepted attempt / one CAD5000-cent manual E-Transfer deposit / one confirmed appointment (price10000/tax0/deposit5000/paid5000/refunded0/deposit_paid), one partial INV-0001 (total10000/paid5000/balance5000), one RCT-0001 (5000 CAD, not_sent, emailed_at NULL, invoice_id NULL by contract, exact transaction link), one CRM event, four COMPLETE obligations, six lifecycle/projection events, zero refunds. Canonical reader RECORDED / synchronization COMPLETE; replay kept rows/digest and identities unchanged, invoice/receipt sequence next 2/2. Both nonmember readers denied with SQLSTATE 42501.
+
+Final admission **enabled=false**, same watermark as enable; synthetic records and disabled admission retained. Sessions/other_members/other_admission/other_writers all zero; customer_provider_absent=true; all nine synthetic communication surface counts zero, receipt not_sent, confirmed owner never logged in. No communication/provider side effects observed. Business protection flags were separately confirmed by Program Lead post-run read, not directly echoed as evidence rows.
+
+Independent separate-principal Program Lead post-run READ ONLY reconciliation corroborated the synthetic state. Excluding C03: attempts6 / accepted4 / requested2 / obligations16 / pending15 / not_required1 / operations0 / admission0 / receipt_sequences0; all retained exact full-row digests unchanged, enumerated in the result. Empty retained admission/sequences exclude C03's own retained rows. The separate read's exact timestamp was not supplied; no timestamp is inferred from the run interval.
+
+**C03 consumed; never rerun/reuse.** C01/C02 remain consumed STOP_ZERO_WRITES. Accepted only for the exact connected backend deposit path; application remains unwired/default-off and broader UI/worker/#153/financial/Production/GVM gates remain open. No current application serving SHA, deployment identity, bank verification or whole-database preservation is inferred. Prior Production serving evidence below remains a dated observation; Production/GVM were not contacted by this closeout.
+
+## Issue #134 attribution — governed Staging application result
+
+**STAGING_SCHEMA_APPLICATION_ACCEPTED / APPLIED ONCE / POSTCHECKS PASS.** Darshan explicitly approved the final exact gate. Native application ran once without retry on `wnfahklzaxirftyskctd`; response `success:true`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, one 6,529-byte statement at SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. Package audit remains `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`. Do not reapply.
+
+Read-only postchecks at `2026-10-07T17:04:22.453440Z` and `17:06:15.236808Z` returned `POST_APPLY_EXACT`. New constraints/index/function/ACL/trigger/order are exact; prior security/functions/triggers/history are preserved; all 18+4 accepted fingerprints and all 20 returned full relevant-table count/digests are unchanged; retained 90-row/CAD181 state is unchanged. Expected appointments index/total growth was exactly 16,384 bytes. [Result](../reviews/issue-134-staging-attribution-application-result.md); normalized selected native evidence SHA-256 `b272c73746f7730343badb5a3422914f91721356c65346e15d92126daedc6504`.
+
+This is schema-only Staging evidence, not hosted DML/PostgREST/UI/payment/projection/full-workflow acceptance. R1a remains unwired/default-off; #153/#133/#135, historical USD, worker/technician and Production/GVM holds remain. Claude independently accepted this scoped result as `STAGING_SCHEMA_APPLICATION_ACCEPTED`; the reviewer performed file/hash review of the normalized coordinator evidence, not database execution.
+
+**Historical preparation record:** final exact-byte application-plan review was READY_FOR_STAGING_APPLICATION_APPROVAL, [recorded here](../reviews/issue-134-staging-application-plan-review.md). Corrected catalogue query passed READ ONLY at `2026-10-07T16:43:34.622352Z`, after the unchanged data query passed at `16:29:22.098708Z`. Those preparation reads and older query-error chronology remain historical; they must not be read as current unapplied status.
+
+
+Claude independently classified retained local summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418` as `LOCAL_DATABASE_PROOF_ACCEPTED`. On a disposable synthetic PostgreSQL 17.11 fixture, all 11 attribution sections and four multi-session interleavings passed; source identities matched before/after and shutdown/owned-PGDATA removal were confirmed. Migration elapsed time was 23ms. The 5,020ms lock timeout occurred in the migration preflight read before `ADD CONSTRAINT`. This is local fixture proof, not hosted/full-workflow equivalence, and no rerun is required.
+
+Earlier coordinator native READ ONLY observations from 2026-10-07 14:11:29.973933Z–14:21:28.487580Z remain dated history. A separate 16:11:49.606823Z catalogue snapshot supplied to the initial reviewer was preliminary. Coordinator execution of the initial package then returned PostgreSQL `42725` in chunk 01's policy fingerprint, so no catalogue PASS exists. Chunk 02, unchanged at SHA-256 `0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411`, passed READ ONLY at 16:29:22.098708Z for all 18 old-cohort/four noncohort comparisons, Run02 aggregate, zero tuple mismatches and the exact retained 90-row shape. These actor-supplied results are bounded preparation evidence, not application acceptance.
+
+**Historical authoring-time package status:** the corrected [read-only application package](../validation/issue-134-attribution-staging-application/PLAN.md) was then PREPARED / NOT AUTHORIZED TO APPLY. That frozen status is superseded by the exact application result above; it is retained only as chronology.
+
+## HV134 C01 actual result — 2026-10-06 17:56–18:02 UTC
+
+**EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.** Original append-only evidence is exactly38lines, SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`. Source aggregate remains `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`; all5member pins and all9immutable source pins match. [Result, provenance and limits](../reviews/issue-134-hv134-c01-result.md).
+
+The completed run witnessed real direct/indirect blocked sessions. Both replies identify attempt `d211130f-02a9-47c5-a14a-6f91e7c08480` and transaction/ledger `4c2dd317-f6e0-418a-bda1-ff13250ae712`, exactly `RECORDED` + `REPLAY`. Separate durable reconciliation proved one accepted customer-only CAD1 cash effect. N1 then admitted request-only.
+
+Coordinator native READ ONLY at `2026-10-06T18:00:10.778193Z`, with final containment through approximately18:02UTC, corroborated90public rows:53original parents+37financial;6attempts/11events/4linked CAD ledgers totalling18100c/16obligations(15PENDING+1NOT_REQUIRED);sequence14/is_called=true. C1 is ACCEPTED; N1 and retained R1 are REQUESTED. All18old-cohort snapshots and four explicitly checked noncohort baselines were unchanged; this is scoped preservation, not a whole-database claim. The completed-task native record is [preserved here](../reviews/evidence/issue-134-c01-result-readonly.json); this documentation closeout made no fresh database read.
+
+Run02 remains STOPPED/PARTIAL with original F1 replies missing. No appointment-binding/reassignment or full booking/payment/invoice/receipt/CRM/communications proof; no activation, Production/GVM action, technician acceptance or GVM Operational Acceptance. R1a remains unwired/default-off. The retained cohort must be gated/excluded before workers activate. Do not rerun C01 or start another payment.
+
+## C01 preparation observations — 2026-10-06 15:22–15:27 UTC
+
+**Historical preparation snapshot, superseded for current C01 execution status.** Native READ ONLY reconciliation then reconfirmed80retained Run02 public rows,4attempts/8events/3CADledgers totaling18000c/12PENDING obligations,sequence11/is_called=true,2synthetic Auth users,0cohort jobs/send intents/active test sessions. Full preparation-time census/digests: [read-only record](../reviews/evidence/issue-134-c01-preparation-readonly.json). No financial call, Auth operation or runtime/schema/permission change occurred in that preparation step. Original Run02 observation below remains historical evidence. No Production observation.
+
+## HV134 RUN02 — 2026-10-06 14:36 UTC / 10:36 Toronto
+
+Approved run reached synthetic financial writes and stopped on concurrency witness failure. Native read-only checks at14:38–14:47 UTC: 2synthetic Auth users/identities; 2normal Businesses; 53parent rows +27financial rows=80public. Four attempts(3accepted/1requested),8events,3linked CAD manual ledgers totalling18000c,12PENDING obligations; sequence11/is_called=true. N1 not admitted. No active HV134 transaction, no tenant communication/document/mirror rows. Four existing noncohort baseline digests and all global communication count/latest diagnostics match preflight. Applied migrations unchanged. No Production observation or change.
+
+Source/evidence review independently adjudicated by Claude as partial record only; exact original worker response pair missing. Do not restart v2, delete financial evidence or accidentally activate workers over this cohort. No follow-on package ready; authoring dispatch blocked, not bypassed. [Report and retained identities](../reviews/issue-134-hv134-run02-stop.md).
+
+
+## HV134 run01 — 2026-10-06 02:26 UTC / 2026-10-05 22:26 Toronto
+
+Refreshed scoped token accepted: exact package/role probe passed, followed by database preflight HTTP400 / STOP_ZERO_WRITES. Original log confirms restricted `supabase_read_only_user` lacked `tenant_identity_key` EXECUTE. No Auth/fixture/payment operation occurred; native read-only counts show no synthetic accounts/Businesses or attempt/ledger adoption. No runtime/schema/ACL or Production change. Earlier saved-token401 is historical and does not describe this newly accepted token. The original stopped run/evidence remains preserved; v2 is prepared only and has not run. [Exact evidence and new gate](../reviews/issue-134-hv134-preflight-stop.md).
+
+A separate read-only native audit verified 52 individual table privileges plus needed authenticated appointment update/SET capability; missing=[]; no grants changed. Another pure-helper diagnostic confirmed SQL transaction READ ONLY and existing helper access, not a v2 HTTP/financial run. The P134 schema application below remains the accepted baseline. No GVM Operational Acceptance follows.
+
+## HV134 planning observations — 2026-10-05 (read-only; no financial test)
+
+The source/hash/adoption continuation remains P134-R1A-STAGING below. Native read-only metadata during plan preparation reconfirmed both accepted migration identities and zero attempts/events/obligations/linked-ledger rows. Actual `service_role` SELECT and UPDATE (including `appointments.customer_id`) exist; this corrects the earlier missing-lock-privilege inference, not the still-open binding race. No privileges or functions were changed.
+
+Execution access is separate: the native connector reads work; a read-only request with the saved local Management token returned HTTP401, while direct DB TCP had no route before any credential/SQL was sent. The reviewed validation package therefore uses fixed Staging Management HTTPS and requires a securely refreshed credential plus zero-write capability checks before fixture creation. No financial RPC/Auth creation/provider call was made. See [the exact execution gate](../reviews/issue-134-hosted-validation-plan.md). These observations do not update or re-probe Production serving identity.
+
+## P134-R1A-STAGING — 2026-10-05 13:04:46 Toronto / 17:04:46 UTC
+
+PO-approved exact application on Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native apply called once. [Execution](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [Claude S-A and qualifications](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).
+
+| Observation | Verified result |
+| --- | --- |
+| Applied source | `20261005154345_issue_134_r1a_manual_payment_kernel.sql`, from `c24a2a3b5120da5b3802c815c4bda102be416cbd`; reviewed code `888bac0` unchanged |
+| Hosted history | `20261005170446 / issue_134_r1a_manual_payment_kernel` |
+| Stored SQL | 1 statement / 16,151 bytes / SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`, exact match |
+| Installed objects | Exactly the 2 approved invoker functions, expected signatures/results and source-matching bodies; fixed `pg_catalog, pg_temp` search path |
+| Function EXECUTE | owner/service_role only; PUBLIC/anon/authenticated denied |
+| Installation transaction | Both function catalogue rows + history row observed at xmin `4584` |
+| Actual prerequisites | Required service-role table/column/schema privileges present; no widening or missing column/collision |
+| Preservation | 12 table counts/digests unchanged; 11 old history rows unchanged; 3,319 public-schema catalogue entries and 267 old functions unchanged |
+| Adoption | Attempts 0 / events 0 / obligations 0 / linked ledger 0 |
+| Existing sequence | ACL unchanged; service_role USAGE/SELECT true, UPDATE false; last_value NULL; no sequence calls |
+| Independent review | Claude S-A; own source checks plus supplied ChatGPT live results, not reviewer hosted execution |
+| Application wiring | Unchanged, unwired/default-off; no flag/config/deployment action |
+| Production/GVM | Not contacted or changed |
+
+Foundation record below remains accepted and was not reapplied. Version mapping is explicit: never rename/edit/reapply or repair history to equalize timestamp labels. Applied file header retains immutable authoring-time status. Catalogue privilege checks are not hosted DML/PostgREST proof. #153/SEQ-ACL-1 and binding race remain open; test rollback/retention plan precedes any future hosted fixture authorization. No operational acceptance follows.
+
+## P134-STAGING — 2026-10-04 23:21 Toronto / 2026-10-05 03:21 UTC
+
+**Observed data plane:** Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native migration tool applied exactly one PO-approved SQL payload. This is schema-only Staging evidence, not Production or runtime-writer acceptance. [Full execution record](https://github.com/renovisionai2-cloud/chasum/pull/155#issuecomment-5987566406).
+
+| Observation | Result |
+| --- | --- |
+| Reviewed source head / tree | `fc83ae4b14d3a806be942a82afb4e9ffefb44241` / `5cb58423d3a6ce0af8ff5e5c70cb7168e92513eb` |
+| Source migration | `20261004190341_issue_134_payment_attempt_foundation.sql` |
+| Hosted history identity | `20261005032107 / issue_134_payment_attempt_foundation` |
+| Stored statement identity | One statement, 15,667 bytes, SHA-256 `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47` — exact match |
+| Atomic application evidence | 66 checked catalogue/history entries share xmin `4575` |
+| Catalogue checks | 54 constraints validated; 17 indexes valid/ready; 3 source-matching invoker functions; 4 enabled triggers; expected tenant FKs/generated columns |
+| New tables | RLS enabled; no browser-role policies; zero PUBLIC/anon/authenticated table/column-write privileges; bounded service_role privileges |
+| New adoption counts | Attempts 0; Events 0; Reconciliation 0; Linked ledger 0 |
+| Preserved data | Businesses 4; Customers 3; Appointments 11; Gift cards 0; Transactions 2; Invoices 1; Customer payment events 2 — all pre/post digests unchanged |
+| Existing history | Prior 10 rows/digest unchanged; total now 11 |
+| Timeouts | Fresh verification session lock 0 / statement 2min; no claim of inspecting reused apply session |
+| Sequence least privilege | SEQ-ACL-1: existing postgres/public defaults grant anon/authenticated sequence USAGE+SELECT, no UPDATE; no sequence call/exploit test; tracked in #153, not corrected |
+| Independent review | **COMPLETE — Claude S-A: exact Staging schema application ACCEPTED with bounded SEQ-ACL-1 follow-up in #153; no immediate corrective DDL gate.** Claude independently inspected source/identity and reviewed supplied live SQL evidence; Claude did not query Staging or reproduce hosted writes. Session `e4424f59-4662-4eca-8294-0fad6fab508f`. |
+| Production / GVM | No connection, mutation or release performed in this task; prior #131 accepted serving record below is historical, not re-probed |
+
+The repository timestamp and hosted timestamp are intentionally mapped; do not repair/rename/reapply this migration merely to equalize them. Its PREPARED ONLY source-header comment records authoring-time status and must remain byte-identical. Security advisor findings on the new tables are INFO RLS-enabled/no-policy, consistent with server-only design; other warnings concern existing objects. No whole-project security PASS is claimed. No runtime/provider activation, #153 closure, #133 completion, PR merge, Production acceptance or GVM Operational Acceptance follows.
 
 ## 2026-10-03 first governed real Production release proof
 

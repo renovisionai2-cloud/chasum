@@ -141,3 +141,6 @@ it("preserves weak dedupe session-key matching without suppressing a different k
   expect(mocks.record).toHaveBeenCalledOnce();
   expect(result.payment?.transactionId).toBe("tx-committed");
 });
+
+// Financial dashboard reads are separate from the writer/Location contract under test.
+vi.mock("@/lib/commerce/financial-aggregate", () => ({ readFinancialAggregate: vi.fn(), singleFinancialAmount: vi.fn() }));

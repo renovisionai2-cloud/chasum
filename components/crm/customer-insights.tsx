@@ -1,3 +1,4 @@
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
 import { StatCard } from "@/components/ui/stat-card";
 import type { CrmInsights } from "@/lib/crm/types";
 import { format } from "date-fns";
@@ -17,13 +18,13 @@ export function CustomerInsightsPanel({ insights }: { insights: CrmInsights }) {
         <StatCard
           title="Lifetime visits"
           value={String(insights.completedAppointments)}
-          description={`Avg booking $${insights.averageSpend.toFixed(0)}`}
+          description={`Avg booking ${financialAmountText(insights.averageSpend)}`}
           icon={CalendarCheck2}
           accent="primary"
         />
         <StatCard
-          title="Lifetime revenue"
-          value={`$${insights.lifetimeRevenue.toFixed(0)}`}
+          title="Lifetime spend"
+          value={`${financialAmountText(insights.lifetimeRevenue)}`}
           description={`${insights.upcomingCount} upcoming`}
           icon={CircleDollarSign}
           accent="success"

@@ -1,4 +1,6 @@
 "use client";
+import { financialAmountText, type FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
+
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,7 +59,7 @@ type TabKey =
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: "executive", label: "Executive" },
-  { key: "revenue", label: "Revenue" },
+  { key: "revenue", label: "Completed service value" },
   { key: "appointments", label: "Appointments" },
   { key: "customers", label: "Customers" },
   { key: "employees", label: "Employees" },
@@ -69,7 +71,8 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "scheduled", label: "Scheduled" },
 ];
 
-function money(n: number, currency = "usd") {
+function money(n: number | FinancialAmount, currency = "usd") {
+  if (typeof n !== "number") return financialAmountText(n);
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currencyCode(currency),
@@ -77,7 +80,9 @@ function money(n: number, currency = "usd") {
   }).format(n);
 }
 
-function moneyExact(cents: number, currency = "usd") {
+function moneyExact(cents: number | FinancialAmount | null, currency = "usd") {
+  if (cents === null) return "Not configured";
+  if (typeof cents !== "number") return financialAmountText(cents);
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currencyCode(currency),
@@ -147,8 +152,8 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
   const [exporting, startExport] = useTransition();
   const [deleting, startDelete] = useTransition();
   const currency = bundle.currency ?? "usd";
-  const $ = (n: number) => money(n, currency);
-  const $c = (cents: number) => moneyExact(cents, currency);
+  const $ = (n: number | FinancialAmount) => money(n, currency);
+  const $c = (cents: number | FinancialAmount | null) => moneyExact(cents, currency);
 
   const [schedState, schedAction, schedPending] = useActionState(
     upsertReportSchedule,
@@ -206,30 +211,31 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
         ))}
       </div>
 
+      <p className="text-sm text-muted-foreground">{bundle.financialScope} Completed service value is operational, not collected money or accounting revenue.</p>
       {tab === "executive" ? (
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <StatCard
-              title="Revenue today"
+              title="Collected today"
               value={$(e.revenueToday)}
               icon={Wallet}
               accent="success"
               href="/dashboard/calendar"
             />
             <StatCard
-              title="Revenue this week"
+              title="Collected this week"
               value={$(e.revenueWeek)}
               icon={BarChart3}
               accent="primary"
             />
             <StatCard
-              title="Revenue this month"
+              title="Collected this month"
               value={$(e.revenueMonth)}
               icon={BarChart3}
               accent="spark"
             />
             <StatCard
-              title="Revenue this year"
+              title="Collected this year"
               value={$(e.revenueYear)}
               icon={Wallet}
               accent="primary"
@@ -273,13 +279,13 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               accent="warning"
             />
             <StatCard
-              title="Membership revenue"
+              title="Membership collection (unverified)"
               value={$c(e.membershipRevenueCents)}
               icon={Package}
               description="Active plans"
             />
             <StatCard
-              title="Gift card revenue"
+              title="Gift card collection (unverified)"
               value={$c(e.giftCardRevenueCents)}
               icon={Gift}
               description="Redeemed value"
@@ -296,13 +302,13 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
         <div className="grid gap-6 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Daily revenue (14 days)</CardTitle>
+              <CardTitle>Completed service value (14 days, operational)</CardTitle>
             </CardHeader>
             <CardContent>
               {bundle.revenue.daily.length === 0 ? (
                 <EmptyState
                   variant="panel"
-                  title="No revenue yet"
+                  title="No completed service value"
                   description="Completed appointments will appear here."
                 />
               ) : (
@@ -477,10 +483,10 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               format="plain"
              currency={currency} />
             <MetricList
-              title="Top customers"
+              title="Frequent customers (completed visits)"
               items={bundle.customers.topCustomers}
-              empty="No customer spend yet."
-              format="money"
+              empty="No completed visits yet."
+              format="number"
              currency={currency} />
             <MetricList
               title="Inactive customers"
@@ -501,14 +507,14 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
               <EmptyState
                 variant="panel"
                 title="No employees"
-                description="Add team members to see revenue and productivity."
+                description="Add team members to see completed service value and productivity."
               />
             ) : (
               <Table className="min-w-[640px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead>Employee</TableHead>
-                    <TableHead>Revenue</TableHead>
+                    <TableHead>Completed service value</TableHead>
                     <TableHead>Completed</TableHead>
                     <TableHead>Avg time</TableHead>
                     <TableHead>Commission</TableHead>
@@ -579,7 +585,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
              currency={currency} />
             <Card>
               <CardHeader>
-                <CardTitle>Revenue by service</CardTitle>
+                <CardTitle>Completed service value by service</CardTitle>
               </CardHeader>
               <CardContent>
                 <BarChart data={bundle.services.revenueByService} />
@@ -614,7 +620,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Location</TableHead>
-                    <TableHead>Revenue</TableHead>
+                    <TableHead>Collected — current Location attribution</TableHead>
                     <TableHead>Appointments</TableHead>
                     <TableHead>Customers</TableHead>
                     <TableHead>Employees</TableHead>
@@ -647,7 +653,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                         {row.occupancyPct}%
                       </TableCell>
                       <TableCell className="tabular-nums">
-                        {row.growthPct}%
+                        Unknown — unverified
                       </TableCell>
                     </TableRow>
                   ))}
@@ -854,7 +860,7 @@ export function ReportsHub({ bundle }: { bundle: ReportsBundle }) {
                 <Input name="name" placeholder="Schedule name" required />
                 <Select name="report_type" defaultValue="executive">
                   <option value="executive">Executive</option>
-                  <option value="revenue">Revenue</option>
+                  <option value="revenue">Completed service value</option>
                   <option value="appointments">Appointments</option>
                   <option value="customers">Customers</option>
                   <option value="employees">Employees</option>

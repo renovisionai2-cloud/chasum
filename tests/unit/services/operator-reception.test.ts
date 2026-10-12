@@ -1,6 +1,8 @@
+// @vitest-environment node
 import { beforeEach, expect, it, vi } from "vitest";
 import { getReceptionBrief, getNextAvailableSlot } from "@/lib/actions/reception";
 const mock = vi.hoisted(() => ({ catalog: vi.fn(), from: vi.fn(), slots: vi.fn() }));
+vi.mock("server-only", () => ({}));
 vi.mock("@/lib/actions/services", () => ({ getOperatorServiceCatalog: mock.catalog }));
 vi.mock("@/lib/actions/business", () => ({ getOrCreateBusiness: async () => ({ id: "tenant" }) }));
 vi.mock("@/lib/actions/location", () => ({ getActiveLocationId: async () => "secondary" }));

@@ -1,4 +1,6 @@
 "use server";
+import { readFinancialAggregate, singleFinancialAmount } from "@/lib/commerce/financial-aggregate";
+import type { FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 
 import { getOperatorServiceCatalog } from "@/lib/actions/services";
 import { filterServicesOfferedAtLocation } from "@/lib/services/operator-catalog";
@@ -11,7 +13,7 @@ import { format, addDays } from "date-fns";
 
 export type ReceptionBrief = {
   todayAppointments: number;
-  todayRevenue: number;
+  todayRevenue: FinancialAmount;
   customersToday: number;
   openTimeSlots: number;
   pendingConfirmations: number;
@@ -75,15 +77,7 @@ export async function getReceptionBrief(): Promise<ReceptionBrief> {
     rows.map((a) => a.customer_id).filter(Boolean),
   ).size;
 
-  const todayRevenue = rows
-    .filter((a) => a.status === "completed")
-    .reduce((sum, a) => {
-      const service = a.service as { price?: number } | { price?: number }[] | null;
-      const price = Array.isArray(service)
-        ? service[0]?.price
-        : service?.price;
-      return sum + Number(price ?? 0);
-    }, 0);
+  const todayRevenue = singleFinancialAmount(await readFinancialAggregate({ period: "today", locationId }));
 
   let openTimeSlots = 0;
   const serviceList = filterServicesOfferedAtLocation(catalog, locationId)

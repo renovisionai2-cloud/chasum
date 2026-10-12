@@ -1,12 +1,4 @@
-/**
- * Single source of truth for appointment revenue recognition.
- * Dashboards, reports, CRM, employees, and AI snapshots must use this.
- *
- * Rule: count revenue when the visit is completed OR money was collected.
- * Collected money is stamped onto appointments from `commerce_transactions`
- * (amount_paid_cents / payment_status) — never invent parallel formulas.
- * Cancelled / no-show visits never recognize revenue.
- */
+/** Operational completed service value (E1-B). Never collected money, accounting revenue or commission. Legacy export names remain for read-side compatibility. */
 
 export type RecognizableAppointment = {
   status?: string | null;
@@ -17,11 +9,6 @@ export type RecognizableAppointment = {
   service?: { price?: number | null } | null;
 };
 
-const PAID_STATUSES = new Set([
-  "deposit_paid",
-  "partially_paid",
-  "fully_paid",
-]);
 
 export function isCancelledOrNoShow(
   status: string | null | undefined,
@@ -42,46 +29,17 @@ export function appointmentPriceCents(row: RecognizableAppointment): number {
   return Number.isFinite(dollars) ? Math.round(dollars * 100) : 0;
 }
 
+/** Derived appointment cache only; configured requirements are not paid money. */
 export function appointmentPaidCents(row: RecognizableAppointment): number {
   const paid = Number(row.amount_paid_cents ?? 0);
   if (paid > 0) return Math.round(paid);
-  const deposit = Number(row.deposit_cents ?? 0);
-  return deposit > 0 ? Math.round(deposit) : 0;
+  return 0;
 }
 
-/**
- * Whether this appointment should contribute to recognized revenue.
- */
-export function recognizesAppointmentRevenue(
-  row: RecognizableAppointment,
-): boolean {
-  if (isCancelledOrNoShow(row.status)) return false;
-  if (row.status === "completed") return true;
-  if (appointmentPaidCents(row) > 0) return true;
-  return PAID_STATUSES.has(String(row.payment_status ?? ""));
+/** Operational completed service value only, never collected money or commission. */
+export function recognizesAppointmentRevenue(appt: RecognizableAppointment): boolean { return appt.status === "completed"; }
+export function appointmentRecognizedCents(appt: RecognizableAppointment): number {
+  return recognizesAppointmentRevenue(appt) ? appointmentPriceCents(appt) : 0;
 }
-
-/**
- * Recognized revenue in cents for one appointment.
- * Prefer amount collected when present; otherwise full price for completed/paid-status rows.
- */
-export function appointmentRecognizedCents(
-  row: RecognizableAppointment,
-): number {
-  if (!recognizesAppointmentRevenue(row)) return 0;
-  const paid = appointmentPaidCents(row);
-  if (paid > 0) return paid;
-  return appointmentPriceCents(row);
-}
-
-export function sumRecognizedRevenueCents(
-  rows: RecognizableAppointment[],
-): number {
-  return rows.reduce((sum, row) => sum + appointmentRecognizedCents(row), 0);
-}
-
-export function sumRecognizedRevenueDollars(
-  rows: RecognizableAppointment[],
-): number {
-  return sumRecognizedRevenueCents(rows) / 100;
-}
+export function sumRecognizedRevenueCents(appts: RecognizableAppointment[]): number { return appts.reduce((sum, appt) => sum + appointmentRecognizedCents(appt), 0); }
+export function sumRecognizedRevenueDollars(appts: RecognizableAppointment[]): number { return sumRecognizedRevenueCents(appts) / 100; }

@@ -22,9 +22,9 @@ export function EmployeePerformanceDashboard({
         accent="success"
       />
       <StatCard
-        title="Lifetime revenue"
-        value={`$${performance.lifetimeRevenue.toFixed(0)}`}
-        description="From completed services"
+        title="Completed service value"
+        value={`$${performance.completedServiceValue.toFixed(0)}`}
+        description="Operational value, not collected money or commission"
         icon={CircleDollarSign}
         accent="primary"
       />

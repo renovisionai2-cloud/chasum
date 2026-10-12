@@ -1,3 +1,4 @@
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
 import { StatCard } from "@/components/ui/stat-card";
 import type { ReceptionBrief } from "@/lib/actions/reception";
 import {
@@ -19,9 +20,9 @@ export function BusinessBrief({ brief }: { brief: ReceptionBrief }) {
         accent="primary"
       />
       <StatCard
-        title="Today's revenue"
-        value={`$${brief.todayRevenue.toFixed(0)}`}
-        description="Completed today"
+        title="Today's collected"
+        value={financialAmountText(brief.todayRevenue)}
+        description="Current appointment Location attribution; not immutable collection location"
         icon={DollarSign}
         accent="success"
       />

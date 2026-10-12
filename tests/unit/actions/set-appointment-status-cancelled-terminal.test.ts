@@ -21,6 +21,7 @@ let existingRow: Record<string, unknown> | null = {
   status: "cancelled",
 };
 
+vi.mock("server-only", () => ({}));
 vi.mock("@/lib/actions/business", () => ({
   getOrCreateBusiness: (...args: unknown[]) => getOrCreateBusiness(...args),
 }));

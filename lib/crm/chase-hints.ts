@@ -17,9 +17,6 @@ export function chaseHintsFromInsights(insights: CrmInsights): string[] {
   if (insights.noShowRate >= 20) {
     hints.push(`Elevated no-show rate (${insights.noShowRate}%).`);
   }
-  if (insights.lifetimeRevenue >= 500) {
-    hints.push("High-value customer — protect preferred slots.");
-  }
   if (insights.completedAppointments >= 3 && insights.upcomingCount === 0) {
     hints.push(
       "Repeat guest without a next booking — good follow-up candidate.",

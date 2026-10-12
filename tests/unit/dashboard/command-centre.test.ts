@@ -49,10 +49,10 @@ const setupStep: SetupStep = {
 const moneyReady = presentCommerceMoney({
   schemaReady: true,
   schemaMessage: null,
-  collectedTodayCents: 0,
-  outstandingInvoicesCents: 0,
+  collectedTodayCents: { state: "EXACT", cents: 0, currency: "cad" },
+  outstandingInvoicesCents: { state: "EXACT", cents: 0, currency: "cad" },
   outstandingInvoicesCount: 0,
-  outstandingDepositsCents: 0,
+  outstandingDepositsCents: { state: "EXACT", cents: 0, currency: "cad" },
   outstandingDepositsCount: 0,
 });
 
@@ -191,10 +191,10 @@ describe("Command Centre attention", () => {
       money: presentCommerceMoney({
         schemaReady: false,
         schemaMessage: "Payments aren't fully set up yet.",
-        collectedTodayCents: 9999,
-        outstandingInvoicesCents: 5000,
+        collectedTodayCents: { state: "EXACT", cents: 9999, currency: "cad" },
+        outstandingInvoicesCents: { state: "EXACT", cents: 5000, currency: "cad" },
         outstandingInvoicesCount: 2,
-        outstandingDepositsCents: 1200,
+        outstandingDepositsCents: { state: "EXACT", cents: 1200, currency: "cad" },
         outstandingDepositsCount: 1,
       }),
       setupComplete: true,
@@ -209,10 +209,10 @@ describe("Command Centre money presentation", () => {
     const view = presentCommerceMoney({
       schemaReady: false,
       schemaMessage: "Payments aren't fully set up yet.",
-      collectedTodayCents: 4200,
-      outstandingInvoicesCents: 800,
+      collectedTodayCents: { state: "EXACT", cents: 4200, currency: "cad" },
+      outstandingInvoicesCents: { state: "EXACT", cents: 800, currency: "cad" },
       outstandingInvoicesCount: 1,
-      outstandingDepositsCents: 200,
+      outstandingDepositsCents: { state: "EXACT", cents: 200, currency: "cad" },
       outstandingDepositsCount: 1,
     });
     expect(view).toEqual({
@@ -225,17 +225,17 @@ describe("Command Centre money presentation", () => {
     const view = presentCommerceMoney({
       schemaReady: true,
       schemaMessage: null,
-      collectedTodayCents: 12500,
-      outstandingInvoicesCents: 4000,
+      collectedTodayCents: { state: "EXACT", cents: 12500, currency: "cad" },
+      outstandingInvoicesCents: { state: "EXACT", cents: 4000, currency: "cad" },
       outstandingInvoicesCount: 2,
-      outstandingDepositsCents: 1500,
+      outstandingDepositsCents: { state: "EXACT", cents: 1500, currency: "cad" },
       outstandingDepositsCount: 1,
     });
     expect(view.available).toBe(true);
     if (!view.available) return;
-    expect(view.collectedTodayCents).toBe(12500);
-    expect(view.outstandingInvoicesCents).toBe(4000);
-    expect(view.outstandingDepositsCents).toBe(1500);
+    expect(view.collectedTodayCents).toEqual({ state: "EXACT", cents: 12500, currency: "cad" });
+    expect(view.outstandingInvoicesCents).toEqual({ state: "EXACT", cents: 4000, currency: "cad" });
+    expect(view.outstandingDepositsCents).toEqual({ state: "EXACT", cents: 1500, currency: "cad" });
   });
 });
 
