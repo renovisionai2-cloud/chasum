@@ -9,6 +9,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-12 — PR #159 main integration and historical stack closeout; no Production release
+
+- Recorded the Product Owner-approved single squash integration of PR #159 at `0bebe243e8fea17937171d74fd024c42ef9fe431` (`2026-10-12T17:06:06Z`). Tree `b01778c1ef31b9babd353279a563f0ebe2cce92c` exactly matches approved historical head `f8d1242bf1cb993c4d53d45a6882b38106c21016`; sole parent `31115e6a51b71fc097c279d205065d80e0be3573`. Slice 2A accepted/integrated into main, not Production accepted.
+- Post-merge Quality run `38281971675` passed: 200 test files / 2,180 tests; 1 file / 36 tests skipped; zero failures. Pre-merge test compatibility correction changed four suites only; exact Preview/GitHub Vercel recovery passed before integration.
+- Fresh canonical Production build-info and alias lookup still identify #131 `664fbc734c4103d78484c6b3828849a6605a562f` / `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`. Main and Production remain separately governed and now differ in application behavior.
+- Closed historical Draft PRs #155/#156/#157 **unmerged** under separate Product Owner closeout approval, after proving ancestry to the approved integration head, no unique commits, unchanged non-status-file content and squash-tree equality. Branches and evidence preserved; #133/#134/#158 remain OPEN.
+- Restamped only the current board, handoff, environment manifest and changelog. Preserved five separately Staging-applied migration identities, retained-fixture restrictions, #153 REQUIRED_BEFORE_PRODUCTION, the 1,000-root LAUNCH_SAFE_KNOWN_LIMITATION and responsive/operator/communications/audit/GVM acceptance gates. No Slice 2B operator writer cutover, technician-deposit resumption, deployment, migration or database change. October 11 manual-dispatch policy remains unchanged.
+
 ### 2026-10-11 — #133 Slice 2A accepted validation; merge preparation only
 
 - Prepared canonical `commerce_transactions` collected-money EXACT / HELD / UNKNOWN truth across Reports, Commerce, Command Centre, Reception, CRM, Chase and Summer, with refund contradiction witnesses, operator recovery visibility and E1-B Completed service value. No commission engine or Slice 2B writer cutover.

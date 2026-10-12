@@ -1,8 +1,20 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-11 America/Toronto, recording accepted Slice 2A retained Staging evidence; older C03 evidence remains dated 2026-10-10 UTC. Prior Production serving evidence remains dated 2026-10-03 / PR131; no new Production observation.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-12 America/Toronto, fresh canonical Production build-info/alias and GitHub integration checks only. Staging records remain dated accepted evidence; no database query or mutation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## October 12 post-merge identity reconciliation
+
+Fresh direct read of [canonical Production build-info](https://chasum.vercel.app/api/build-info) returned `commit=664fbc734c4103d78484c6b3828849a6605a562f`, `commitShort=664fbc7`, `ref=main`, `env=production`, `production=true`. A separate Vercel lookup of canonical hostname `chasum.vercel.app` resolved to `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`, READY/production, matching Git metadata and the expected project. Serving identity is proven by the endpoint, not inferred from main or READY alone. No health, Auth, tenant, financial, provider or database operation was performed.
+
+Fresh GitHub main is `0bebe243e8fea17937171d74fd024c42ef9fe431`, tree `b01778c1ef31b9babd353279a563f0ebe2cce92c`, sole parent `31115e6a51b71fc097c279d205065d80e0be3573`. PR #159 squash-merged `2026-10-12T17:06:06Z`; its approved historical head `f8d1242bf1cb993c4d53d45a6882b38106c21016` has the identical tree. [Main Quality 38281971675](https://github.com/renovisionai2-cloud/chasum/actions/runs/38281971675) is SUCCESS. **Main/Production divergence is intentional and no longer behavior-equivalent**: the integrated financial work has not been released to Production.
+
+The October 12 recovery Preview `dpl_HQWg92uVfZpCXwCGWraZBvBcRjed` reached READY for `f8d1242`, target=null; its later genuine GitHub Vercel status was SUCCESS before merge. This is build/check evidence, not a new hosted financial/UI proof. No deployment was manually created or promoted by this closeout.
+
+Historical PRs #155/#156/#157 are closed unmerged with branches/evidence retained, following ancestry-to-approved-head plus squash-tree containment proof. Issue #133 remains open; Slice 2B is not authorized. #153 trusted-reader interface remains REQUIRED_BEFORE_PRODUCTION. Five dependency migrations and all retained Staging fixtures remain protected; no reapplication or history repair. Production release, responsive/operator/communications and applicable independent audit/GVM acceptance remain separately gated. October 11 manual specialist-dispatch governance is unchanged.
+
+The dated observation sections below retain their original scope. Their old “current/main/no new observation” statements are historical, superseded for present identity by this section only; they do not authorize new financial execution.
 
 ## #133 Slice 2A — accepted retained Staging validation, 2026-10-11
 
@@ -10,7 +22,7 @@ This records the completed evidence at validation commit `1028e5dd6b9f32eb98d150
 
 A1 EXACT CAD5000; A2–A4 HELD; hosted cross-Business refund witness, native response privacy, required SELECT/BYPASSRLS behavior and all six FK hints passed. Temporary 1,002-transaction SCALE proof: month EXACT100 cents, year UNKNOWN / INCOMPLETE_FINANCIAL_EVIDENCE with no partial subtotal. All temporary SCALE transactions/customer/Business/Auth owner/identity were removed. Retained A/B 36 public rows plus two Auth users/two identities were equal before/after; financial digest `9209f8437a6ca74f8635fce41387885c66002a1142c6bd17e2f938cdbd356f4a`.
 
-**DO_NOT_REUSE / DO_NOT_MUTATE_FINANCIAL_HISTORY / DO_NOT_DELETE_WITHOUT_PRODUCT_OWNER_GATE.** [Retained scope and identities](../validation/issue-133-slice2a-staging/RETAINED_FIXTURE.md); [result and limits](../validation/issue-133-slice2a-staging/RESULT.md); [machine evidence](../validation/issue-133-slice2a-staging/evidence.json). No current serving deployment, browser/UI or Production/GVM acceptance is inferred. No hosted contact occurs in this merge-preparation closeout. #153 visibility/FK/count dependencies remain REQUIRED_BEFORE_PRODUCTION; no permission or worker/provider activation is authorized.
+**DO_NOT_REUSE / DO_NOT_MUTATE_FINANCIAL_HISTORY / DO_NOT_DELETE_WITHOUT_PRODUCT_OWNER_GATE.** [Retained scope and identities](../validation/issue-133-slice2a-staging/RETAINED_FIXTURE.md); [result and limits](../validation/issue-133-slice2a-staging/RESULT.md); [machine evidence](../validation/issue-133-slice2a-staging/evidence.json). No current serving deployment, browser/UI or Production/GVM acceptance is inferred. No Staging database or financial contact occurred in the October 12 documentation closeout; only Production serving identity was freshly read. #153 visibility/FK/count dependencies remain REQUIRED_BEFORE_PRODUCTION; no permission or worker/provider activation is authorized.
 
 ## #133/#158 C03 — accepted connected Staging observation
 
@@ -266,15 +278,15 @@ This record supersedes historical “current/latest” release values for presen
 
 | Field | Expected / last observed | Classification | Evidence |
 | --- | --- | --- | --- |
-| Application URL | Fresh 2026-10-03 alias read: `https://chasum.vercel.app` maps to governed #131 deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` in Chasum project `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`. | MATCH | P131-PROD |
-| Serving Git SHA | Fresh 2026-10-03 direct Production build-info: `664fbc734c4103d78484c6b3828849a6605a562f`, `commitShort=664fbc7`, `ref=main`, `env=production`, `production=true`. | MATCH | P131-PROD |
+| Application URL | Fresh 2026-10-12 alias read: `https://chasum.vercel.app` maps to governed #131 deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` in Chasum project `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`. | MATCH | October 12 reconciliation above / P131-PROD |
+| Serving Git SHA | Fresh 2026-10-12 direct Production build-info: `664fbc734c4103d78484c6b3828849a6605a562f`, `commitShort=664fbc7`, `ref=main`, `env=production`, `production=true`. | MATCH | October 12 reconciliation above / P131-PROD |
 | Branch/ref; environment | `main`; `production`; `production=true`. | MATCH | P131-PROD |
 | Vercel deployment ID | `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` | MATCH | P131-PROD |
 | Deployment URL | `https://chasum-be6vrhrc4-renovisionappcom.vercel.app` | MATCH | P131-PROD |
 | Active aliases | Fresh 2026-10-03 read confirms canonical `chasum.vercel.app` maps to `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`; previously attached `chasumai.com` also points to the same deployment. This does not reverse Issue #57: DNS/Auth/app-URL branded-domain activation remains DEFERRED. | MATCH for observed Vercel aliases | P131-PROD |
 | Deployment readiness | Canonical deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` is `READY`, target `production`, Git metadata SHA `664fbc…`, ref `main`, governedReleaseRun `37128562995`. | MATCH | P131-PROD |
 | Accepted application baseline vs serving | Latest accepted behavior-changing release is #131 `664fbc…`, and canonical Production serves that exact SHA. | MATCH | P131-PROD |
-| Production SHA vs canonical main | At 2026-10-03 reconciliation Production is exact approved #131 `664fbc…` while Git main is later `120ea6c…`. Divergence is intentional release governance; runtime/application trees are byte-identical and the later commits are release-control/candidate metadata. | INTENTIONAL DIFFERENCE / behavior-equivalent | P131-PROD |
+| Production SHA vs canonical main | 2026-10-12: Production remains #131 `664fbc…`; main is Slice 2A integration `0bebe243e8fea17937171d74fd024c42ef9fe431`. Main contains unreleased application changes; no Production approval follows. | INTENTIONAL DIFFERENCE / NOT behavior-equivalent | October 12 reconciliation above |
 | Supabase project ref | Production project `kxcydvhswkuzepwzzinq` directly verified during Stage 1B release, and re-confirmed 2026-09-26 as the sole Supabase endpoint in the served Production public bundle. | MATCH | P87-PROD / GVM-DATA-2026-09-26 |
 | Migration summary / applied hashes | B1 `20260923185926`; Staff quota `20260923190213`; B2 `20260923190501`; C1 `20260923232629`; C3 cutover `20260925140328`. #131 carried no migration/schema change. | MATCH | P131-PROD read-only ledger |
 | Locked/unapplied migrations | 034/035/036 remain absent/unapplied after C1 Production acceptance. | MATCH | P97-PROD |
