@@ -1,5 +1,11 @@
 # Chasum Changelog
 
+## 2026-10-13 — D1 Claude K1–K3 corrections; focused re-audit pending
+
+- Corrected the same Draft PR #162 against supplied `D1_CONTRACT_CORRECTIONS_REQUIRED`; adopted optional K4 without changing Option B or the SQL implementation allowlist.
+- Froze existing amounts across staff-price changes, required explicit effective-duration tuples, corrected Business CASCADE/customer RESTRICT and offboarding impact, and inventoried the unchanged STABLE/SECURITY DEFINER slot validator with post-lock validation prerequisites.
+- Extended future D05/D08/D11 and C02/C11 proof obligations; actual guard-versus-FK refusal must be distinguished. Four documentation files only; accepted Phase 0/contracts/migration hashes preserved. No implementation, test/proof execution, hosted contact, merge or release; independent focused re-audit remains required.
+
 ## 2026-10-13 — Slice 2B D1 technical contract freeze proposal
 
 - Prepared one A–V lifecycle SQL implementation-contract document from merged main `4c1abb2f97353cc626de6113e49f881a4cfef2e9`; accepted Phase 0 bytes and financial contracts/migrations remain unchanged.
