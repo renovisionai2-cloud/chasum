@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-12 (America/Toronto). **Updated by:** Codex post-merge closeout using fresh GitHub main/PR/checks, canonical Production build-info and Vercel alias identity; no database probe or mutation.
+**Snapshot date:** 2026-10-12 (America/Toronto). **Updated by:** Codex Slice 2B Phase 0 documentation reconciliation; fresh GitHub main/PR checks, source review only. Prior Production observations below were not re-probed.
 
 Slice 2A / PR #159 is **ACCEPTED / INTEGRATED INTO MAIN / NOT PRODUCTION ACCEPTED** at `0bebe243e8fea17937171d74fd024c42ef9fe431`. Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -28,7 +28,15 @@ No tenant-specific application logic is authorized.
 
 ## Control board
 
-### Current #133 Slice 2A — accepted and integrated into main; Production separately gated
+### Current #133 Slice 2B Phase 0 — proposed lifecycle design; implementation held
+
+Darshan selected **Option B — full operator lifecycle preservation** on October 12. The new [lifecycle readiness addendum](reviews/issue-134-slice2b-lifecycle-readiness-addendum.md) is **PROPOSED DESIGN / READY FOR INDEPENDENT LEVEL-3 DESIGN AUDIT**, not accepted implementation or applied SQL. Fresh starting main is `ee270de960e6956f9e87c980bac670f574ff21fc`, tree `82828c8786a5f4ec6b4ff0816256a10b0f78d645`; PR #159 and documentation PR #160 are merged.
+
+Source review confirms the operation-linked appointment guard blocks ordinary status/scheduling/notes edits even after settlement. The accepted create/bind/payment proofs remain valid. The addendum proposes typed tenant-authorized lifecycle writers, protected immutable money/request history, cancellation/customer fencing, a separately gated new migration, and canonical-first lost-response recovery. No protected contract/migration/evidence bytes change. Ordinary amount-changing corrections remain a distinct financial-adjustment workflow.
+
+**Next:** Darshan manually dispatches the exact documentation Draft PR candidate to Claude Opus 5 High; ChatGPT reconciles the returned review before any bounded implementation approval. No agent dispatch, application/SQL implementation, Staging/Production mutation, retained-fixture reuse, worker/provider/communication activation, GVM/HQ test or release is authorized here. Full Option B remains the launch target; a create-only milestone does not replace it. #153 and #132 remain separate release gates. Competitive checkpoint: bounded PO-locked parity recorded in the addendum; broad new research NOT_APPLICABLE.
+
+### Accepted #133 Slice 2A integration — dated October 12 closeout
 
 [PR #159](https://github.com/renovisionai2-cloud/chasum/pull/159) was **SQUASH-MERGED** under Darshan's explicit approval at `2026-10-12T17:06:06Z`. Fresh main is `0bebe243e8fea17937171d74fd024c42ef9fe431`; its single parent is `31115e6a51b71fc097c279d205065d80e0be3573`, and tree `b01778c1ef31b9babd353279a563f0ebe2cce92c` exactly equals approved historical head `f8d1242bf1cb993c4d53d45a6882b38106c21016`. The 87-commit dependency stack was integrated once; no ordered second merge is needed.
 
@@ -42,7 +50,7 @@ No tenant-specific application logic is authorized.
 - **1,000-root bound: LAUNCH_SAFE_KNOWN_LIMITATION.** Larger scopes return UNKNOWN without partial subtotals; future pagination/governed aggregation is needed before strong annual-reporting promises. Responsive/accessibility/browser/operator acceptance, communications containment/delivery, applicable independent audit/release gates and final GVM OPERATIONAL ACCEPTANCE remain open.
 - **Production / GVM NOT authorized; technician deposits HELD; Slice 2B NOT STARTED.** Five dependency migrations retain separate accepted Staging-only application records. Source/hosted timestamp differences must not trigger reapplication or history repair. No worker/provider/communications activation or new hosted financial run.
 
-Next: Darshan/ChatGPT reconcile this bounded four-document PR and historical-PR closure evidence; any next implementation, security, operational or release gate requires its own scope. Permanent October 11 manual dispatch remains binding: ChatGPT prepares/reconciles → Darshan dispatches → specialist executes → Darshan returns report → ChatGPT reconciles. See [AGENTS.md](../AGENTS.md) and [Decision Log](product/14_DECISION_LOG.md). Competitive Product Gate: **NOT_APPLICABLE**, factual documentation/Git closeout only; no new product behavior or strategy.
+Historical next-step wording from the four-document closeout is superseded by Phase 0 above; any implementation, security, operational or release gate still requires its own scope. Permanent October 11 manual dispatch remains binding: ChatGPT prepares/reconciles → Darshan dispatches → specialist executes → Darshan returns report → ChatGPT reconciles. See [AGENTS.md](../AGENTS.md) and [Decision Log](product/14_DECISION_LOG.md). Competitive Product Gate: **NOT_APPLICABLE**, factual documentation/Git closeout only; no new product behavior or strategy.
 
 ### Dependency history — dated acceptance, not current execution authority
 

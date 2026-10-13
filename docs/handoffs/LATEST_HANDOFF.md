@@ -1,10 +1,18 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-12 (America/Toronto) after PR #159 integration; fresh GitHub/check and canonical Production identity reads only, no database or financial execution.
+**Updated:** 2026-10-12 (America/Toronto), Slice 2B Phase 0 documentation-only reconciliation; fresh GitHub baseline, no new runtime/database/financial observation.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — #133 Slice 2A integrated; bounded post-merge closeout
+## Current continuation — Slice 2B Phase 0 independent design audit
+
+Darshan approved **Option B: full operator lifecycle preservation**, not implementation. Read the new [lifecycle readiness addendum](../reviews/issue-134-slice2b-lifecycle-readiness-addendum.md): **PROPOSED DESIGN**, pending independent Level-3 audit. Starting main `ee270de960e6956f9e87c980bac670f574ff21fc`, tree `82828c8786a5f4ec6b4ff0816256a10b0f78d645`; PR #159/#160 freshly verified merged. Production baseline below remains a dated observation and was not contacted again.
+
+The durable guard currently blocks ordinary linked-appointment lifecycle changes. The proposed narrow amendment separates immutable request/payment evidence from authorized status/scheduling/notes, preserves cancelled notes-only behavior and financial customer attribution, and adds canonical-first recovery. Both hash-accepted design documents, five migrations and all accepted evidence remain unchanged. A future new lifecycle migration requires separate authorization; this Draft PR contains no SQL. Amount-changing edits need their own financial-adjustment contract.
+
+Next action: Darshan manually dispatches the exact Draft PR commit/addendum hash to Claude Opus 5 High using §15's checklist. Return the audit to ChatGPT for reconciliation, then seek the bounded implementation gate. No automatic dispatch, proof rerun, application cutover, retained A/B/C03 use, worker/provider/communications activation, Production/GVM/HQ action or technician-deposit resumption. #153 security and #132 communications sequencing stay separate. This phase does not downgrade full Option B to create/recover/cancel only.
+
+## Historical October 12 closeout — Slice 2A integration accepted
 
 Darshan approved PR #159 as one integration stack, then separately authorized this four-document restamp and factual historical-PR closure. **Slice 2A main integration is accepted; Production, GVM, technician deposits and Slice 2B remain unauthorized.**
 
@@ -27,7 +35,7 @@ Historical [#155](https://github.com/renovisionai2-cloud/chasum/pull/155#issueco
 
 **Open gates:** #133/#134/#158 remain OPEN; Slice 2B operator writer cutover is NOT authorized. #153 REQUIRED_BEFORE_PRODUCTION must preserve effective BYPASSRLS/SELECT, six FK hints and exact count; jointly re-review visibility changes that could yield false EXACT. The 1,000-root cap remains LAUNCH_SAFE_KNOWN_LIMITATION. Responsive/accessibility/browser/operator workflow, communications containment/delivery, applicable independent audit/release and GVM operational acceptance remain separate. No provider/worker activation; technician deposits remain held. Main and Production contain different application behavior and are separately governed.
 
-**Next:** Darshan/ChatGPT reconcile the documentation-only PR and closure/comment evidence, then define the next bounded gate. Do not deploy, apply migrations, start Slice 2B or resume technician deposits. October 11 manual-dispatch policy remains unchanged: ChatGPT prepares/reconciles → Darshan manually dispatches → specialist executes → Darshan returns report → ChatGPT reconciles. [AGENTS.md](../../AGENTS.md) remains binding. Competitive Product Gate: NOT_APPLICABLE to factual documentation/Git closeout.
+**Historical next step (superseded by Phase 0 above):** reconcile the documentation closeout and closure evidence. Do not deploy, apply migrations, start Slice 2B or resume technician deposits. October 11 manual-dispatch policy remains unchanged: ChatGPT prepares/reconciles → Darshan manually dispatches → specialist executes → Darshan returns report → ChatGPT reconciles. [AGENTS.md](../../AGENTS.md) remains binding. Competitive Product Gate: NOT_APPLICABLE to factual documentation/Git closeout.
 
 ## Historical C03 continuation — superseded for next-task selection by Slice 2A above
 

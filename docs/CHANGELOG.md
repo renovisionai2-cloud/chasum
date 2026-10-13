@@ -9,6 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-12 — Slice 2B Phase 0 proposed lifecycle reconciliation; documentation only
+
+- Recorded Darshan's Option B full operator lifecycle direction in a new [design addendum](reviews/issue-134-slice2b-lifecycle-readiness-addendum.md), pending independent Level-3 audit. The applied durable guard's blanket operational restrictions do not invalidate its accepted create/bind/payment proofs.
+- Specified the A–T lifecycle matrix, immutable financial/request evidence versus mutable operational state, narrow typed writer/trigger/transaction proposal, original/current Location attribution, and canonical-first recovery with no replacement identity from an unfenced ABSENT read.
+- Identified a separately approved future lifecycle migration and delta proof; preserved amount adjustments, #153 and #132 as separate gates. Updated only the current board/handoff pointers; protected contracts, migration bytes, validation records and environment manifest are unchanged.
+- No application/SQL implementation, test/proof execution, hosted database/fixture activity, workers/providers/communications, deployment, merge, GVM/HQ action or Slice 2B activation. Next is Darshan-dispatched Claude design audit of the exact documentation candidate, not implementation authority.
+
 ### 2026-10-12 — PR #159 main integration and historical stack closeout; no Production release
 
 - Recorded the Product Owner-approved single squash integration of PR #159 at `0bebe243e8fea17937171d74fd024c42ef9fe431` (`2026-10-12T17:06:06Z`). Tree `b01778c1ef31b9babd353279a563f0ebe2cce92c` exactly matches approved historical head `f8d1242bf1cb993c4d53d45a6882b38106c21016`; sole parent `31115e6a51b71fc097c279d205065d80e0be3573`. Slice 2A accepted/integrated into main, not Production accepted.
