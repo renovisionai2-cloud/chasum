@@ -1,5 +1,11 @@
 # Chasum Changelog
 
+## 2026-10-13 — D1 independent acceptance and sequential local-only gate
+
+- Recorded supplied Claude `D1_CONTRACT_ACCEPTED_FOR_PO_LOCAL_SQL_GATE`, K1–K4 PASS, at accepted head `13d5c7275583457181f71fd79808463069ce939b` / tree `e98246fd32eb8980eeb458ebfb1e0e8b0f36c372`. D1 bytes/hash unchanged; previous proposed/re-audit entries remain historical.
+- PO authorizes checked documentation PR #162 squash merge, followed only after verified merged main by a new isolated one-migration lifecycle implementation and fresh disposable-local PostgreSQL17 proof. No executable migration/local proof is yet accepted; new SQL PR must remain Draft/unmerged.
+- Preserve strict-duration limitation and truthful Business-delete guard/FK evidence. No hosted access/application, Production release, GVM/HQ changes, provider/worker activation or technician-deposit resumption; #153/#132/A1/A2 remain separate.
+
 ## 2026-10-13 — D1 Claude K1–K3 corrections; focused re-audit pending
 
 - Corrected the same Draft PR #162 against supplied `D1_CONTRACT_CORRECTIONS_REQUIRED`; adopted optional K4 without changing Option B or the SQL implementation allowlist.
