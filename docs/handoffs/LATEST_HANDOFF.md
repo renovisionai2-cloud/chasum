@@ -1,10 +1,20 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-12 (America/Toronto) after PR #159 integration; fresh GitHub/check and canonical Production identity reads only, no database or financial execution.
+**Updated:** 2026-10-13 (America/Toronto), Phase 0 independent acceptance closeout; fresh GitHub baseline, no new runtime/database/financial observation.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — #133 Slice 2A integrated; bounded post-merge closeout
+## Current continuation — accepted Phase 0 closeout, then D1 documentation freeze
+
+Darshan supplied Claude Opus 5 High's exact-candidate acceptance: **LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE**. C1–C9 ALL PASS; C10 journal-as-permit SOUND / ADOPTED; all four original HIGH findings resolved at design level, with no remaining design blocker. Runtime SQL proof remains **NOT RUN**. This records the supplied independent verdict; Codex did not perform or dispatch another independent audit.
+
+Accepted candidate: `79e4d6d7af6058bdfce0abad3e32bc46b8cc043c`, tree `99ccd20e354560ee2f104569ace24bf8f87be2aa`. The accepted addendum is preserved byte-for-byte, SHA-256 `89ac66c67e85f2cb53973ce7f9e30d9f44e71b9661d0658a48d339a70a2282db`; its historical proposed/re-audit wording is superseded by this acceptance record, not silently rewritten. Recorded-money bound appointments already have payment-attempt FK ON DELETE RESTRICT protection; the remaining DELETE gap concerns certain unbound/no-payment linked appointments. The accepted design explicitly protects every operation-linked appointment.
+
+**Authority separation:** Option B product direction APPROVED; Phase 0 design ACCEPTED for D1 technical contract freeze preparation. Application/SQL implementation NOT AUTHORIZED / NOT STARTED; no migration authored or applied; Staging activation and Production NOT AUTHORIZED; GVM technician deposits HELD. No accepted proof rerun, retained-cohort mutation or worker/provider/communications activation.
+
+October 12 PO authorization, executed October 13: close out documentation PR #161 only after exact-head checks and scope verification, squash merge while preserving its branch, then prepare a NEW documentation-only D1 Draft PR from freshly verified merged main. D1 remains a proposal requiring independent Claude review and a later bounded PO implementation gate. No automatic specialist dispatch; merge is not Production release. #153 and #132 remain separate gates. Competitive research NOT_APPLICABLE to this bounded documentation closeout.
+
+## Historical October 12 closeout — Slice 2A integration accepted
 
 Darshan approved PR #159 as one integration stack, then separately authorized this four-document restamp and factual historical-PR closure. **Slice 2A main integration is accepted; Production, GVM, technician deposits and Slice 2B remain unauthorized.**
 
@@ -27,7 +37,7 @@ Historical [#155](https://github.com/renovisionai2-cloud/chasum/pull/155#issueco
 
 **Open gates:** #133/#134/#158 remain OPEN; Slice 2B operator writer cutover is NOT authorized. #153 REQUIRED_BEFORE_PRODUCTION must preserve effective BYPASSRLS/SELECT, six FK hints and exact count; jointly re-review visibility changes that could yield false EXACT. The 1,000-root cap remains LAUNCH_SAFE_KNOWN_LIMITATION. Responsive/accessibility/browser/operator workflow, communications containment/delivery, applicable independent audit/release and GVM operational acceptance remain separate. No provider/worker activation; technician deposits remain held. Main and Production contain different application behavior and are separately governed.
 
-**Next:** Darshan/ChatGPT reconcile the documentation-only PR and closure/comment evidence, then define the next bounded gate. Do not deploy, apply migrations, start Slice 2B or resume technician deposits. October 11 manual-dispatch policy remains unchanged: ChatGPT prepares/reconciles → Darshan manually dispatches → specialist executes → Darshan returns report → ChatGPT reconciles. [AGENTS.md](../../AGENTS.md) remains binding. Competitive Product Gate: NOT_APPLICABLE to factual documentation/Git closeout.
+**Historical next step (superseded by Phase 0 above):** reconcile the documentation closeout and closure evidence. Do not deploy, apply migrations, start Slice 2B or resume technician deposits. October 11 manual-dispatch policy remains unchanged: ChatGPT prepares/reconciles → Darshan manually dispatches → specialist executes → Darshan returns report → ChatGPT reconciles. [AGENTS.md](../../AGENTS.md) remains binding. Competitive Product Gate: NOT_APPLICABLE to factual documentation/Git closeout.
 
 ## Historical C03 continuation — superseded for next-task selection by Slice 2A above
 

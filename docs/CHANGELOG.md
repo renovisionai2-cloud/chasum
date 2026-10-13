@@ -1,5 +1,12 @@
 # Chasum Changelog
 
+## 2026-10-13 — Phase 0 Level-3 acceptance closeout (October 12 PO authorization)
+
+- Recorded supplied Claude verdict `LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE`: C1–C9 PASS, C10 SOUND/adopted, no design blocker; SQL proof NOT RUN.
+- Preserved accepted candidate `79e4d6d7af6058bdfce0abad3e32bc46b8cc043c`, tree `99ccd20e354560ee2f104569ace24bf8f87be2aa`, and unchanged addendum SHA-256 `89ac66c67e85f2cb53973ce7f9e30d9f44e71b9661d0658a48d339a70a2282db`.
+- Correct deletion scope remains unbound/no-payment linked identity protection; bound recorded-money appointments already have the payment-attempt RESTRICT FK.
+- PO authorizes checked documentation-only PR #161 squash merge followed by a new unmerged D1 documentation Draft PR. No implementation, SQL, activation, release or GVM authority; technician deposits HELD.
+
 All notable changes to this project are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
@@ -8,6 +15,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ---
 
 ## [Unreleased]
+
+### 2026-10-12 — Slice 2B Phase 0 Claude findings corrected; re-audit pending
+
+- Corrected existing Draft PR #161's proposed addendum against supplied C1–C9; adopted optional C10's single journal-as-permit mechanism. Added linked appointment DELETE/cascade refusal, fresh customer-history enforcement, command-specific lock modes, child-row/RPC-set responsibility, exact single-effect permit checks, child read/lock order, reachable cancellation reasons, emitter containment and safe errors.
+- Updated only the addendum and current board/handoff/changelog. Preserved Option B, both accepted contract hashes, all five migrations and historical evidence. No independent acceptance, application/SQL change, database proof, hosted action, communication, merge or release. Next gate is focused Claude re-audit of the corrected exact candidate.
+
+### 2026-10-12 — Slice 2B Phase 0 proposed lifecycle reconciliation; documentation only
+
+- Recorded Darshan's Option B full operator lifecycle direction in a new [design addendum](reviews/issue-134-slice2b-lifecycle-readiness-addendum.md), pending independent Level-3 audit. The applied durable guard's blanket operational restrictions do not invalidate its accepted create/bind/payment proofs.
+- Specified the A–T lifecycle matrix, immutable financial/request evidence versus mutable operational state, narrow typed writer/trigger/transaction proposal, original/current Location attribution, and canonical-first recovery with no replacement identity from an unfenced ABSENT read.
+- Identified a separately approved future lifecycle migration and delta proof; preserved amount adjustments, #153 and #132 as separate gates. Updated only the current board/handoff pointers; protected contracts, migration bytes, validation records and environment manifest are unchanged.
+- No application/SQL implementation, test/proof execution, hosted database/fixture activity, workers/providers/communications, deployment, merge, GVM/HQ action or Slice 2B activation. Next is Darshan-dispatched Claude design audit of the exact documentation candidate, not implementation authority.
 
 ### 2026-10-12 — PR #159 main integration and historical stack closeout; no Production release
 
