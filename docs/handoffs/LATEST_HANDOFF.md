@@ -4,7 +4,15 @@
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — accepted Phase 0 closeout, then D1 documentation freeze
+## Current continuation — accepted D1 closeout, then bounded local SQL/proof
+
+Claude's supplied focused verdict is **D1_CONTRACT_ACCEPTED_FOR_PO_LOCAL_SQL_GATE**, K1–K4 PASS; N1/N2/N3, journal-as-permit, tenant/financial protection, v1 compatibility and the one-migration allowlist remain accepted at design level. Exact accepted candidate: `13d5c7275583457181f71fd79808463069ce939b`, tree `e98246fd32eb8980eeb458ebfb1e0e8b0f36c372`. The [accepted D1 contract](../reviews/issue-134-slice2b-d1-lifecycle-sql-contract-freeze.md) is preserved byte-for-byte at SHA-256 `0c9b15bb20a1baf84a0a47fbf7b3187a4739537e7068fc1c5c36a1bff54710f6`; its proposed/re-audit wording is historical and superseded by this supplied acceptance record, not edited technical content.
+
+October 13 PO authorization is sequential: **Task A** records acceptance and squash-merges documentation PR #162 only after exact-head checks, preserving its branch; **Task B** may then start from freshly verified merged main in a new isolated branch/worktree, author one Section T lifecycle amendment and execute only fresh disposable-local PostgreSQL17 D01–D15/C01–C11 proofs. No executable migration or local proof has yet been accepted. Publish the SQL/proof result as a new unmerged Draft PR for independent review. No automatic specialist dispatch.
+
+Accepted limitation for eventual GVM operator acceptance: an intentionally resized appointment can fail later reassignment when its interval differs from replacement staff effective duration; preserve the fail-closed rule, with no silent resize. Existing Business→operation RESTRICT may prevent a cascade reaching the parent guard; distinguish retained-graph proof from an actual cascade witness. #153/#132/A1/A2 remain separate gates. No hosted access/application, Production release, worker/provider/communications activation or GVM/HQ data change. GVM technician deposits remain **HELD**. Main integration is not Production acceptance.
+
+## Accepted Phase 0 provenance — closeout completed
 
 Darshan supplied Claude Opus 5 High's exact-candidate acceptance: **LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE**. C1–C9 ALL PASS; C10 journal-as-permit SOUND / ADOPTED; all four original HIGH findings resolved at design level, with no remaining design blocker. Runtime SQL proof remains **NOT RUN**. This records the supplied independent verdict; Codex did not perform or dispatch another independent audit.
 

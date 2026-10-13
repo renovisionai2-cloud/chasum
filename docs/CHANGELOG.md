@@ -1,5 +1,23 @@
 # Chasum Changelog
 
+## 2026-10-13 — D1 independent acceptance and sequential local-only gate
+
+- Recorded supplied Claude `D1_CONTRACT_ACCEPTED_FOR_PO_LOCAL_SQL_GATE`, K1–K4 PASS, at accepted head `13d5c7275583457181f71fd79808463069ce939b` / tree `e98246fd32eb8980eeb458ebfb1e0e8b0f36c372`. D1 bytes/hash unchanged; previous proposed/re-audit entries remain historical.
+- PO authorizes checked documentation PR #162 squash merge, followed only after verified merged main by a new isolated one-migration lifecycle implementation and fresh disposable-local PostgreSQL17 proof. No executable migration/local proof is yet accepted; new SQL PR must remain Draft/unmerged.
+- Preserve strict-duration limitation and truthful Business-delete guard/FK evidence. No hosted access/application, Production release, GVM/HQ changes, provider/worker activation or technician-deposit resumption; #153/#132/A1/A2 remain separate.
+
+## 2026-10-13 — D1 Claude K1–K3 corrections; focused re-audit pending
+
+- Corrected the same Draft PR #162 against supplied `D1_CONTRACT_CORRECTIONS_REQUIRED`; adopted optional K4 without changing Option B or the SQL implementation allowlist.
+- Froze existing amounts across staff-price changes, required explicit effective-duration tuples, corrected Business CASCADE/customer RESTRICT and offboarding impact, and inventoried the unchanged STABLE/SECURITY DEFINER slot validator with post-lock validation prerequisites.
+- Extended future D05/D08/D11 and C02/C11 proof obligations; actual guard-versus-FK refusal must be distinguished. Four documentation files only; accepted Phase 0/contracts/migration hashes preserved. No implementation, test/proof execution, hosted contact, merge or release; independent focused re-audit remains required.
+
+## 2026-10-13 — Slice 2B D1 technical contract freeze proposal
+
+- Prepared one A–V lifecycle SQL implementation-contract document from merged main `4c1abb2f97353cc626de6113e49f881a4cfef2e9`; accepted Phase 0 bytes and financial contracts/migrations remain unchanged.
+- Specified N1 exact R→R+1, N2 wire/operator recovery translation and N3 paired parent/child cascade invariants with actual RI-owner execution and explicit unproven privilege gates.
+- Frozen proposed RPC/journal/guard/lock/ACL scope and one future amendment allowlist plus disposable PostgreSQL17 proof matrix; no executable SQL, migration, application work, proof execution, hosted mutation or release. New D1 Draft PR requires independent audit and stays unmerged.
+
 ## 2026-10-13 — Phase 0 Level-3 acceptance closeout (October 12 PO authorization)
 
 - Recorded supplied Claude verdict `LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE`: C1–C9 PASS, C10 SOUND/adopted, no design blocker; SQL proof NOT RUN.
