@@ -1,5 +1,12 @@
 # Chasum Changelog
 
+## 2026-10-13 — Phase 0 Level-3 acceptance closeout (October 12 PO authorization)
+
+- Recorded supplied Claude verdict `LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE`: C1–C9 PASS, C10 SOUND/adopted, no design blocker; SQL proof NOT RUN.
+- Preserved accepted candidate `79e4d6d7af6058bdfce0abad3e32bc46b8cc043c`, tree `99ccd20e354560ee2f104569ace24bf8f87be2aa`, and unchanged addendum SHA-256 `89ac66c67e85f2cb53973ce7f9e30d9f44e71b9661d0658a48d339a70a2282db`.
+- Correct deletion scope remains unbound/no-payment linked identity protection; bound recorded-money appointments already have the payment-attempt RESTRICT FK.
+- PO authorizes checked documentation-only PR #161 squash merge followed by a new unmerged D1 documentation Draft PR. No implementation, SQL, activation, release or GVM authority; technician deposits HELD.
+
 All notable changes to this project are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).

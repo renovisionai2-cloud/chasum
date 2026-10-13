@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-12 (America/Toronto). **Updated by:** Codex Slice 2B Phase 0 documentation reconciliation; fresh GitHub main/PR checks, source review only. Prior Production observations below were not re-probed.
+**Snapshot date:** 2026-10-13 (America/Toronto). **Updated by:** Codex Phase 0 acceptance closeout; fresh GitHub main/PR checks, documentation only. Prior Production observations below were not re-probed.
 
 Slice 2A / PR #159 is **ACCEPTED / INTEGRATED INTO MAIN / NOT PRODUCTION ACCEPTED** at `0bebe243e8fea17937171d74fd024c42ef9fe431`. Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -28,15 +28,15 @@ No tenant-specific application logic is authorized.
 
 ## Control board
 
-### Current #133 Slice 2B Phase 0 — proposed lifecycle design; implementation held
+### Current #133 Slice 2B Phase 0 — design accepted; D1 documentation gate authorized
 
-Darshan selected **Option B — full operator lifecycle preservation** on October 12. The new [lifecycle readiness addendum](reviews/issue-134-slice2b-lifecycle-readiness-addendum.md) is **PROPOSED DESIGN / READY FOR FOCUSED CLAUDE RE-AUDIT**, not accepted implementation or applied SQL. Fresh starting main is `ee270de960e6956f9e87c980bac670f574ff21fc`, tree `82828c8786a5f4ec6b4ff0816256a10b0f78d645`; PR #159 and documentation PR #160 are merged.
+Darshan supplied Claude Opus 5 High's exact-candidate acceptance: **LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE**. C1–C9 ALL PASS; C10 journal-as-permit SOUND / ADOPTED; all four original HIGH findings resolved at design level, with no remaining design blocker. Runtime SQL proof remains **NOT RUN**. This records the supplied independent verdict; Codex did not perform or dispatch another independent audit.
 
-Source review confirms the operation-linked appointment guard blocks ordinary status/scheduling/notes edits even after settlement. The accepted create/bind/payment proofs remain valid. The addendum proposes typed tenant-authorized lifecycle writers, protected immutable money/request history, cancellation/customer fencing, a separately gated new migration, and canonical-first lost-response recovery. No protected contract/migration/evidence bytes change. Ordinary amount-changing corrections remain a distinct financial-adjustment workflow.
+Accepted candidate: `79e4d6d7af6058bdfce0abad3e32bc46b8cc043c`, tree `99ccd20e354560ee2f104569ace24bf8f87be2aa`. The accepted addendum is preserved byte-for-byte, SHA-256 `89ac66c67e85f2cb53973ce7f9e30d9f44e71b9661d0658a48d339a70a2282db`; its historical proposed/re-audit wording is superseded by this acceptance record, not silently rewritten. Recorded-money bound appointments already have payment-attempt FK ON DELETE RESTRICT protection; the remaining DELETE gap concerns certain unbound/no-payment linked appointments. The accepted design explicitly protects every operation-linked appointment.
 
-Claude's supplied original-candidate verdict was **DESIGN_CORRECTIONS_REQUIRED**. The existing [Draft PR #161](https://github.com/renovisionai2-cloud/chasum/pull/161) now addresses C1–C9: linked DELETE protection, fresh customer history checks, exact non-key/key lock strengths, row-level resource guards versus RPC whole-set assertions, single-use revision-bound journal permits, child lock ordering, cancellation reasons, communication containment and safe errors. C10 adopts the journal itself as permit. These are proposed documentation corrections, not independently accepted or runtime-proven changes.
+**Authority separation:** Option B product direction APPROVED; Phase 0 design ACCEPTED for D1 technical contract freeze preparation. Application/SQL implementation NOT AUTHORIZED / NOT STARTED; no migration authored or applied; Staging activation and Production NOT AUTHORIZED; GVM technician deposits HELD. No accepted proof rerun, retained-cohort mutation or worker/provider/communications activation.
 
-**Next:** Darshan manually dispatches the corrected exact Draft PR #161 candidate to Claude Opus 5 High for focused re-audit; ChatGPT reconciles the returned review before any bounded implementation approval. No agent dispatch, application/SQL implementation, Staging/Production mutation, retained-fixture reuse, worker/provider/communication activation, GVM/HQ test or release is authorized here. Full Option B remains the launch target; a create-only milestone does not replace it. #153 and #132 remain separate release gates. Competitive checkpoint: bounded PO-locked parity recorded in the addendum; broad new research NOT_APPLICABLE.
+October 12 PO authorization, executed October 13: close out documentation PR #161 only after exact-head checks and scope verification, squash merge while preserving its branch, then prepare a NEW documentation-only D1 Draft PR from freshly verified merged main. D1 remains a proposal requiring independent Claude review and a later bounded PO implementation gate. No automatic specialist dispatch; merge is not Production release. #153 and #132 remain separate gates. Competitive research NOT_APPLICABLE to this bounded documentation closeout.
 
 ### Accepted #133 Slice 2A integration — dated October 12 closeout
 
