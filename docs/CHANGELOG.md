@@ -1,5 +1,11 @@
 # Chasum Changelog
 
+## 2026-10-13 — Slice 2B D1 technical contract freeze proposal
+
+- Prepared one A–V lifecycle SQL implementation-contract document from merged main `4c1abb2f97353cc626de6113e49f881a4cfef2e9`; accepted Phase 0 bytes and financial contracts/migrations remain unchanged.
+- Specified N1 exact R→R+1, N2 wire/operator recovery translation and N3 paired parent/child cascade invariants with actual RI-owner execution and explicit unproven privilege gates.
+- Frozen proposed RPC/journal/guard/lock/ACL scope and one future amendment allowlist plus disposable PostgreSQL17 proof matrix; no executable SQL, migration, application work, proof execution, hosted mutation or release. New D1 Draft PR requires independent audit and stays unmerged.
+
 ## 2026-10-13 — Phase 0 Level-3 acceptance closeout (October 12 PO authorization)
 
 - Recorded supplied Claude verdict `LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE`: C1–C9 PASS, C10 SOUND/adopted, no design blocker; SQL proof NOT RUN.

@@ -4,7 +4,13 @@
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — accepted Phase 0 closeout, then D1 documentation freeze
+## Current continuation — D1 independent technical audit
+
+PR #161 is verified squash-merged at `4c1abb2f97353cc626de6113e49f881a4cfef2e9`, tree `7986033ed93860bd550b66202f45d1cb6059da11`, sole parent `ee270de960e6956f9e87c980bac670f574ff21fc`. Its accepted addendum remains byte-identical. The [D1 lifecycle SQL contract](../reviews/issue-134-slice2b-d1-lifecycle-sql-contract-freeze.md) is **PROPOSED / READY FOR INDEPENDENT D1 AUDIT**, prepared under separate documentation-only PO authorization. It freezes A–V: exact future objects/RPCs, journal-as-permit, strict successor revision, recovery naming, RI-owner/legacy resource cascade conditions, locks/ACL and fresh PostgreSQL17 delta-proof requirements.
+
+N1/N2/N3 have explicit technical contracts, not runtime PASS. Hosted role/parameter/trigger/TRUNCATE capabilities remain unqueried pre-apply gates; no permission cutover is smuggled into D1. No executable SQL, migration, application change, proof rerun, hosted data access or Production action. Next: Darshan manually dispatches the exact new D1 Draft PR/head/tree/hash to Claude, then ChatGPT reconciles before any local implementation/proof approval. D1 stays unmerged; #153/#132/A1/A2, communications, Staging/Production, GVM and technician-deposit holds remain.
+
+## Accepted Phase 0 provenance — closeout completed
 
 Darshan supplied Claude Opus 5 High's exact-candidate acceptance: **LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE**. C1–C9 ALL PASS; C10 journal-as-permit SOUND / ADOPTED; all four original HIGH findings resolved at design level, with no remaining design blocker. Runtime SQL proof remains **NOT RUN**. This records the supplied independent verdict; Codex did not perform or dispatch another independent audit.
 
