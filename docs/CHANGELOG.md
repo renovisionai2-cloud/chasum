@@ -9,6 +9,11 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-10-12 — Slice 2B Phase 0 Claude findings corrected; re-audit pending
+
+- Corrected existing Draft PR #161's proposed addendum against supplied C1–C9; adopted optional C10's single journal-as-permit mechanism. Added linked appointment DELETE/cascade refusal, fresh customer-history enforcement, command-specific lock modes, child-row/RPC-set responsibility, exact single-effect permit checks, child read/lock order, reachable cancellation reasons, emitter containment and safe errors.
+- Updated only the addendum and current board/handoff/changelog. Preserved Option B, both accepted contract hashes, all five migrations and historical evidence. No independent acceptance, application/SQL change, database proof, hosted action, communication, merge or release. Next gate is focused Claude re-audit of the corrected exact candidate.
+
 ### 2026-10-12 — Slice 2B Phase 0 proposed lifecycle reconciliation; documentation only
 
 - Recorded Darshan's Option B full operator lifecycle direction in a new [design addendum](reviews/issue-134-slice2b-lifecycle-readiness-addendum.md), pending independent Level-3 audit. The applied durable guard's blanket operational restrictions do not invalidate its accepted create/bind/payment proofs.
