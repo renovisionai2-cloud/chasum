@@ -1,5 +1,12 @@
 # Chasum Changelog
 
+## 2026-10-13 — D1 canonical recovery addendum independently accepted; docs closeout
+
+- Recorded supplied Claude verdict `D1_CANONICAL_RECOVERY_ADDENDUM_ACCEPTED_FOR_PO_GATE`, K-1–K-7 PASS, accepted PR #163 head `826e92d6026e531ff4270c2e2a0a41720683fa0f` / tree `e20759980d677d22eafec3c0a945ea10c677c023`. Accepted D1 SHA-256 `0caf4f79ce43088520313728b4d3cd77758b0aa066f8f2f776f4714f9ebff6ed` and technical bytes remain unchanged; earlier proposed status is historical.
+- No required correction or contract implementation blocker; three reported editorial/nonblocking observations are not new work. Truncated dispatch-tail limitation was disclosed; K-1–K-7/material checks were covered and ChatGPT reconciled the supplied audit.
+- Original-attempt zero does not prove appointment zero; exceptional recovery remains UNKNOWN/HOLD until separately accepted A1/A2 trusted appointment-level evidence. Section T and Option B are unchanged.
+- PO authorizes checked documentation-only squash merge of existing PR #163, preserving its branch. Local SQL remains STOPPED; the prior partial draft is unaccepted and untouched. D01–D15/C01–C11 NOT RUN; D12-E/F and D14-E/F/G remain future proofs. Separate PO resumption required. No hosted/Production/GVM acceptance, provider/worker/communications activation or technician deposits; #153/#132 remain separate.
+
 ## 2026-10-13 — D1 K-1–K-7 canonical recovery addendum; proposed
 
 - Recorded PR #162 merged at `233a2bebc5a4e4a8a787eccbb4b99a7769de0172` and supplied reconciliation `OPTION_A_SAFE_ONLY_AS_UNKNOWN_HOLD_UNTIL_A1A2`. This supersedes the overly broad whole-appointment no-money inference, not protected financial functions.
