@@ -1,5 +1,12 @@
 # Chasum Changelog
 
+## 2026-10-13 — D1 K-1–K-7 canonical recovery addendum; proposed
+
+- Recorded PR #162 merged at `233a2bebc5a4e4a8a787eccbb4b99a7769de0172` and supplied reconciliation `OPTION_A_SAFE_ONLY_AS_UNKNOWN_HOLD_UNTIL_A1A2`. This supersedes the overly broad whole-appointment no-money inference, not protected financial functions.
+- Clarified inherited commit UNKNOWN after customer correction, admission-time customer safeguards and metadata limits, original-attempt versus appointment/refund axes, original actor versus admin visibility, and internal-only observability validity flags. Full Option B and Section T remain unchanged.
+- Added future D12-E/F and D14-E/F/G proof oracles and focused audit checklist; all NOT RUN. Precise A1/A2 classification/composition is deferred; exceptional recovery remains UNKNOWN/HOLD with no recollection or automatic effects.
+- Prior independently accepted D1 SHA-256 `0c9b15bb20a1baf84a0a47fbf7b3187a4739537e7068fc1c5c36a1bff54710f6`; amended SHA-256 `0caf4f79ce43088520313728b4d3cd77758b0aa066f8f2f776f4714f9ebff6ed` is **PROPOSED — READY FOR FOCUSED INDEPENDENT AUDIT**, not covered by prior acceptance. Four docs only, new Draft PR; no merge, SQL, local proof, hosted contact, implementation resumption, provider/worker activation or technician deposits. The stopped SQL draft and historical evidence remain untouched.
+
 ## 2026-10-13 — D1 independent acceptance and sequential local-only gate
 
 - Recorded supplied Claude `D1_CONTRACT_ACCEPTED_FOR_PO_LOCAL_SQL_GATE`, K1–K4 PASS, at accepted head `13d5c7275583457181f71fd79808463069ce939b` / tree `e98246fd32eb8980eeb458ebfb1e0e8b0f36c372`. D1 bytes/hash unchanged; previous proposed/re-audit entries remain historical.

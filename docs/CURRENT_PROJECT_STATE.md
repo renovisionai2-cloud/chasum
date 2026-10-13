@@ -1,7 +1,7 @@
 # Chasum — Current Project State
 
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
-**Snapshot date:** 2026-10-13 (America/Toronto). **Updated by:** Codex Phase 0 acceptance closeout; fresh GitHub main/PR checks, documentation only. Prior Production observations below were not re-probed.
+**Snapshot date:** 2026-10-13 (America/Toronto). **Updated by:** Codex K-1–K-7 canonical recovery addendum; fresh GitHub main/PR checks, documentation only. Prior Production observations below were not re-probed.
 
 Slice 2A / PR #159 is **ACCEPTED / INTEGRATED INTO MAIN / NOT PRODUCTION ACCEPTED** at `0bebe243e8fea17937171d74fd024c42ef9fe431`. Phase A / PR #154 is **MERGED TO MAIN / NOT PRODUCTION ACCEPTED** at `31115e6a51b71fc097c279d205065d80e0be3573`. #135 / PR #150 is MERGED TO MAIN at `34dbd1518e1fe364cecaa5ad46576e93e9ed1afa`, NOT Production accepted. #131 remains the last accepted Production application baseline. The broader GVM financial/deposit incident remains OPEN; Phase A does not earn GVM OPERATIONAL ACCEPTANCE.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.
@@ -28,15 +28,19 @@ No tenant-specific application logic is authorized.
 
 ## Control board
 
-### Current #133 Slice 2B D1 — design accepted; sequential local-only gate
+### Current #133 Slice 2B D1 — canonical recovery addendum; SQL held
 
-Claude's supplied focused verdict is **D1_CONTRACT_ACCEPTED_FOR_PO_LOCAL_SQL_GATE**, K1–K4 PASS; N1/N2/N3, journal-as-permit, tenant/financial protection, v1 compatibility and the one-migration allowlist remain accepted at design level. Exact accepted candidate: `13d5c7275583457181f71fd79808463069ce939b`, tree `e98246fd32eb8980eeb458ebfb1e0e8b0f36c372`. The [accepted D1 contract](reviews/issue-134-slice2b-d1-lifecycle-sql-contract-freeze.md) is preserved byte-for-byte at SHA-256 `0c9b15bb20a1baf84a0a47fbf7b3187a4739537e7068fc1c5c36a1bff54710f6`; its proposed/re-audit wording is historical and superseded by this supplied acceptance record, not edited technical content.
+[Amended D1 contract](reviews/issue-134-slice2b-d1-lifecycle-sql-contract-freeze.md)
 
-October 13 PO authorization is sequential: **Task A** records acceptance and squash-merges documentation PR #162 only after exact-head checks, preserving its branch; **Task B** may then start from freshly verified merged main in a new isolated branch/worktree, author one Section T lifecycle amendment and execute only fresh disposable-local PostgreSQL17 D01–D15/C01–C11 proofs. No executable migration or local proof has yet been accepted. Publish the SQL/proof result as a new unmerged Draft PR for independent review. No automatic specialist dispatch.
+**PROPOSED — READY FOR FOCUSED INDEPENDENT AUDIT.** October 13 PO authority is documentation-only K-1–K-7 canonical recovery clarification. Fresh main is `233a2bebc5a4e4a8a787eccbb4b99a7769de0172`, tree `02e27310cca5dd2d32d583be64b600b39cef4dfa`; PR #162 is merged (`2026-10-13T15:53:31Z`) and will not be reused. Historical D1 acceptance `D1_CONTRACT_ACCEPTED_FOR_PO_LOCAL_SQL_GATE` applies to candidate `13d5c7275583457181f71fd79808463069ce939b`, tree `e98246fd32eb8980eeb458ebfb1e0e8b0f36c372`, prior document SHA-256 `0c9b15bb20a1baf84a0a47fbf7b3187a4739537e7068fc1c5c36a1bff54710f6`; it does not certify the amended bytes.
 
-Accepted limitation for eventual GVM operator acceptance: an intentionally resized appointment can fail later reassignment when its interval differs from replacement staff effective duration; preserve the fail-closed rule, with no silent resize. Existing Business→operation RESTRICT may prevent a cascade reaching the parent guard; distinguish retained-graph proof from an actual cascade witness. #153/#132/A1/A2 remain separate gates. No hosted access/application, Production release, worker/provider/communications activation or GVM/HQ data change. GVM technician deposits remain **HELD**. Main integration is not Production acceptance.
+Supplied Claude reconciliation: **OPTION_A_SAFE_ONLY_AS_UNKNOWN_HOLD_UNTIL_A1A2**. A legitimate customer correction can cause unchanged commit_v1 to return UNKNOWN before terminal classification. Original-attempt zero/recorded=false does not prove whole-appointment zero; read_v1 omits other appointment payments and both refund axes, and another authorized admin's found:false is not absence. Observability's binding_valid/appointment_valid are internal only. Preserve full Option B, historical customer/attempt identity and all protected money functions. Exceptional recovery stays **UNKNOWN / HOLD**; precise trusted composition is future A1/A2, not implemented here.
 
-### Accepted Phase 0 provenance — closeout completed
+Amended D1 SHA-256: `0caf4f79ce43088520313728b4d3cd77758b0aa066f8f2f776f4714f9ebff6ed`. New documentation branch: `codex/slice2b-d1-canonical-recovery-addendum`; publish only a NEW unmerged Draft PR for focused independent K-1–K-7 audit. Section T remains byte-identical; the expanded future D12/D14 cases are NOT RUN. Protected Phase 0/contracts/five migrations and historical evidence remain unchanged.
+
+The partial local SQL draft in `/private/tmp/chasum-slice2b-d1-local-sql` is incomplete, untracked and unexecuted; preserve it untouched. No SQL proof has run, and this task does not authorize resumption. #153/#132/A1/A2 and subsequent local SQL/hosted/Production/GVM gates remain separate. Strict-duration limitation and honest Business-delete FK/cascade proof remain unchanged. No hosted access, providers/workers/communications, GVM/HQ mutation, release or technician-deposit resumption; deposits remain **HELD**. Darshan manually dispatches any independent audit.
+
+### Historical accepted Phase 0 provenance — closeout completed
 
 Darshan supplied Claude Opus 5 High's exact-candidate acceptance: **LEVEL3_DESIGN_ACCEPTED_FOR_PO_D1_FREEZE_GATE**. C1–C9 ALL PASS; C10 journal-as-permit SOUND / ADOPTED; all four original HIGH findings resolved at design level, with no remaining design blocker. Runtime SQL proof remains **NOT RUN**. This records the supplied independent verdict; Codex did not perform or dispatch another independent audit.
 
