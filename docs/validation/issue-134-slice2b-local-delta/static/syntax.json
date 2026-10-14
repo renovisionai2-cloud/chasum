@@ -1,0 +1,60 @@
+[
+  {
+    "file": "scripts/verify-issue134-slice2b-lifecycle-disposable-postgres.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/final-cases.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/domain-cases.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/cases.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/guard-cases.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/sessions.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/extended-cases.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/concurrency.mjs",
+    "check": "node --check",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/catalog-assertions.py",
+    "check": "Python in-memory compile",
+    "exit": 0
+  },
+  {
+    "file": "scripts/proofs/issue-134-slice2b-lifecycle/generate-migration.py",
+    "check": "Python in-memory compile",
+    "exit": 0
+  }
+]
