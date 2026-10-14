@@ -38,7 +38,9 @@ begin
  if has_schema_privilege('service_role','public','CREATE')
     or has_parameter_privilege('service_role','session_replication_role','SET')
     or has_table_privilege('service_role','public.appointments','TRUNCATE')
-    or has_table_privilege('service_role','public.appointment_resources','TRUNCATE') then
+    or has_table_privilege('service_role','public.appointment_resources','TRUNCATE')
+    or has_table_privilege('service_role','public.appointments','TRIGGER')
+    or has_table_privilege('service_role','public.appointment_resources','TRIGGER') then
   raise exception 'LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY' using errcode='55000';
  end if;
  if not exists(select 1 from pg_proc where oid=to_regprocedure('public.validate_appointment_slot(uuid,uuid,uuid,timestamptz,timestamptz,uuid,uuid)') and provolatile='s' and prosecdef and prorettype='void'::regtype and proconfig=array['search_path=public']) then

@@ -13,6 +13,8 @@ def protected_bodies(root):
       'payment_appointment_truth_v1','project_payment_obligation_v1','read_payment_observability_v1',
     }
     files=sorted(p for p in (root/'supabase/migrations').glob('0*.sql') if int(p.name[:3])<=33)
+    # Package A repairs 026; Issue 81 subsequently replaces slots/validator.
+    files.append(root/'sql/recovery/A_production_availability_engine_realign.sql')
     files += [root/'supabase/migrations'/n for n in [
       '20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql',
       '20261004190341_issue_134_payment_attempt_foundation.sql',
@@ -78,11 +80,29 @@ def pre(root):
       or (base.rolname='service_role' and (reached.rolsuper or reached.oid in
           (select relowner from pg_class where oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass))))) then
   raise exception 'LIFECYCLE_ROLE_ESCALATION_PATH' using errcode='55000'; end if;
- if exists(select 1 from pg_roles r where r.rolname in ('anon','authenticated','service_role') and
+ -- Named-role checks include PUBLIC and immediately inherited privileges.
+ -- Also inspect SET ROLE targets; NOINHERIT alone is not a capability boundary.
+ if exists(select 1 from pg_roles base join pg_roles r on
+   (r.oid=base.oid or pg_has_role(base.oid,r.oid,'SET'))
+   where base.rolname in ('anon','authenticated','authenticator','service_role') and
+    (has_table_privilege(r.oid,'public.appointments','TRIGGER')
+     or has_table_privilege(r.oid,'public.appointment_resources','TRIGGER')))
+   or exists(select 1 from pg_class c cross join lateral
+    aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a
+    where c.oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass)
+     and a.grantee=0 and a.privilege_type='TRIGGER') then
+  raise exception 'LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY' using errcode='55000'; end if;
+ if exists(select 1 from pg_roles base join pg_roles r on
+   (r.oid=base.oid or pg_has_role(base.oid,r.oid,'SET'))
+   where base.rolname in ('anon','authenticated','authenticator','service_role') and
    (has_parameter_privilege(r.oid,'session_replication_role','SET')
     or has_table_privilege(r.oid,'public.appointments','TRUNCATE')
     or has_table_privilege(r.oid,'public.appointment_resources','TRUNCATE')
-    or has_schema_privilege(r.oid,'public','CREATE'))) then
+    or has_schema_privilege(r.oid,'public','CREATE')))
+   or exists(select 1 from pg_class c cross join lateral
+    aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a
+    where c.oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass)
+     and a.grantee=0 and a.privilege_type='TRUNCATE') then
   raise exception 'LIFECYCLE_OPERATIONAL_DDL_CAPABILITY' using errcode='55000'; end if;
  if exists(select 1 from pg_class where oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass)
    and (relkind<>'r' or relispartition or not relrowsecurity)) then

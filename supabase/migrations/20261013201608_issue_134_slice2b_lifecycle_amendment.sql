@@ -27,7 +27,9 @@ begin
  if has_schema_privilege('service_role','public','CREATE')
     or has_parameter_privilege('service_role','session_replication_role','SET')
     or has_table_privilege('service_role','public.appointments','TRUNCATE')
-    or has_table_privilege('service_role','public.appointment_resources','TRUNCATE') then
+    or has_table_privilege('service_role','public.appointment_resources','TRUNCATE')
+    or has_table_privilege('service_role','public.appointments','TRIGGER')
+    or has_table_privilege('service_role','public.appointment_resources','TRIGGER') then
   raise exception 'LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY' using errcode='55000';
  end if;
  if not exists(select 1 from pg_proc where oid=to_regprocedure('public.validate_appointment_slot(uuid,uuid,uuid,timestamptz,timestamptz,uuid,uuid)') and provolatile='s' and prosecdef and prorettype='void'::regtype and proconfig=array['search_path=public']) then
@@ -36,7 +38,7 @@ begin
 end $pre$;
 
 do $capability$ begin
-if exists(select 1 from (values ('availability_block_reason','d69e69be3b7b59e383bd7e10ebac4e2a'),('bind_booking_operation_appointment_v1','969958c4bc89c69b5d86e3b6331a69ca'),('bootstrap_booking_operation_v1','cd89add6bfd84f1856513c928d5721e7'),('commit_booking_operation_manual_payment_v1','23ee6ac48b6d81f42f33bf40ae39cea5'),('get_available_slots','d3f0f20c81a56b5e70fe3850e7b357f7'),('guard_commerce_booking_operation_v1','d41900b2e537770768b4ed1cc8bc19f5'),('is_location_holiday','9e2e6baf8eb03b48980fc0cdf403682d'),('is_staff_on_vacation','b50c2c223d3a096ba12681ccf5185aea'),('payment_appointment_truth_v1','62e536cd4fac2f1d9cae6e99c1cb9117'),('payment_projection_history_valid_v1','a0619196c1ff08a005c13e924ad200c1'),('persist_booking_operation_appointment_v1','6001c439bf8657d112870d4bf7245ad9'),('project_payment_obligation_v1','b4ccf60290658c4dea0c0110ba5b950d'),('read_booking_operations_v1','4f9c0896e6c3f2fa593281a96e058bb1'),('read_payment_observability_v1','58b16d7bfcf3524da5e1082dc2ed15b3'),('resolve_location_id','f8cae8e103e3df570f5d2c0f6526ef35'),('set_updated_at','9b1889f56258bf9d6554213c05019c76'),('validate_appointment_slot','ba820a872e7ae4082cc66ce02dc03b52')) expected(name,body_md5)
+if exists(select 1 from (values ('availability_block_reason','d2261e44fd62ffb476fe69864635ce14'),('bind_booking_operation_appointment_v1','969958c4bc89c69b5d86e3b6331a69ca'),('bootstrap_booking_operation_v1','cd89add6bfd84f1856513c928d5721e7'),('commit_booking_operation_manual_payment_v1','23ee6ac48b6d81f42f33bf40ae39cea5'),('get_available_slots','d3f0f20c81a56b5e70fe3850e7b357f7'),('guard_commerce_booking_operation_v1','d41900b2e537770768b4ed1cc8bc19f5'),('is_location_holiday','9e2e6baf8eb03b48980fc0cdf403682d'),('is_staff_on_vacation','b50c2c223d3a096ba12681ccf5185aea'),('payment_appointment_truth_v1','62e536cd4fac2f1d9cae6e99c1cb9117'),('payment_projection_history_valid_v1','a0619196c1ff08a005c13e924ad200c1'),('persist_booking_operation_appointment_v1','6001c439bf8657d112870d4bf7245ad9'),('project_payment_obligation_v1','b4ccf60290658c4dea0c0110ba5b950d'),('read_booking_operations_v1','4f9c0896e6c3f2fa593281a96e058bb1'),('read_payment_observability_v1','58b16d7bfcf3524da5e1082dc2ed15b3'),('resolve_location_id','f8cae8e103e3df570f5d2c0f6526ef35'),('set_updated_at','9b1889f56258bf9d6554213c05019c76'),('validate_appointment_slot','ba820a872e7ae4082cc66ce02dc03b52')) expected(name,body_md5)
       where (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname=expected.name)<>1 or not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
        where n.nspname='public' and p.proname=expected.name and md5(p.prosrc)=expected.body_md5)) then
       raise exception 'LIFECYCLE_PROTECTED_BODY_DRIFT' using errcode='55000'; end if;
@@ -84,11 +86,29 @@ if exists(select 1 from (values ('availability_block_reason','d69e69be3b7b59e383
       or (base.rolname='service_role' and (reached.rolsuper or reached.oid in
           (select relowner from pg_class where oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass))))) then
   raise exception 'LIFECYCLE_ROLE_ESCALATION_PATH' using errcode='55000'; end if;
- if exists(select 1 from pg_roles r where r.rolname in ('anon','authenticated','service_role') and
+ -- Named-role checks include PUBLIC and immediately inherited privileges.
+ -- Also inspect SET ROLE targets; NOINHERIT alone is not a capability boundary.
+ if exists(select 1 from pg_roles base join pg_roles r on
+   (r.oid=base.oid or pg_has_role(base.oid,r.oid,'SET'))
+   where base.rolname in ('anon','authenticated','authenticator','service_role') and
+    (has_table_privilege(r.oid,'public.appointments','TRIGGER')
+     or has_table_privilege(r.oid,'public.appointment_resources','TRIGGER')))
+   or exists(select 1 from pg_class c cross join lateral
+    aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a
+    where c.oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass)
+     and a.grantee=0 and a.privilege_type='TRIGGER') then
+  raise exception 'LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY' using errcode='55000'; end if;
+ if exists(select 1 from pg_roles base join pg_roles r on
+   (r.oid=base.oid or pg_has_role(base.oid,r.oid,'SET'))
+   where base.rolname in ('anon','authenticated','authenticator','service_role') and
    (has_parameter_privilege(r.oid,'session_replication_role','SET')
     or has_table_privilege(r.oid,'public.appointments','TRUNCATE')
     or has_table_privilege(r.oid,'public.appointment_resources','TRUNCATE')
-    or has_schema_privilege(r.oid,'public','CREATE'))) then
+    or has_schema_privilege(r.oid,'public','CREATE')))
+   or exists(select 1 from pg_class c cross join lateral
+    aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a
+    where c.oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass)
+     and a.grantee=0 and a.privilege_type='TRUNCATE') then
   raise exception 'LIFECYCLE_OPERATIONAL_DDL_CAPABILITY' using errcode='55000'; end if;
  if exists(select 1 from pg_class where oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass)
    and (relkind<>'r' or relispartition or not relrowsecurity)) then
@@ -859,7 +879,7 @@ revoke all on function booking_lifecycle_private.guard_appointment_mutation_v2()
 grant execute on function booking_lifecycle_private.guard_appointment_mutation_v2() to service_role;
 
 do $post$ begin
-if exists(select 1 from (values ('availability_block_reason','d69e69be3b7b59e383bd7e10ebac4e2a'),('bind_booking_operation_appointment_v1','969958c4bc89c69b5d86e3b6331a69ca'),('bootstrap_booking_operation_v1','cd89add6bfd84f1856513c928d5721e7'),('commit_booking_operation_manual_payment_v1','23ee6ac48b6d81f42f33bf40ae39cea5'),('get_available_slots','d3f0f20c81a56b5e70fe3850e7b357f7'),('guard_commerce_booking_operation_v1','d41900b2e537770768b4ed1cc8bc19f5'),('is_location_holiday','9e2e6baf8eb03b48980fc0cdf403682d'),('is_staff_on_vacation','b50c2c223d3a096ba12681ccf5185aea'),('payment_appointment_truth_v1','62e536cd4fac2f1d9cae6e99c1cb9117'),('payment_projection_history_valid_v1','a0619196c1ff08a005c13e924ad200c1'),('persist_booking_operation_appointment_v1','6001c439bf8657d112870d4bf7245ad9'),('project_payment_obligation_v1','b4ccf60290658c4dea0c0110ba5b950d'),('read_booking_operations_v1','4f9c0896e6c3f2fa593281a96e058bb1'),('read_payment_observability_v1','58b16d7bfcf3524da5e1082dc2ed15b3'),('resolve_location_id','f8cae8e103e3df570f5d2c0f6526ef35'),('set_updated_at','9b1889f56258bf9d6554213c05019c76'),('validate_appointment_slot','ba820a872e7ae4082cc66ce02dc03b52')) expected(name,body_md5)
+if exists(select 1 from (values ('availability_block_reason','d2261e44fd62ffb476fe69864635ce14'),('bind_booking_operation_appointment_v1','969958c4bc89c69b5d86e3b6331a69ca'),('bootstrap_booking_operation_v1','cd89add6bfd84f1856513c928d5721e7'),('commit_booking_operation_manual_payment_v1','23ee6ac48b6d81f42f33bf40ae39cea5'),('get_available_slots','d3f0f20c81a56b5e70fe3850e7b357f7'),('guard_commerce_booking_operation_v1','d41900b2e537770768b4ed1cc8bc19f5'),('is_location_holiday','9e2e6baf8eb03b48980fc0cdf403682d'),('is_staff_on_vacation','b50c2c223d3a096ba12681ccf5185aea'),('payment_appointment_truth_v1','62e536cd4fac2f1d9cae6e99c1cb9117'),('payment_projection_history_valid_v1','a0619196c1ff08a005c13e924ad200c1'),('persist_booking_operation_appointment_v1','6001c439bf8657d112870d4bf7245ad9'),('project_payment_obligation_v1','b4ccf60290658c4dea0c0110ba5b950d'),('read_booking_operations_v1','4f9c0896e6c3f2fa593281a96e058bb1'),('read_payment_observability_v1','58b16d7bfcf3524da5e1082dc2ed15b3'),('resolve_location_id','f8cae8e103e3df570f5d2c0f6526ef35'),('set_updated_at','9b1889f56258bf9d6554213c05019c76'),('validate_appointment_slot','ba820a872e7ae4082cc66ce02dc03b52')) expected(name,body_md5)
       where (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname=expected.name)<>1 or not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
        where n.nspname='public' and p.proname=expected.name and md5(p.prosrc)=expected.body_md5)) then
       raise exception 'LIFECYCLE_PROTECTED_BODY_DRIFT' using errcode='55000'; end if;

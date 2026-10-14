@@ -57,6 +57,17 @@ try{
  summary.protected_sources={};
  for(const [,name,digest] of expected){const p=(name.endsWith('.sql')?'supabase/migrations/':'docs/reviews/')+name;const actual=createHash('sha256').update(readFileSync(join(root,p))).digest('hex');if(actual!==digest)throw new Error('Protected source changed: '+p);summary.protected_sources[p]=actual;}
  summary.accepted_d1_sha256=createHash('sha256').update(d1Bytes).digest('hex');
+ // Separate provenance pins: do not alter the accepted eight-entry D1 manifest.
+ // Check bytes before initdb, cluster startup, or any local SQL.
+ summary.availability_sources={};
+ for(const [p,digest] of [
+  ['supabase/migrations/026_availability_engine.sql','37b19fb00c95994b5c8c05d143b7fc668b1d032c665ed3ce43aba8a33caea0a8'],
+  ['sql/recovery/A_production_availability_engine_realign.sql','84863ad305bd98b01e817a43153f3344e816c5994c32f7b8452e2c09aac94fdf'],
+ ]){
+  const actual=createHash('sha256').update(readFileSync(join(root,p))).digest('hex');
+  if(actual!==digest)throw new Error('Availability prerequisite source changed before SQL: '+p);
+  summary.availability_sources[p]=actual;
+ }
  const version=run(join(bin,'postgres'),['--version'],'00-version');
  if(!/^postgres \(PostgreSQL\) 17\./.test(version))throw new Error('PostgreSQL 17 required');
  summary.version=version;
@@ -76,6 +87,8 @@ try{
  file('scripts/proofs/issue-134-slice2b-lifecycle/local-platform.sql','06-local-platform');
  const migrations=readdirSync(join(root,'supabase/migrations')).filter(n=>/^0\d\d_.*\.sql$/.test(n)&&Number(n.slice(0,3))<=33).sort();
  for(const n of migrations)file('supabase/migrations/'+n,'baseline-'+n.replace('.sql',''));
+ // Historical 026 -> accepted Package A -> later Issue 81 -> financial dependencies.
+ file('sql/recovery/A_production_availability_engine_realign.sql','baseline-package-a-availability');
  for(const n of [
  '039_business_slug_aliases.sql',
  '20260920230358_tenant_identity_gate.sql',
@@ -94,14 +107,55 @@ try{
  const rolled=run(join(bin,'psql'),[...failConn,'-At'],'migration-rollback-catalog',"select json_build_object('db',current_database(),'journal_schema',to_regnamespace('booking_lifecycle_private'),'revision_columns',(select count(*) from pg_attribute where attrelid='public.appointments'::regclass and attname='operational_revision' and not attisdropped),'v2_count',(select count(*) from pg_proc where proname='revise_booking_notes_v2'));");
  const rollbackState=JSON.parse(rolled);if(rollbackState.db!=='d1_assertion_rollback'||rollbackState.journal_schema!==null||rollbackState.revision_columns!==0||rollbackState.v2_count!==0)throw new Error('Migration rollback incomplete');
  summary.migration_assertion_rollback=rollbackState;
+ const capabilityNegatives=[];
+ for(const role of ['anon','authenticated','authenticator','service_role']){
+  for(const table of ['appointments','appointment_resources']){
+   for(const privilege of ['TRUNCATE','TRIGGER']){
+    capabilityNegatives.push([`unsafe-${role}-${table}-${privilege.toLowerCase()}`,
+     `grant ${privilege} on public.${table} to ${role};`,
+     role==='service_role'?'LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY':
+      privilege==='TRIGGER'?'LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY':'LIFECYCLE_OPERATIONAL_DDL_CAPABILITY']);
+   }
+  }
+ }
+ for(const table of ['appointments','appointment_resources']){
+  for(const privilege of ['TRUNCATE','TRIGGER']){
+   capabilityNegatives.push([`unsafe-public-${table}-${privilege.toLowerCase()}`,
+    `grant ${privilege} on public.${table} to public;`,'LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY']);
+  }
+ }
+ // Isolated, transaction-local role chains; no real guard is replaced or disabled.
+ for(const role of ['anon','authenticator']){
+  for(const mode of ['inherited','set-role']){
+   for(const privilege of ['TRUNCATE','TRIGGER']){
+    capabilityNegatives.push([`unsafe-${role}-${mode}-${privilege.toLowerCase()}`,
+     `create role d1_capability_leaf nologin nosuperuser nobypassrls;
+      create role d1_capability_bridge nologin nosuperuser nobypassrls;
+      grant ${privilege} on public.appointment_resources to d1_capability_leaf;
+      grant d1_capability_leaf to d1_capability_bridge with inherit ${mode==='inherited'};
+      grant d1_capability_leaf to d1_capability_bridge with set ${mode==='set-role'};
+      grant d1_capability_bridge to ${role} with inherit ${mode==='inherited'};
+      grant d1_capability_bridge to ${role} with set ${mode==='set-role'};`,
+     privilege==='TRIGGER'?'LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY':'LIFECYCLE_OPERATIONAL_DDL_CAPABILITY']);
+   }
+  }
+ }
+ const negativeBaselineSql=`select jsonb_build_object(
+  'roles',(select jsonb_agg(to_jsonb(r) order by oid) from pg_roles r),
+  'memberships',(select jsonb_agg(to_jsonb(m) order by roleid,member,grantor) from pg_auth_members m),
+  'table_acls',(select jsonb_agg(jsonb_build_object('oid',oid,'acl',relacl) order by oid) from pg_class where oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass))
+ );`;
+ const negativeBaseline=run(join(bin,'psql'),[...failConn,'-At'],'gate-capability-baseline',negativeBaselineSql);
  for(const [name,setup,expected] of [
   ['disabled-parent-guard','alter table public.appointments disable trigger appointments_booking_operation_guard;','LIFECYCLE_DISABLED_INTEGRITY_TRIGGER'],
-  ['unsafe-parameter-grant',"grant set on parameter session_replication_role to service_role;",'LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY']
+  ['unsafe-parameter-grant',"grant set on parameter session_replication_role to service_role;",'LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY'],
+  ...capabilityNegatives,
  ]){
   const script='begin;\n'+setup+'\n'+readFileSync(join(root,'supabase/migrations/20261013201608_issue_134_slice2b_lifecycle_amendment.sql'),'utf8');
   try{run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name,script);throw new Error('CATALOG_GATE_DID_NOT_REFUSE');}catch(e){if(!readFileSync(join(evidence,'gate-'+name+'.log'),'utf8').includes(expected))throw e;}
   const restored=JSON.parse(run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name+'-rollback',"select json_build_object('journal_schema',to_regnamespace('booking_lifecycle_private'),'guard_enabled',(select tgenabled from pg_trigger where tgrelid='public.appointments'::regclass and tgname='appointments_booking_operation_guard'),'parameter_set',has_parameter_privilege('service_role','session_replication_role','SET'));") );
   if(restored.journal_schema!==null||restored.guard_enabled!=='O'||restored.parameter_set)throw new Error('Catalog failure rollback did not restore fixture');
+  if(run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name+'-capability-rollback',negativeBaselineSql)!==negativeBaseline)throw new Error('Catalog failure rollback did not restore roles/memberships/table ACLs');
   summary['catalog_negative_'+name]=restored;
  }
  const beforeCatalog=catalog('before-lifecycle-catalog');
