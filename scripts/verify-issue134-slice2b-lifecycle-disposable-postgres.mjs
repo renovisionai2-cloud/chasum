@@ -1,3 +1,5 @@
+import {runAvailability} from './proofs/issue-134-slice2b-lifecycle/availability-cases.mjs';
+import {negativeBaselineSql,rollbackWitnessSql,capabilityPreimageSql,parseCapabilityPreimage,verifyRollbackWitness} from './proofs/issue-134-slice2b-lifecycle/capability-evidence.mjs';
 import {sessionFactory} from './proofs/issue-134-slice2b-lifecycle/sessions.mjs';
 import {runConcurrency} from './proofs/issue-134-slice2b-lifecycle/concurrency.mjs';
 import {runExtended} from './proofs/issue-134-slice2b-lifecycle/extended-cases.mjs';
@@ -68,6 +70,7 @@ try{
   if(actual!==digest)throw new Error('Availability prerequisite source changed before SQL: '+p);
   summary.availability_sources[p]=actual;
  }
+ summary.tested_source={head:run('/usr/bin/git',['rev-parse','HEAD'],'source-head'),tree:run('/usr/bin/git',['rev-parse','HEAD^{tree}'],'source-tree')};
  const version=run(join(bin,'postgres'),['--version'],'00-version');
  if(!/^postgres \(PostgreSQL\) 17\./.test(version))throw new Error('PostgreSQL 17 required');
  summary.version=version;
@@ -140,22 +143,27 @@ try{
    }
   }
  }
- const negativeBaselineSql=`select jsonb_build_object(
-  'roles',(select jsonb_agg(to_jsonb(r) order by oid) from pg_roles r),
-  'memberships',(select jsonb_agg(to_jsonb(m) order by roleid,member,grantor) from pg_auth_members m),
-  'table_acls',(select jsonb_agg(jsonb_build_object('oid',oid,'acl',relacl) order by oid) from pg_class where oid in ('public.appointments'::regclass,'public.appointment_resources'::regclass))
- );`;
  const negativeBaseline=run(join(bin,'psql'),[...failConn,'-At'],'gate-capability-baseline',negativeBaselineSql);
+ summary.capability_evidence=[];
  for(const [name,setup,expected] of [
   ['disabled-parent-guard','alter table public.appointments disable trigger appointments_booking_operation_guard;','LIFECYCLE_DISABLED_INTEGRITY_TRIGGER'],
   ['unsafe-parameter-grant',"grant set on parameter session_replication_role to service_role;",'LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY'],
   ...capabilityNegatives,
  ]){
-  const script='begin;\n'+setup+'\n'+readFileSync(join(root,'supabase/migrations/20261013201608_issue_134_slice2b_lifecycle_amendment.sql'),'utf8');
+  const isCapability=capabilityNegatives.some(([caseName])=>caseName===name);
+  const script='begin;\n'+setup+'\n'+(isCapability?capabilityPreimageSql(name):'')+readFileSync(join(root,'supabase/migrations/20261013201608_issue_134_slice2b_lifecycle_amendment.sql'),'utf8');
   try{run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name,script);throw new Error('CATALOG_GATE_DID_NOT_REFUSE');}catch(e){if(!readFileSync(join(evidence,'gate-'+name+'.log'),'utf8').includes(expected))throw e;}
-  const restored=JSON.parse(run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name+'-rollback',"select json_build_object('journal_schema',to_regnamespace('booking_lifecycle_private'),'guard_enabled',(select tgenabled from pg_trigger where tgrelid='public.appointments'::regclass and tgname='appointments_booking_operation_guard'),'parameter_set',has_parameter_privilege('service_role','session_replication_role','SET'));") );
-  if(restored.journal_schema!==null||restored.guard_enabled!=='O'||restored.parameter_set)throw new Error('Catalog failure rollback did not restore fixture');
-  if(run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name+'-capability-rollback',negativeBaselineSql)!==negativeBaseline)throw new Error('Catalog failure rollback did not restore roles/memberships/table ACLs');
+  const preimage=isCapability?parseCapabilityPreimage(readFileSync(join(evidence,'gate-'+name+'.log'),'utf8'),name,data,user):null;
+  const restored=JSON.parse(run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name+'-rollback',rollbackWitnessSql));
+  verifyRollbackWitness(restored,data,user);
+  if(preimage&&preimage.backend_pid===restored.backend_pid)throw new Error('Rollback witness reused the failed connection');
+  const afterCapabilities=run(join(bin,'psql'),[...failConn,'-At'],'gate-'+name+'-capability-rollback',negativeBaselineSql);
+  if(afterCapabilities!==negativeBaseline)throw new Error('Catalog failure rollback did not restore roles/memberships/table ACLs/triggers/parameter privileges');
+  if(preimage){
+   const observation={name,expected_refusal:expected,preimage,rollback:restored,baseline:JSON.parse(negativeBaseline),after:JSON.parse(afterCapabilities),catalog_equal:true};
+   writeFileSync(join(evidence,'gate-'+name+'-evidence.json'),JSON.stringify(observation,null,2)+'\n');
+   summary.capability_evidence.push(observation);
+  }
   summary['catalog_negative_'+name]=restored;
  }
  const beforeCatalog=catalog('before-lifecycle-catalog');
@@ -168,6 +176,7 @@ try{
  await runExtended({ctx,summary,log});
  await runGuards({ctx,summary,log});
  await runDomain({ctx,summary,log});
+ await runAvailability({ctx,summary,log});
  await runFinal({ctx,summary,log});
  const sessions=sessionFactory({bin,conn,env,log});
  try{await runConcurrency({ctx,sessions,summary,log});}finally{await sessions.close();}
