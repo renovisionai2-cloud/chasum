@@ -94,6 +94,8 @@ export type BookingSheetProps = {
   customers: Customer[];
   locations: Location[];
   packages?: ServicePackage[];
+  /** Calendar creation requires explicit service/staff choices, never saved defaults. */
+  calendarSelection?: boolean;
   defaultDate?: Date;
   defaultStaffId?: string;
   /** Prefill customer when opening from CRM / Reception without an appointment. */
@@ -169,8 +171,10 @@ function BookingSheetSession({
   taxRates = [],
   timezone,
   forceQuickAddCustomer = false,
+  calendarSelection = false,
 }: BookingSheetProps) {
   const isEditing = !!appointment;
+  const explicitCalendarSelection = calendarSelection && !isEditing;
   const createSubmitGuardRef = useRef(false);
   const action = isEditing ? updateAppointment : createAppointment;
   const [state, formAction, pending] = useActionState(
@@ -235,11 +239,12 @@ function BookingSheetSession({
         ? defaultServiceId
         : null) ??
       (!appointment &&
+      !explicitCalendarSelection &&
       prefs.serviceId &&
       locationServices.some((s) => s.id === prefs.serviceId)
         ? prefs.serviceId
         : null) ??
-      locationServices[0]?.id ??
+      (explicitCalendarSelection ? "" : locationServices[0]?.id) ??
       "";
 
     const selectedSvc = services.find((s) => s.id === serviceId);
@@ -262,7 +267,7 @@ function BookingSheetSession({
     const eligible = locationId ? filterEligibleBookingStaff(staff, {
       serviceId,
       locationId,
-    }) : [];
+    }) : explicitCalendarSelection ? staff.filter((member) => member.is_active) : [];
 
     const draftStaff =
       !appointment && (draft?.staffId === "" || draft?.staffId)
@@ -281,7 +286,7 @@ function BookingSheetSession({
           : ((defaultStaffId && eligible.some((m) => m.id === defaultStaffId)
               ? defaultStaffId
               : null) ??
-            (prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
+            (!explicitCalendarSelection && prefs.staffId && eligible.some((m) => m.id === prefs.staffId)
               ? prefs.staffId
               : null) ??
             "");
@@ -316,6 +321,7 @@ function BookingSheetSession({
     };
   }, [
     appointment,
+    explicitCalendarSelection,
     services,
     locations,
     staff,
@@ -391,6 +397,8 @@ function BookingSheetSession({
         scope.mode === "single" ? scope.locationId : "all",
         draft?.serviceId ?? "",
         draft?.startIso ?? "",
+        draft?.date ?? "",
+        explicitCalendarSelection,
         draft?.durationMinutes ?? "",
         draft?.customerId ?? "",
         draft?.staffId ?? "",
@@ -444,6 +452,7 @@ function BookingSheetSession({
   );
   useEffect(() => {
     if (!open) return;
+    if (explicitCalendarSelection && !locationId) return;
     if (!staffId) {
       setStaffEligibilityNote(null);
       return;
@@ -456,7 +465,7 @@ function BookingSheetSession({
     setStaffEligibilityNote(
       "The previously selected employee is not available for this service or location. Selection reset to Unassigned — assign later.",
     );
-  }, [open, eligibleStaff, staffId]);
+  }, [open, eligibleStaff, staffId, explicitCalendarSelection, locationId]);
 
   // The user is the authority on staff assignment. Unassigned ("") is a
   // deliberate, valid choice and must never be silently overridden by
@@ -489,6 +498,8 @@ function BookingSheetSession({
   const durationMinutes = resolvedDuration.minutes;
   const excludeId = appointment?.id;
   const staffOptionKey = eligibleStaff.map((m) => m.id).join(",");
+  const availabilityContext = JSON.stringify([serviceId, activeStaffId, locationId, date, excludeId, staffOptionKey, durationMinutes]);
+  const [availabilityFor, setAvailabilityFor] = useState<string | null>(null);
 
   useEffect(() => {
     if (packagesProp || !open) return;
@@ -532,7 +543,10 @@ function BookingSheetSession({
           });
           // Availability is display-only. Never auto-select a slot here —
           // the user (or Summer, explicitly) chooses the time.
-          if (!cancelled) setAvailability(result);
+          if (!cancelled) {
+            setAvailability(result);
+            setAvailabilityFor(availabilityContext);
+          }
         } catch {
           if (!cancelled) {
             setAvailability({
@@ -562,6 +576,7 @@ function BookingSheetSession({
     eligibleStaff,
     durationMinutes,
     isCancelled,
+    availabilityContext,
   ]);
 
   useEffect(() => {
@@ -597,8 +612,10 @@ function BookingSheetSession({
   // false conflict.
   const selectedSlotValid =
     !slot ||
-    availLoading ||
-    (availability?.slots ?? []).some((s) => slotKey(s.start) === slotKey(slot));
+    (explicitCalendarSelection
+      ? !availLoading && availabilityFor === availabilityContext &&
+        (availability?.slots ?? []).some((s) => new Date(s.start).getTime() === new Date(slot).getTime())
+      : availLoading || (availability?.slots ?? []).some((s) => slotKey(s.start) === slotKey(slot)));
   const slotConflict =
     slot && !selectedSlotValid
       ? "This time conflicts with employee hours, duration, or an existing booking."
@@ -717,7 +734,7 @@ function handleStaffChange(id: string) {
       ),
     );
     if (!offered.some((service) => service.id === serviceId)) {
-      handleServiceChange(offered[0]?.id ?? "");
+      handleServiceChange(explicitCalendarSelection && offerType === "service" ? "" : offered[0]?.id ?? "");
     }
   }
 
@@ -921,7 +938,7 @@ function handleStaffChange(id: string) {
       footer={
         <form
           action={(fd) => {
-            if (createdAppointmentId) return;
+            if (createdAppointmentId || (explicitCalendarSelection && !canSubmit)) return;
             if (!isEditing) {
               // Claim synchronously: pending may not render before another submit.
               if (createSubmitGuardRef.current) return;
@@ -1124,6 +1141,7 @@ function handleStaffChange(id: string) {
         ) : null}
 
         <AppointmentSection
+          requireServiceSelection={explicitCalendarSelection}
           services={services}
           packages={packages}
           staff={staff}

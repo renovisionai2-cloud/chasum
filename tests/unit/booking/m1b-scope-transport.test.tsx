@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
-import { cleanup, render, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useEffect, type ComponentProps } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import ts from "typescript";
 import { ReceptionWorkspace } from "@/components/reception/reception-workspace";
 import type { LocationScope } from "@/lib/location/constants";
 
@@ -48,6 +49,8 @@ function props(scope: LocationScope): ComponentProps<typeof ReceptionWorkspace> 
 describe("M1B required canonical scope transport", () => {
   it.each<LocationScope>([{ mode: "single", locationId: "branch" }, { mode: "all" }])("T1–T3 forwards the same object through both Calendar/Reception chains: %j", async (scope) => {
     render(<ReceptionWorkspace {...props(scope)} />);
+    expect(mocks.quick).not.toHaveBeenCalled();
+    fireEvent.click(screen.getAllByRole("button", { name: "Open reception panel" })[0]);
     await waitFor(() => expect(mocks.quick).toHaveBeenCalled());
     expect(mocks.sheet.mock.lastCall?.[0].scope).toBe(scope);
     expect(mocks.quick.mock.lastCall?.[0].scope).toBe(scope);
@@ -79,8 +82,30 @@ describe("M1B required canonical scope transport", () => {
     }
     const calendar = readFileSync("components/calendar/calendar-client.tsx", "utf8");
     expect(calendar).toContain('const selectedLocationId = scope.mode === "single" ? scope.locationId : null;');
-    // Declaration plus the two authorized consumers, with no parallel prop forwarding.
-    expect(calendar.match(/selectedLocationId/g)).toHaveLength(3);
+    // Verify the actual component boundary, not the number of local references.
+    // Calendar drafts may legitimately reuse the derived Location ID.
+    const ast = ts.createSourceFile("calendar-client.tsx", calendar, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const consumers = new Map<string, ts.JsxAttributes[]>();
+    function visit(node: ts.Node) {
+      if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
+        const name = node.tagName.getText(ast);
+        if (["BookingSheet", "ReceptionPanel"].includes(name)) {
+          consumers.set(name, [...(consumers.get(name) ?? []), node.attributes]);
+        }
+      }
+      ts.forEachChild(node, visit);
+    }
+    visit(ast);
+    expect([...consumers.keys()].sort()).toEqual(["BookingSheet", "ReceptionPanel"]);
+    for (const attributes of [...consumers.values()].flat()) {
+      const scopeAttributes = attributes.properties.filter((prop) => ts.isJsxAttribute(prop) && prop.name.getText(ast) === "scope");
+      expect(scopeAttributes).toHaveLength(1);
+      expect(scopeAttributes[0].getText(ast)).toBe("scope={scope}");
+      expect(attributes.properties.some(ts.isJsxSpreadAttribute)).toBe(false);
+      for (const prop of attributes.properties) {
+        if (ts.isJsxAttribute(prop)) expect(prop.name.getText(ast)).not.toMatch(/^(selectedLocationId|defaultLocationId)$/);
+      }
+    }
     for (const page of ["app/(dashboard)/dashboard/calendar/page.tsx", "app/(dashboard)/dashboard/clients/[id]/page.tsx"]) {
       const source = readFileSync(page, "utf8");
       expect(source).toContain("getLocationScope()");
