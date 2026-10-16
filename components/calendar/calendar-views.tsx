@@ -299,6 +299,7 @@ type MonthViewProps = {
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
   onSelectDay: (date: Date) => void;
+  onCreateAppointment?: (date: Date) => void;
   colorMode?: CalendarColorMode;
 };
 
@@ -308,6 +309,7 @@ export function MonthView({
   appointments,
   onSelectAppointment,
   onSelectDay,
+  onCreateAppointment,
   colorMode = "service",
 }: MonthViewProps) {
   const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -378,6 +380,16 @@ export function MonthView({
                 >
                   {day.getDate()}
                 </button>
+                {onCreateAppointment ? (
+                  <button
+                    type="button"
+                    className="min-h-11 w-full rounded-md text-xs font-medium text-primary hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    aria-label={`Add appointment on ${format(day, "MMMM d, yyyy")}`}
+                    onClick={() => onCreateAppointment(day)}
+                  >
+                    <span aria-hidden="true">+<span className="hidden sm:inline"> Add</span></span>
+                  </button>
+                ) : null}
                 <div className="mt-1 flex min-h-0 flex-1 flex-col gap-1">
                   {dayAppts.slice(0, visibleLimit).map((appt) => {
                     const fill =

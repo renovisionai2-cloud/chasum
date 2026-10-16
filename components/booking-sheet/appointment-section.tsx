@@ -40,6 +40,7 @@ type AppointmentSectionProps = {
   offerType: BookingOfferType;
   packageId: string;
   serviceId: string;
+  requireServiceSelection?: boolean;
   staffId: string;
   locationId: string;
   date: string;
@@ -80,6 +81,7 @@ export function AppointmentSection({
   offerType,
   packageId,
   serviceId,
+  requireServiceSelection = false,
   staffId,
   locationId,
   date,
@@ -271,6 +273,9 @@ export function AppointmentSection({
               !locationId || locked || (offerType === "package" && includedNames.length > 0)
             }
           >
+            {requireServiceSelection && offerType === "service" && selectableServices.length > 0 ? (
+              <option value="">Choose a service</option>
+            ) : null}
             {selectableServices.length === 0 ? (
               <option value="">
                 {!locationId
