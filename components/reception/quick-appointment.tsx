@@ -24,6 +24,13 @@ import { SlotPicker } from "@/components/scheduling/slot-picker";
 import { createAppointment } from "@/lib/actions/appointments";
 import { previewBookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { quickCreateCustomer } from "@/lib/actions/customers";
+import {
+  CONTACT_REQUIRED_MESSAGE,
+  customerEmailLabel,
+  isEligibleCustomerEmail,
+  isUsablePhone,
+  SHARED_PHONE_WARNING,
+} from "@/lib/customers/contact-identity";
 import { getDashboardAvailableSlots } from "@/lib/actions/scheduling";
 import { getEligibleStaffForBooking } from "@/lib/actions/staff";
 import type { TaxRate } from "@/lib/business/types";
@@ -91,10 +98,6 @@ type QuickAppointmentProps = {
   /** Emits structured draft whenever booking fields change (for Booking Sheet transfer). */
   onDraftChange?: (draft: BookingDraft) => void;
 };
-
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
 
 function focusNext(
   e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -195,6 +198,9 @@ export function QuickAppointmentForm({
     firstName?: string;
     email?: string;
   }>({});
+  const [phoneMatches, setPhoneMatches] = useState<
+    Array<{ id: string; name: string; email: string | null; phone: string | null }> | null
+  >(null);
   const [creating, setCreating] = useState(false);
   const [bookingPhase, setBookingPhase] = useState<
     "draft" | "confirming" | "confirmed"
@@ -508,8 +514,8 @@ export function QuickAppointmentForm({
   );
 
   const emailError =
-    emailTouched && newEmail.trim() && !isValidEmail(newEmail)
-      ? "Enter a valid email."
+    emailTouched && newEmail.trim() && !isEligibleCustomerEmail(newEmail)
+      ? "Enter a valid email address, or leave it empty and use a phone number."
       : fieldErrors.email ?? null;
 
   const needsNamedEmployee =
@@ -542,18 +548,19 @@ export function QuickAppointmentForm({
     setNewNotes("");
     setEmailTouched(false);
     setFieldErrors({});
+    setPhoneMatches(null);
   }
 
-  async function handleQuickCreate() {
+  async function handleQuickCreate(createSeparatePerson = false) {
     const errors: { firstName?: string; email?: string } = {};
     if (!firstName.trim()) {
       errors.firstName = "First name is required.";
     }
     setEmailTouched(true);
-    if (!newEmail.trim()) {
-      errors.email = "Email is required.";
-    } else if (!isValidEmail(newEmail)) {
-      errors.email = "Enter a valid email.";
+    if (newEmail.trim() && !isEligibleCustomerEmail(newEmail)) {
+      errors.email = "Enter a valid email address, or leave it empty and use a phone number.";
+    } else if (!newEmail.trim() && !isUsablePhone(newPhone)) {
+      errors.email = CONTACT_REQUIRED_MESSAGE;
     }
     setFieldErrors(errors);
     if (errors.firstName) {
@@ -575,9 +582,23 @@ export function QuickAppointmentForm({
       email: newEmail,
       phone: newPhone || undefined,
       notes: newNotes || undefined,
+      createSeparatePerson,
     });
     setCreating(false);
+    if (result.emailMatches && result.emailMatches.length > 0) {
+      setPhoneMatches(null);
+      setFieldErrors({
+        email: result.error ?? "A customer with this email already exists.",
+      });
+      emailRef.current?.focus();
+      return;
+    }
+    if (result.phoneMatches && result.phoneMatches.length > 0 && !createSeparatePerson) {
+      setPhoneMatches(result.phoneMatches);
+      return;
+    }
     if (result.error || !result.customerId) {
+      setPhoneMatches(null);
       toast(result.error ?? "Could not create customer.", "error");
       return;
     }
@@ -585,8 +606,8 @@ export function QuickAppointmentForm({
       id: result.customerId,
       business_id: "",
       name: fullName,
-      email: newEmail.trim(),
-      phone: newPhone.trim() || null,
+      email: result.email ?? null,
+      phone: result.phone ?? null,
       notes: newNotes.trim() || null,
       tags: [],
       referral_source: null,
@@ -596,6 +617,7 @@ export function QuickAppointmentForm({
     setExtraCustomers((prev) => [...prev, created]);
     setCustomerId(result.customerId);
     setCreateSuccess(true);
+    setPhoneMatches(null);
     pushRecentCustomer(created);
     onCustomerCreated?.(created);
 
@@ -924,6 +946,7 @@ export function QuickAppointmentForm({
               onBlur={() => setEmailTouched(true)}
               placeholder="name@email.com"
               aria-invalid={!!emailError}
+              aria-describedby={emailError ? "qa-email-error" : "qa-contact-hint"}
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
                   e.preventDefault();
@@ -934,10 +957,14 @@ export function QuickAppointmentForm({
               }}
             />
             {emailError ? (
-              <p className="text-xs text-destructive" role="alert">
+              <p id="qa-email-error" className="text-xs text-destructive" role="alert">
                 {emailError}
               </p>
-            ) : null}
+            ) : (
+              <p id="qa-contact-hint" className="text-xs text-muted-foreground">
+                A phone number or email is how you reach this customer. Either one is enough.
+              </p>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="qa_new_notes">Notes</Label>
@@ -965,13 +992,70 @@ export function QuickAppointmentForm({
               Enter moves fields · ⌘Enter saves
             </p>
           </div>
+          {phoneMatches && phoneMatches.length > 0 ? (
+            <div className="space-y-2 rounded-[var(--radius-md)] border border-border bg-card p-2" role="status">
+              <p className="text-xs text-muted-foreground">{SHARED_PHONE_WARNING}</p>
+              <ul className="space-y-2">
+                {phoneMatches.map((match) => (
+                  <li key={match.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="min-w-0 truncate text-sm">
+                      {match.name}
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {customerEmailLabel(match.email)}
+                        {match.phone ? ` · ${match.phone}` : ""}
+                      </span>
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const chosen: Customer = {
+                          id: match.id,
+                          business_id: "",
+                          name: match.name,
+                          email: match.email,
+                          phone: match.phone,
+                          notes: null,
+                          tags: [],
+                          referral_source: null,
+                          created_at: new Date().toISOString(),
+                          updated_at: new Date().toISOString(),
+                        };
+                        setExtraCustomers((prev) =>
+                          prev.some((c) => c.id === chosen.id) ? prev : [...prev, chosen],
+                        );
+                        setCustomerId(chosen.id);
+                        setPhoneMatches(null);
+                        setShowCreate(false);
+                        pushRecentCustomer(chosen);
+                        onCustomerCreated?.(chosen);
+                      }}
+                    >
+                      Use this customer
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={creating}
+                onClick={() => void handleQuickCreate(true)}
+              >
+                Create separate person
+              </Button>
+            </div>
+          ) : null}
           <div className="flex gap-2 pt-1">
             <Button
               type="button"
               size="sm"
               className="flex-1"
-              disabled={creating || !firstName.trim() || !newEmail.trim()}
-              onClick={() => void handleQuickCreate()}
+              disabled={creating || !firstName.trim()}
+              onClick={() => void handleQuickCreate(false)}
             >
               {creating ? "Saving…" : "Save & book"}
             </Button>

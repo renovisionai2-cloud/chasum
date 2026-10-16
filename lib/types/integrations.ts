@@ -139,7 +139,7 @@ export type WaitlistEntry = {
   status: WaitlistStatus;
   notes: string | null;
   created_at: string;
-  customer?: { id: string; name: string; email: string; phone: string | null };
+  customer?: { id: string; name: string; email: string | null; phone: string | null };
   service?: { id: string; name: string };
   staff?: { id: string; name: string } | null;
 };

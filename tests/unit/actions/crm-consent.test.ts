@@ -726,4 +726,34 @@ describe("consent timestamp transitions", () => {
       }),
     ).toBeNull();
   });
+
+  it("creates a phone-only customer with a null email and no placeholder", async () => {
+    const result = await createCrmCustomer(
+      {},
+      form({ first_name: "Walk", last_name: "In", phone: "4165550100" }),
+    );
+    expect(result).toEqual({ success: "Client added." });
+    expect(insertedRows[0].email).toBeNull();
+    expect(insertedRows[0].phone).toBe("4165550100");
+    expect(JSON.stringify(insertedRows)).not.toContain("chasum.local");
+  });
+
+  it("keeps a null email null during a consent-only save", async () => {
+    existingCustomer.current = {
+      id: "cust-1",
+      email: null,
+      phone: "4165550100",
+      marketing_consent: false,
+      marketing_consent_at: null,
+      updated_at: VERSION_A,
+    };
+    const result = await updateCrmCustomer(
+      {},
+      consentSave("grant", "true", { email: "", phone: "4165550100" }),
+    );
+    expect(result).toEqual({ success: "Customer profile saved." });
+    expect(updatedRows[0]).not.toHaveProperty("email");
+    expect(updatedRows[0].marketing_consent).toBe(true);
+    expect(updatedRows[0].phone).toBe("4165550100");
+  });
 });

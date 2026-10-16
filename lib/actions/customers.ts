@@ -4,9 +4,21 @@ import { unknownMoney } from "@/lib/commerce/financial-aggregate/types";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getCommunicationService } from "@/lib/communication/service";
+import {
+  collectExactPhoneMatches,
+  DUPLICATE_LOOKUP_FAILED,
+  readEmailField,
+  readPhoneField,
+  resolveEmailUpdate,
+  SHARED_PHONE_WARNING,
+  validateCreateContact,
+  type PhoneCandidateRow,
+} from "@/lib/customers/contact-identity";
 import { createClient } from "@/lib/supabase/server";
 import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
+
+export type CustomerMatch = PhoneCandidateRow;
 
 export async function getCustomers(search?: string) {
   const business = await getOrCreateBusiness();
@@ -38,15 +50,20 @@ export async function createCustomer(
   const supabase = await createClient();
 
   const name = (formData.get("name") as string)?.trim();
-  const email = (formData.get("email") as string)?.trim();
-  const phone = (formData.get("phone") as string) || null;
+  const emailField = readEmailField(formData);
+  if (emailField.kind === "invalid") return { error: emailField.error };
+  const phone = readPhoneField(formData);
   const address = (formData.get("address") as string)?.trim() || null;
   const notes = (formData.get("notes") as string) || null;
   const referralSource =
     (formData.get("referral_source") as string)?.trim() || null;
 
   if (!name) return { error: "Customer name is required." };
-  if (!email) return { error: "Email is required." };
+  const contact = validateCreateContact({
+    email: emailField.kind === "set" ? emailField.email : null,
+    phone: phone.kind === "set" ? phone.phone : null,
+  });
+  if (!contact.ok) return { error: contact.error };
 
   const tagsRaw = (formData.get("tags") as string) || "";
   const tags = tagsRaw
@@ -57,8 +74,8 @@ export async function createCustomer(
   const { error } = await supabase.from("customers").insert({
     business_id: business.id,
     name,
-    email,
-    phone,
+    email: contact.email,
+    phone: contact.phone,
     address,
     notes,
     tags,
@@ -80,74 +97,79 @@ export async function createCustomer(
 /** Inline create from appointment modal — returns new customer id. */
 export async function quickCreateCustomer(input: {
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
   notes?: string;
-  /** When true, return matches instead of inserting on email/phone collision. */
+  /** When true, report matches without inserting. */
   checkDuplicatesOnly?: boolean;
+  /**
+   * Operator explicitly chose "Create a separate person" after a shared-phone
+   * warning. Email collisions still block. Never merges.
+   */
+  createSeparatePerson?: boolean;
 }): Promise<
   ActionState & {
     customerId?: string;
-    duplicates?: Array<{ id: string; name: string; email: string; phone: string | null }>;
+    email?: string | null;
+    phone?: string | null;
+    /** Hard email collision. Do not create. */
+    emailMatches?: CustomerMatch[];
+    /** Shared-phone warning. Create only after an explicit choice. */
+    phoneMatches?: CustomerMatch[];
   }
 > {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
   const name = input.name.trim();
-  const email = input.email.trim();
   if (!name) return { error: "Customer name is required." };
-  if (!email) return { error: "Email is required." };
+  const contact = validateCreateContact({
+    email: input.email,
+    phone: input.phone,
+  });
+  if (!contact.ok) return { error: contact.error };
 
-  const phone = input.phone?.trim() || null;
-  const duplicates: Array<{
-    id: string;
-    name: string;
-    email: string;
-    phone: string | null;
-  }> = [];
-
-  const { data: emailHits } = await supabase
-    .from("customers")
-    .select("id, name, email, phone")
-    .eq("business_id", business.id)
-    .ilike("email", email)
-    .limit(5);
-  for (const row of emailHits ?? []) {
-    duplicates.push(row);
-  }
-
-  if (phone) {
-    const digits = phone.replace(/\D/g, "");
-    if (digits.length >= 7) {
-      const { data: phoneHits } = await supabase
-        .from("customers")
-        .select("id, name, email, phone")
-        .eq("business_id", business.id)
-        .not("phone", "is", null)
-        .limit(50);
-      for (const row of phoneHits ?? []) {
-        const rowDigits = String(row.phone ?? "").replace(/\D/g, "");
-        if (
-          rowDigits &&
-          (rowDigits === digits ||
-            rowDigits.endsWith(digits) ||
-            digits.endsWith(rowDigits))
-        ) {
-          if (!duplicates.some((d) => d.id === row.id)) {
-            duplicates.push(row);
-          }
-        }
-      }
+  if (contact.email) {
+    const emailQuery = await supabase
+      .from("customers")
+      .select("id, name, email, phone")
+      .eq("business_id", business.id)
+      .ilike("email", contact.email)
+      .limit(5);
+    if (emailQuery.error) return { error: DUPLICATE_LOOKUP_FAILED };
+    const emailMatches = (emailQuery.data ?? []) as CustomerMatch[];
+    if (emailMatches.length > 0) {
+      return {
+        error: "A customer with this email already exists.",
+        emailMatches,
+      };
     }
   }
 
-  if (duplicates.length > 0) {
-    return {
-      error:
-        "A matching customer may already exist. Select an existing record to avoid duplicates.",
-      duplicates,
-    };
+  if (contact.phone) {
+    const phoneScan = await collectExactPhoneMatches({
+      digits: contact.phone,
+      fetchPage: async (from, pageSize) => {
+        const page = await supabase
+          .from("customers")
+          .select("id, name, email, phone")
+          .eq("business_id", business.id)
+          .not("phone", "is", null)
+          .order("id", { ascending: true })
+          .range(from, from + pageSize - 1);
+        return {
+          data: (page.data ?? null) as CustomerMatch[] | null,
+          error: page.error ? { message: page.error.message } : null,
+        };
+      },
+    });
+    if (!phoneScan.ok) return { error: phoneScan.error };
+    if (phoneScan.matches.length > 0 && !input.createSeparatePerson) {
+      return {
+        phoneMatches: phoneScan.matches,
+        error: SHARED_PHONE_WARNING,
+      };
+    }
   }
 
   if (input.checkDuplicatesOnly) {
@@ -159,8 +181,8 @@ export async function quickCreateCustomer(input: {
     .insert({
       business_id: business.id,
       name,
-      email,
-      phone,
+      email: contact.email,
+      phone: contact.phone,
       notes: input.notes?.trim() || null,
       tags: [],
     })
@@ -176,7 +198,12 @@ export async function quickCreateCustomer(input: {
 
   revalidatePath("/dashboard/clients");
   revalidatePath("/dashboard/calendar");
-  return { success: "Client added.", customerId: data.id };
+  return {
+    success: "Client added.",
+    customerId: data.id,
+    email: contact.email,
+    phone: contact.phone,
+  };
 }
 
 export async function updateCustomer(
@@ -187,24 +214,50 @@ export async function updateCustomer(
   const supabase = await createClient();
   const id = formData.get("id") as string;
 
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Customer name is required." };
+
   const tagsRaw = (formData.get("tags") as string) || "";
   const tags = tagsRaw
     .split(",")
     .map((t) => t.trim())
     .filter(Boolean);
 
+  const emailField = readEmailField(formData);
+  const phoneField = readPhoneField(formData);
+  const { data: existing, error: existingError } = await supabase
+    .from("customers")
+    .select("email, phone")
+    .eq("id", id)
+    .eq("business_id", business.id)
+    .maybeSingle();
+  if (existingError) return { error: existingError.message };
+  if (!existing) return { error: "Customer not found." };
+
+  const nextPhone =
+    phoneField.kind === "set" ? phoneField.phone : existing.phone;
+  const emailUpdate = resolveEmailUpdate({
+    field: emailField,
+    existingEmail: existing.email,
+    nextPhone,
+    consentOnly: false,
+  });
+  if ("error" in emailUpdate) return { error: emailUpdate.error };
+
+  const patch: Record<string, unknown> = {
+    name,
+    address: (formData.get("address") as string)?.trim() || null,
+    notes: (formData.get("notes") as string) || null,
+    referral_source:
+      (formData.get("referral_source") as string)?.trim() || null,
+    tags,
+  };
+  if (!emailUpdate.omit) patch.email = emailUpdate.email;
+  if (phoneField.kind === "set") patch.phone = phoneField.phone;
+
   const { error } = await supabase
     .from("customers")
-    .update({
-      name: (formData.get("name") as string).trim(),
-      email: (formData.get("email") as string).trim(),
-      phone: (formData.get("phone") as string) || null,
-      address: (formData.get("address") as string)?.trim() || null,
-      notes: (formData.get("notes") as string) || null,
-      referral_source:
-        (formData.get("referral_source") as string)?.trim() || null,
-      tags,
-    })
+    .update(patch)
     .eq("id", id)
     .eq("business_id", business.id);
 

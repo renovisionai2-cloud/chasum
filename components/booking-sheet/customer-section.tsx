@@ -15,6 +15,7 @@ import {
 import { customerBalanceChipLabel } from "@/lib/commerce/customer-account-projection";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { useFormAction } from "@/hooks/use-form-action";
+import { customerEmailLabel, SHARED_PHONE_WARNING } from "@/lib/customers/contact-identity";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import type { ActionState, Customer } from "@/lib/types/booking";
 import { useToast } from "@/providers/toast-provider";
@@ -88,7 +89,7 @@ function EditCustomerDialog({
     onSaved({
       ...customer,
       name: String(fd.get("name") ?? customer.name).trim(),
-      email: String(fd.get("email") ?? customer.email).trim(),
+      email: String(fd.get("email") ?? customer.email ?? "").trim() || null,
       phone: String(fd.get("phone") ?? "").trim() || null,
       address: String(fd.get("address") ?? "").trim() || null,
       notes: String(fd.get("notes") ?? "").trim() || null,
@@ -118,9 +119,12 @@ function EditCustomerDialog({
             id="bs-edit-email"
             name="email"
             type="email"
-            defaultValue={customer.email}
-            required
+            defaultValue={customer.email ?? ""}
+            aria-describedby="bs-edit-contact-hint"
           />
+          <p id="bs-edit-contact-hint" className="text-xs text-muted-foreground">
+            Optional when a phone number is on file.
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="bs-edit-phone">Phone</Label>
@@ -189,6 +193,10 @@ export function CustomerSection({
   const [editOpen, setEditOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [draft, setDraft] = useState({ name: "", email: "", phone: "" });
+  const [contactError, setContactError] = useState<string | null>(null);
+  const [phoneMatches, setPhoneMatches] = useState<
+    Array<{ id: string; name: string; email: string | null; phone: string | null }> | null
+  >(null);
 
   function handleSelect(c: Customer) {
     pushRecentCustomer(c);
@@ -196,55 +204,40 @@ export function CustomerSection({
     setShowQuickAdd(false);
   }
 
-  function handleQuickAdd() {
+  function handleQuickAdd(createSeparatePerson = false) {
     if (!draft.name.trim()) {
-      toast("First and last name help identify the guest.", "error");
+      setContactError("A name is how you find this customer later.");
       return;
     }
+    setContactError(null);
     startTransition(async () => {
-      const result = await quickCreateCustomer(draft);
-      if (result.duplicates && result.duplicates.length > 0) {
-        toast(
-          result.error ??
-            "A matching customer may already exist — select them instead.",
-          "error",
+      const result = await quickCreateCustomer({
+        ...draft,
+        createSeparatePerson,
+      });
+      if (result.emailMatches && result.emailMatches.length > 0) {
+        setPhoneMatches(null);
+        setContactError(
+          result.error ?? "A customer with this email already exists.",
         );
-        const first = result.duplicates[0];
-        const existing = customers.find((c) => c.id === first.id);
-        if (existing) {
-          handleSelect(existing);
-          return;
-        }
-        const asCustomer: Customer = {
-          id: first.id,
-          business_id: "",
-          name: first.name,
-          email: first.email,
-          phone: first.phone,
-          notes: null,
-          tags: [],
-          referral_source: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        onCustomersChange(
-          [...customers, asCustomer].sort((a, b) =>
-            a.name.localeCompare(b.name),
-          ),
-        );
-        handleSelect(asCustomer);
+        return;
+      }
+      if (result.phoneMatches && result.phoneMatches.length > 0 && !createSeparatePerson) {
+        setPhoneMatches(result.phoneMatches);
+        setContactError(null);
         return;
       }
       if (result.error || !result.customerId) {
-        toast(result.error ?? "Could not add customer.", "error");
+        setPhoneMatches(null);
+        setContactError(result.error ?? "Could not add customer.");
         return;
       }
       const created: Customer = {
         id: result.customerId,
         business_id: "",
         name: draft.name.trim(),
-        email: draft.email.trim(),
-        phone: draft.phone.trim() || null,
+        email: result.email ?? null,
+        phone: result.phone ?? null,
         notes: null,
         tags: [],
         referral_source: null,
@@ -254,6 +247,7 @@ export function CustomerSection({
       onCustomersChange(
         [...customers, created].sort((a, b) => a.name.localeCompare(b.name)),
       );
+      setPhoneMatches(null);
       handleSelect(created);
       setDraft({ name: "", email: "", phone: "" });
       toast(result.success ?? "Customer added.", "success");
@@ -317,6 +311,7 @@ export function CustomerSection({
                 id="bs-qc-email"
                 type="email"
                 value={draft.email}
+                aria-describedby="bs-qc-contact-hint"
                 onChange={(e) =>
                   setDraft((d) => ({ ...d, email: e.target.value }))
                 }
@@ -326,19 +321,86 @@ export function CustomerSection({
               <Label htmlFor="bs-qc-phone">Phone</Label>
               <Input
                 id="bs-qc-phone"
+                type="tel"
                 value={draft.phone}
+                aria-describedby="bs-qc-contact-hint"
                 onChange={(e) =>
                   setDraft((d) => ({ ...d, phone: e.target.value }))
                 }
               />
             </div>
           </div>
+          <p id="bs-qc-contact-hint" className="text-xs text-muted-foreground">
+            A phone number or email is how you reach this customer. Either one is enough.
+          </p>
+          {contactError ? (
+            <p id="bs-qc-contact-error" className="text-xs text-destructive" role="alert">
+              {contactError}
+            </p>
+          ) : null}
+          {phoneMatches && phoneMatches.length > 0 ? (
+            <div className="space-y-2 rounded-[var(--radius-md)] border border-border bg-card p-2" role="status">
+              <p className="text-xs text-muted-foreground">{SHARED_PHONE_WARNING}</p>
+              <ul className="space-y-2">
+                {phoneMatches.map((match) => (
+                  <li key={match.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="min-w-0 truncate text-sm">
+                      {match.name}
+                      <span className="text-muted-foreground">
+                        {" "}
+                        · {customerEmailLabel(match.email)}
+                        {match.phone ? ` · ${match.phone}` : ""}
+                      </span>
+                    </span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const existing = customers.find((c) => c.id === match.id);
+                        const chosen: Customer = existing ?? {
+                          id: match.id,
+                          business_id: "",
+                          name: match.name,
+                          email: match.email,
+                          phone: match.phone,
+                          notes: null,
+                          tags: [],
+                          referral_source: null,
+                          created_at: new Date().toISOString(),
+                          updated_at: new Date().toISOString(),
+                        };
+                        if (!existing) {
+                          onCustomersChange(
+                            [...customers, chosen].sort((a, b) => a.name.localeCompare(b.name)),
+                          );
+                        }
+                        setPhoneMatches(null);
+                        handleSelect(chosen);
+                      }}
+                    >
+                      Use this customer
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={pending}
+                onClick={() => handleQuickAdd(true)}
+              >
+                Create separate person
+              </Button>
+            </div>
+          ) : null}
           <Button
             type="button"
             size="sm"
             className="w-full"
             disabled={pending}
-            onClick={handleQuickAdd}
+            onClick={() => handleQuickAdd(false)}
           >
             Save customer
           </Button>
@@ -372,12 +434,10 @@ export function CustomerSection({
                     {selected.phone}
                   </span>
                 ) : null}
-                {selected.email ? (
-                  <span className="inline-flex items-center gap-1 truncate">
-                    <Mail className="size-3" aria-hidden />
-                    {selected.email}
-                  </span>
-                ) : null}
+                <span className="inline-flex items-center gap-1 truncate">
+                  <Mail className="size-3" aria-hidden />
+                  {customerEmailLabel(selected.email)}
+                </span>
                 {selected.date_of_birth ? (
                   <span className="inline-flex items-center gap-1">
                     <Cake className="size-3" aria-hidden />

@@ -16,6 +16,7 @@ import {
   deleteCustomer,
   updateCustomer,
 } from "@/lib/actions/customers";
+import { customerEmailLabel } from "@/lib/customers/contact-identity";
 import type { ActionState, Customer } from "@/lib/types/booking";
 import { useToast } from "@/providers/toast-provider";
 import Link from "next/link";
@@ -43,11 +44,20 @@ function CustomerForm({
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" defaultValue={customer?.email} required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          defaultValue={customer?.email ?? ""}
+          aria-describedby="client-contact-hint"
+        />
+        <p id="client-contact-hint" className="text-xs text-muted-foreground">
+          Add an email or a phone number so you can reach this customer. Either one is enough.
+        </p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="phone">Phone</Label>
-        <Input id="phone" name="phone" type="tel" defaultValue={customer?.phone ?? ""} />
+        <Input id="phone" name="phone" type="tel" defaultValue={customer?.phone ?? ""} aria-describedby="client-contact-hint" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="address">Address</Label>
@@ -101,7 +111,8 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
   const filtered = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()),
+      (c.email ?? "").toLowerCase().includes(search.toLowerCase()) ||
+      (c.phone ?? "").toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -149,7 +160,7 @@ export function CustomersManager({ customers }: { customers: Customer[] }) {
                     {customer.name}
                   </Link>
                   <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" aria-hidden="true" />{customer.email}</span>
+                    <span className="flex items-center gap-1"><Mail className="h-3.5 w-3.5" aria-hidden="true" />{customerEmailLabel(customer.email)}</span>
                     {customer.phone && <span className="flex items-center gap-1"><Phone className="h-3.5 w-3.5" aria-hidden="true" />{customer.phone}</span>}
                   </div>
                   {customer.tags?.length > 0 && (

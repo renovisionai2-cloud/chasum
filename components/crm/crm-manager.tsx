@@ -48,7 +48,7 @@ function CreateCustomerForm({
         <Label htmlFor="email">Email</Label>
         <Input id="email" name="email" type="email" />
         <p className="text-xs text-muted-foreground">
-          Email or phone required — phone-only walk-ins are fine.
+          A phone number or email is how you reach this customer. Either one is enough.
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">

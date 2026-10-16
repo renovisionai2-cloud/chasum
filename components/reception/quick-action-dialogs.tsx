@@ -8,6 +8,10 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createAvailabilityBlock } from "@/lib/actions/availability";
 import { quickCreateCustomer } from "@/lib/actions/customers";
+import {
+  customerEmailLabel,
+  SHARED_PHONE_WARNING,
+} from "@/lib/customers/contact-identity";
 import type { StaffWithServices } from "@/lib/types/booking";
 import { useToast } from "@/providers/toast-provider";
 import { format } from "date-fns";
@@ -26,21 +30,38 @@ function NewCustomerForm({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [pending, setPending] = useState(false);
+  const [contactError, setContactError] = useState<string | null>(null);
+  const [phoneMatches, setPhoneMatches] = useState<
+    Array<{ id: string; name: string; email: string | null; phone: string | null }> | null
+  >(null);
 
   useEffect(() => {
     const t = window.setTimeout(() => nameRef.current?.focus(), 0);
     return () => window.clearTimeout(t);
   }, []);
 
-  async function submit() {
+  async function submit(createSeparatePerson = false) {
     setPending(true);
+    setContactError(null);
     const result = await quickCreateCustomer({
       name,
       email,
       phone: phone || undefined,
+      createSeparatePerson,
     });
     setPending(false);
+    if (result.emailMatches && result.emailMatches.length > 0) {
+      setPhoneMatches(null);
+      setContactError(result.error ?? "A customer with this email already exists.");
+      return;
+    }
+    if (result.phoneMatches && result.phoneMatches.length > 0 && !createSeparatePerson) {
+      setPhoneMatches(result.phoneMatches);
+      return;
+    }
     if (result.error || !result.customerId) {
+      setPhoneMatches(null);
+      setContactError(result.error ?? "Could not create customer.");
       toast(result.error ?? "Could not create customer.", "error");
       return;
     }
@@ -54,7 +75,7 @@ function NewCustomerForm({
       className="space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
-        void submit();
+        void submit(false);
       }}
     >
       <div className="space-y-2">
@@ -75,9 +96,13 @@ function NewCustomerForm({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
           autoComplete="email"
+          aria-describedby="qa-nc-contact-hint"
+          aria-invalid={!!contactError}
         />
+        <p id="qa-nc-contact-hint" className="text-xs text-muted-foreground">
+          A phone number or email is how you reach this customer. Either one is enough.
+        </p>
       </div>
       <div className="space-y-2">
         <Label htmlFor="qa_nc_phone">Phone</Label>
@@ -89,13 +114,57 @@ function NewCustomerForm({
           autoComplete="tel"
         />
       </div>
+      {contactError ? (
+        <p id="qa-nc-contact-error" className="text-xs text-destructive" role="alert">
+          {contactError}
+        </p>
+      ) : null}
+      {phoneMatches && phoneMatches.length > 0 ? (
+        <div className="space-y-2 rounded-[var(--radius-md)] border border-border p-2" role="status">
+          <p className="text-xs text-muted-foreground">{SHARED_PHONE_WARNING}</p>
+          <ul className="space-y-2">
+            {phoneMatches.map((match) => (
+              <li key={match.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <span className="min-w-0 truncate text-sm">
+                  {match.name}
+                  <span className="text-muted-foreground">
+                    {" "}
+                    · {customerEmailLabel(match.email)}
+                    {match.phone ? ` · ${match.phone}` : ""}
+                  </span>
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    onCreated?.(match.id, match.name);
+                    onClose();
+                  }}
+                >
+                  Use this customer
+                </Button>
+              </li>
+            ))}
+          </ul>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={pending}
+            onClick={() => void submit(true)}
+          >
+            Create separate person
+          </Button>
+        </div>
+      ) : null}
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
         <Button
           type="submit"
-          disabled={pending || !name.trim() || !email.trim()}
+          disabled={pending || !name.trim()}
         >
           {pending ? "Saving…" : "Create customer"}
         </Button>

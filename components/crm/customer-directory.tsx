@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import type { CrmDirectoryCustomer } from "@/lib/actions/crm";
+import { customerEmailLabel } from "@/lib/customers/contact-identity";
 import { displayCustomerName } from "@/lib/crm/display";
 import {
   CRM_STATUS_LABELS,
@@ -229,7 +230,7 @@ export function CustomerDirectory({
                         ) : null}
                       </div>
                       <p className="truncate text-sm text-muted-foreground">
-                        {customer.email}
+                        {customerEmailLabel(customer.email)}
                         {customer.phone ? ` · ${customer.phone}` : ""}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
