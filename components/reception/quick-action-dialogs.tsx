@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createAvailabilityBlock } from "@/lib/actions/availability";
 import { quickCreateCustomer } from "@/lib/actions/customers";
 import {
+  contactIdentityKey,
   customerEmailLabel,
   SHARED_PHONE_WARNING,
 } from "@/lib/customers/contact-identity";
@@ -31,36 +32,50 @@ function NewCustomerForm({
   const [phone, setPhone] = useState("");
   const [pending, setPending] = useState(false);
   const [contactError, setContactError] = useState<string | null>(null);
-  const [phoneMatches, setPhoneMatches] = useState<
-    Array<{ id: string; name: string; email: string | null; phone: string | null }> | null
-  >(null);
+  const [phoneWarning, setPhoneWarning] = useState<{
+    contactKey: string;
+    matches: Array<{ id: string; name: string; email: string | null; phone: string | null }>;
+  } | null>(null);
+
+  // A warning only answers the contact that produced it. Editing the phone or
+  // email retires the chooser, so a candidate found for one number can never
+  // be used for another — including when a slow response lands late.
+  const contactKey = contactIdentityKey({ email, phone });
+  const activeWarning =
+    phoneWarning && phoneWarning.contactKey === contactKey ? phoneWarning : null;
+  const staleWarning = phoneWarning !== null && activeWarning === null;
 
   useEffect(() => {
     const t = window.setTimeout(() => nameRef.current?.focus(), 0);
     return () => window.clearTimeout(t);
   }, []);
 
-  async function submit(createSeparatePerson = false) {
+  async function submit(acknowledgedContactKey?: string) {
+    const submittedKey = contactIdentityKey({ email, phone });
     setPending(true);
     setContactError(null);
     const result = await quickCreateCustomer({
       name,
       email,
       phone: phone || undefined,
-      createSeparatePerson,
+      createSeparatePerson: acknowledgedContactKey !== undefined,
+      acknowledgedContactKey,
     });
     setPending(false);
     if (result.emailMatches && result.emailMatches.length > 0) {
-      setPhoneMatches(null);
+      setPhoneWarning(null);
       setContactError(result.error ?? "A customer with this email already exists.");
       return;
     }
-    if (result.phoneMatches && result.phoneMatches.length > 0 && !createSeparatePerson) {
-      setPhoneMatches(result.phoneMatches);
+    if (result.phoneMatches && result.phoneMatches.length > 0) {
+      setPhoneWarning({
+        contactKey: result.warnedContactKey ?? submittedKey,
+        matches: result.phoneMatches,
+      });
       return;
     }
     if (result.error || !result.customerId) {
-      setPhoneMatches(null);
+      setPhoneWarning(null);
       setContactError(result.error ?? "Could not create customer.");
       toast(result.error ?? "Could not create customer.", "error");
       return;
@@ -75,7 +90,7 @@ function NewCustomerForm({
       className="space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
-        void submit(false);
+        void submit();
       }}
     >
       <div className="space-y-2">
@@ -95,7 +110,10 @@ function NewCustomerForm({
           id="qa_nc_email"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setContactError(null);
+          }}
           autoComplete="email"
           aria-describedby="qa-nc-contact-hint"
           aria-invalid={!!contactError}
@@ -110,7 +128,10 @@ function NewCustomerForm({
           id="qa_nc_phone"
           type="tel"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          onChange={(e) => {
+            setPhone(e.target.value);
+            setContactError(null);
+          }}
           autoComplete="tel"
         />
       </div>
@@ -119,11 +140,11 @@ function NewCustomerForm({
           {contactError}
         </p>
       ) : null}
-      {phoneMatches && phoneMatches.length > 0 ? (
+      {activeWarning ? (
         <div className="space-y-2 rounded-[var(--radius-md)] border border-border p-2" role="status">
           <p className="text-xs text-muted-foreground">{SHARED_PHONE_WARNING}</p>
           <ul className="space-y-2">
-            {phoneMatches.map((match) => (
+            {activeWarning.matches.map((match) => (
               <li key={match.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <span className="min-w-0 truncate text-sm">
                   {match.name}
@@ -152,11 +173,16 @@ function NewCustomerForm({
             size="sm"
             variant="secondary"
             disabled={pending}
-            onClick={() => void submit(true)}
+            onClick={() => void submit(activeWarning.contactKey)}
           >
             Create separate person
           </Button>
         </div>
+      ) : staleWarning ? (
+        <p className="text-xs text-muted-foreground" role="status">
+          The contact details changed, so the earlier shared-phone match no
+          longer applies. Save again to check the new number.
+        </p>
       ) : null}
       <div className="flex justify-end gap-2 pt-2">
         <Button type="button" variant="outline" onClick={onClose}>

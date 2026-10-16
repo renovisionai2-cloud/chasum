@@ -26,6 +26,7 @@ import { previewBookingSheetAvailability } from "@/lib/actions/booking-sheet";
 import { quickCreateCustomer } from "@/lib/actions/customers";
 import {
   CONTACT_REQUIRED_MESSAGE,
+  contactIdentityKey,
   customerEmailLabel,
   isEligibleCustomerEmail,
   isUsablePhone,
@@ -198,9 +199,10 @@ export function QuickAppointmentForm({
     firstName?: string;
     email?: string;
   }>({});
-  const [phoneMatches, setPhoneMatches] = useState<
-    Array<{ id: string; name: string; email: string | null; phone: string | null }> | null
-  >(null);
+  const [phoneWarning, setPhoneWarning] = useState<{
+    contactKey: string;
+    matches: Array<{ id: string; name: string; email: string | null; phone: string | null }>;
+  } | null>(null);
   const [creating, setCreating] = useState(false);
   const [bookingPhase, setBookingPhase] = useState<
     "draft" | "confirming" | "confirmed"
@@ -540,6 +542,19 @@ export function QuickAppointmentForm({
     !pending &&
     !submitGuardRef.current;
 
+  // A warning only answers the contact that produced it. Editing the phone or
+  // email retires the chooser, so a candidate found for one number can never
+  // be used for another — including when a slow response lands late.
+  const newContactKey = contactIdentityKey({
+    email: newEmail,
+    phone: newPhone,
+  });
+  const activeWarning =
+    phoneWarning && phoneWarning.contactKey === newContactKey
+      ? phoneWarning
+      : null;
+  const staleWarning = phoneWarning !== null && activeWarning === null;
+
   function resetCreateFields() {
     setFirstName("");
     setLastName("");
@@ -548,10 +563,10 @@ export function QuickAppointmentForm({
     setNewNotes("");
     setEmailTouched(false);
     setFieldErrors({});
-    setPhoneMatches(null);
+    setPhoneWarning(null);
   }
 
-  async function handleQuickCreate(createSeparatePerson = false) {
+  async function handleQuickCreate(acknowledgedContactKey?: string) {
     const errors: { firstName?: string; email?: string } = {};
     if (!firstName.trim()) {
       errors.firstName = "First name is required.";
@@ -576,29 +591,37 @@ export function QuickAppointmentForm({
       .filter(Boolean)
       .join(" ");
 
+    const submittedKey = contactIdentityKey({
+      email: newEmail,
+      phone: newPhone,
+    });
     setCreating(true);
     const result = await quickCreateCustomer({
       name: fullName,
       email: newEmail,
       phone: newPhone || undefined,
       notes: newNotes || undefined,
-      createSeparatePerson,
+      createSeparatePerson: acknowledgedContactKey !== undefined,
+      acknowledgedContactKey,
     });
     setCreating(false);
     if (result.emailMatches && result.emailMatches.length > 0) {
-      setPhoneMatches(null);
+      setPhoneWarning(null);
       setFieldErrors({
         email: result.error ?? "A customer with this email already exists.",
       });
       emailRef.current?.focus();
       return;
     }
-    if (result.phoneMatches && result.phoneMatches.length > 0 && !createSeparatePerson) {
-      setPhoneMatches(result.phoneMatches);
+    if (result.phoneMatches && result.phoneMatches.length > 0) {
+      setPhoneWarning({
+        contactKey: result.warnedContactKey ?? submittedKey,
+        matches: result.phoneMatches,
+      });
       return;
     }
     if (result.error || !result.customerId) {
-      setPhoneMatches(null);
+      setPhoneWarning(null);
       toast(result.error ?? "Could not create customer.", "error");
       return;
     }
@@ -617,7 +640,7 @@ export function QuickAppointmentForm({
     setExtraCustomers((prev) => [...prev, created]);
     setCustomerId(result.customerId);
     setCreateSuccess(true);
-    setPhoneMatches(null);
+    setPhoneWarning(null);
     pushRecentCustomer(created);
     onCustomerCreated?.(created);
 
@@ -917,7 +940,12 @@ export function QuickAppointmentForm({
               inputMode="tel"
               autoComplete="tel"
               value={newPhone}
-              onChange={(e) => setNewPhone(formatPhoneInput(e.target.value))}
+              onChange={(e) => {
+                setNewPhone(formatPhoneInput(e.target.value));
+                if (fieldErrors.email) {
+                  setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                }
+              }}
               placeholder="(555) 123-4567"
               onKeyDown={(e) => {
                 if (e.key === "Escape") {
@@ -992,11 +1020,11 @@ export function QuickAppointmentForm({
               Enter moves fields · ⌘Enter saves
             </p>
           </div>
-          {phoneMatches && phoneMatches.length > 0 ? (
+          {activeWarning ? (
             <div className="space-y-2 rounded-[var(--radius-md)] border border-border bg-card p-2" role="status">
               <p className="text-xs text-muted-foreground">{SHARED_PHONE_WARNING}</p>
               <ul className="space-y-2">
-                {phoneMatches.map((match) => (
+                {activeWarning.matches.map((match) => (
                   <li key={match.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <span className="min-w-0 truncate text-sm">
                       {match.name}
@@ -1027,7 +1055,7 @@ export function QuickAppointmentForm({
                           prev.some((c) => c.id === chosen.id) ? prev : [...prev, chosen],
                         );
                         setCustomerId(chosen.id);
-                        setPhoneMatches(null);
+                        setPhoneWarning(null);
                         setShowCreate(false);
                         pushRecentCustomer(chosen);
                         onCustomerCreated?.(chosen);
@@ -1043,11 +1071,16 @@ export function QuickAppointmentForm({
                 size="sm"
                 variant="secondary"
                 disabled={creating}
-                onClick={() => void handleQuickCreate(true)}
+                onClick={() => void handleQuickCreate(activeWarning.contactKey)}
               >
                 Create separate person
               </Button>
             </div>
+          ) : staleWarning ? (
+            <p className="text-xs text-muted-foreground" role="status">
+              The contact details changed, so the earlier shared-phone match no
+              longer applies. Save again to check the new number.
+            </p>
           ) : null}
           <div className="flex gap-2 pt-1">
             <Button
@@ -1055,7 +1088,7 @@ export function QuickAppointmentForm({
               size="sm"
               className="flex-1"
               disabled={creating || !firstName.trim()}
-              onClick={() => void handleQuickCreate(false)}
+              onClick={() => void handleQuickCreate()}
             >
               {creating ? "Saving…" : "Save & book"}
             </Button>

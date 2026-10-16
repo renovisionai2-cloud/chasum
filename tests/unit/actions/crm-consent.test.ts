@@ -17,6 +17,9 @@ const {
   updateErrorOnce,
   selectError,
   updateReturnsRow,
+  phoneScanRows,
+  phoneScanError,
+  phoneScanRanges,
 } = vi.hoisted(() => ({
   getOrCreateBusiness: vi.fn(),
   insertSingle: vi.fn(),
@@ -36,6 +39,17 @@ const {
   updateErrorOnce: { current: null as { message: string } | null },
   selectError: { current: null as { message: string } | null },
   updateReturnsRow: { current: true },
+  phoneScanRows: {
+    current: [] as Array<{
+      id: string;
+      business_id: string;
+      name: string;
+      email: string | null;
+      phone: string | null;
+    }>,
+  },
+  phoneScanError: { current: null as { message: string } | null },
+  phoneScanRanges: [] as Array<[number, number]>,
 }));
 
 vi.mock("@/lib/actions/business", () => ({
@@ -70,6 +84,32 @@ vi.mock("@/lib/supabase/server", () => ({
                 return { data: null, error: selectError.current };
               }
               return { data: existingCustomer.current, error: null };
+            },
+            // Business-scoped shared-phone scan used by createCrmCustomer.
+            not(key: string) {
+              filters[`not:${key}`] = "null";
+              return query;
+            },
+            order() {
+              return query;
+            },
+            range: async (from: number, to: number) => {
+              phoneScanRanges.push([from, to]);
+              if (phoneScanError.current) {
+                return { data: null, error: phoneScanError.current };
+              }
+              const data = phoneScanRows.current
+                .filter((row) => row.business_id === filters.business_id)
+                .filter((row) => row.phone)
+                .sort((a, b) => a.id.localeCompare(b.id))
+                .slice(from, to + 1)
+                .map((row) => ({
+                  id: row.id,
+                  name: row.name,
+                  email: row.email,
+                  phone: row.phone,
+                }));
+              return { data, error: null };
             },
           };
           return query;
@@ -125,6 +165,12 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import { createCrmCustomer, updateCrmCustomer } from "@/lib/actions/crm";
 import {
+  ACKNOWLEDGED_CONTACT_FIELD,
+  contactIdentityKey,
+  DUPLICATE_LOOKUP_FAILED,
+  SHARED_PHONE_WARNING,
+} from "@/lib/customers/contact-identity";
+import {
   CUSTOMER_CONSENT_INVALID,
   CUSTOMER_CONSENT_UNAVAILABLE,
   CUSTOMER_PROFILE_CONFLICT,
@@ -177,6 +223,9 @@ describe("CRM customer consent writes", () => {
     updateErrorOnce.current = null;
     selectError.current = null;
     updateReturnsRow.current = true;
+    phoneScanRows.current = [];
+    phoneScanError.current = null;
+    phoneScanRanges.length = 0;
     existingCustomer.current = {
       id: "cust-1",
       marketing_consent: false,
@@ -336,6 +385,9 @@ describe("consent intent and stale-form contract", () => {
     updateErrorOnce.current = null;
     selectError.current = null;
     updateReturnsRow.current = true;
+    phoneScanRows.current = [];
+    phoneScanError.current = null;
+    phoneScanRanges.length = 0;
     existingCustomer.current = {
       id: "cust-1",
       marketing_consent: true,
@@ -755,5 +807,153 @@ describe("consent timestamp transitions", () => {
     expect(updatedRows[0]).not.toHaveProperty("email");
     expect(updatedRows[0].marketing_consent).toBe(true);
     expect(updatedRows[0].phone).toBe("4165550100");
+  });
+});
+
+describe("CRM shared-phone warning before create", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    insertedRows.length = 0;
+    phoneScanRows.current = [];
+    phoneScanError.current = null;
+    phoneScanRanges.length = 0;
+    getOrCreateBusiness.mockResolvedValue({ id: "biz-1" });
+    insertSingle.mockResolvedValue({ data: { id: "cust-new" }, error: null });
+  });
+
+  it("warns before inserting when the CRM form reuses a phone", async () => {
+    phoneScanRows.current = [
+      {
+        id: "household",
+        business_id: "biz-1",
+        name: "Dana Reed",
+        email: "dana@example.invalid",
+        phone: "416-555-0100",
+      },
+    ];
+    const result = await createCrmCustomer(
+      {},
+      form({ first_name: "Sam", last_name: "Reed", phone: "(416) 555-0100" }),
+    );
+    expect(result.error).toBe(SHARED_PHONE_WARNING);
+    expect(result.phoneMatches?.map((match) => match.id)).toEqual(["household"]);
+    expect(result.phoneMatches?.[0]?.name).toBe("Dana Reed");
+    expect(result.warnedContactKey).toBe(
+      contactIdentityKey({ email: null, phone: "(416) 555-0100" }),
+    );
+    expect(insertedRows).toHaveLength(0);
+  });
+
+  it("creates a separate CRM person only for the acknowledged contact", async () => {
+    phoneScanRows.current = [
+      {
+        id: "household",
+        business_id: "biz-1",
+        name: "Dana Reed",
+        email: null,
+        phone: "4165550100",
+      },
+    ];
+    const warned = await createCrmCustomer(
+      {},
+      form({ first_name: "Sam", last_name: "Reed", phone: "4165550100" }),
+    );
+    const created = await createCrmCustomer(
+      {},
+      form({
+        first_name: "Sam",
+        last_name: "Reed",
+        phone: "4165550100",
+        [ACKNOWLEDGED_CONTACT_FIELD]: warned.warnedContactKey,
+      }),
+    );
+    expect(created).toEqual({ success: "Client added." });
+    expect(insertedRows).toHaveLength(1);
+    expect(insertedRows[0].email).toBeNull();
+    expect(insertedRows[0].phone).toBe("4165550100");
+  });
+
+  it("refuses a CRM acknowledgement raised for a different phone", async () => {
+    phoneScanRows.current = [
+      {
+        id: "household",
+        business_id: "biz-1",
+        name: "Dana Reed",
+        email: null,
+        phone: "4165550100",
+      },
+      {
+        id: "other-household",
+        business_id: "biz-1",
+        name: "Jo Vance",
+        email: null,
+        phone: "4165550999",
+      },
+    ];
+    const warned = await createCrmCustomer(
+      {},
+      form({ first_name: "Sam", last_name: "Reed", phone: "4165550100" }),
+    );
+    const replayed = await createCrmCustomer(
+      {},
+      form({
+        first_name: "Sam",
+        last_name: "Reed",
+        phone: "4165550999",
+        [ACKNOWLEDGED_CONTACT_FIELD]: warned.warnedContactKey,
+      }),
+    );
+    expect(replayed.error).toBe(SHARED_PHONE_WARNING);
+    expect(replayed.phoneMatches?.map((match) => match.id)).toEqual([
+      "other-household",
+    ]);
+    expect(insertedRows).toHaveLength(0);
+  });
+
+  it("fails closed when the CRM phone scan errors", async () => {
+    phoneScanError.current = { message: "phone lookup failed" };
+    const result = await createCrmCustomer(
+      {},
+      form({ first_name: "Sam", last_name: "Reed", phone: "4165550100" }),
+    );
+    expect(result.error).toBe(DUPLICATE_LOOKUP_FAILED);
+    expect(result.phoneMatches).toBeUndefined();
+    expect(insertedRows).toHaveLength(0);
+  });
+
+  it("does not warn the CRM form about another business's shared phone", async () => {
+    phoneScanRows.current = [
+      {
+        id: "foreign",
+        business_id: "biz-2",
+        name: "Foreign Person",
+        email: null,
+        phone: "4165550100",
+      },
+    ];
+    const result = await createCrmCustomer(
+      {},
+      form({ first_name: "Sam", last_name: "Reed", phone: "4165550100" }),
+    );
+    expect(result).toEqual({ success: "Client added." });
+    expect(insertedRows).toHaveLength(1);
+  });
+
+  it("scans past the first CRM page instead of truncating", async () => {
+    phoneScanRows.current = Array.from({ length: 1400 }, (_, index) => ({
+      id: `p-${String(index + 1).padStart(4, "0")}`,
+      business_id: "biz-1",
+      name: `Person ${index + 1}`,
+      email: null,
+      phone: index === 1200 ? "4165550100" : `90555${String(index).padStart(5, "0")}`,
+    }));
+    const result = await createCrmCustomer(
+      {},
+      form({ first_name: "Sam", last_name: "Reed", phone: "4165550100" }),
+    );
+    expect(result.error).toBe(SHARED_PHONE_WARNING);
+    expect(result.phoneMatches?.map((match) => match.id)).toEqual(["p-1201"]);
+    expect(phoneScanRanges.length).toBeGreaterThan(1);
+    expect(insertedRows).toHaveLength(0);
   });
 });

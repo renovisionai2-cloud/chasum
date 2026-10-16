@@ -6,10 +6,13 @@ import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getCommunicationService } from "@/lib/communication/service";
 import {
   collectExactPhoneMatches,
+  contactIdentityKey,
   DUPLICATE_LOOKUP_FAILED,
   readEmailField,
   readPhoneField,
+  readSeparatePersonChoice,
   resolveEmailUpdate,
+  separatePersonChoiceMatches,
   SHARED_PHONE_WARNING,
   validateCreateContact,
   type PhoneCandidateRow,
@@ -19,6 +22,43 @@ import type { ActionState } from "@/lib/types/booking";
 import { revalidatePath } from "next/cache";
 
 export type CustomerMatch = PhoneCandidateRow;
+
+/** Shared-phone warning carried back to a form-driven creation surface. */
+export type CustomerCreateState = ActionState & {
+  /** Existing same-phone people. Create only after an explicit choice. */
+  phoneMatches?: CustomerMatch[];
+  /** Exact contact identity this warning answers. */
+  warnedContactKey?: string;
+};
+
+type CustomerQueryClient = Awaited<ReturnType<typeof createClient>>;
+
+/**
+ * Business-scoped exact-digits phone scan. Paging, match rules and
+ * fail-closed behaviour all live in collectExactPhoneMatches.
+ */
+async function scanBusinessPhoneMatches(
+  supabase: CustomerQueryClient,
+  businessId: string,
+  phone: string,
+) {
+  return collectExactPhoneMatches({
+    digits: phone,
+    fetchPage: async (from, pageSize) => {
+      const page = await supabase
+        .from("customers")
+        .select("id, name, email, phone")
+        .eq("business_id", businessId)
+        .not("phone", "is", null)
+        .order("id", { ascending: true })
+        .range(from, from + pageSize - 1);
+      return {
+        data: (page.data ?? null) as CustomerMatch[] | null,
+        error: page.error ? { message: page.error.message } : null,
+      };
+    },
+  });
+}
 
 export async function getCustomers(search?: string) {
   const business = await getOrCreateBusiness();
@@ -43,9 +83,9 @@ export async function getCustomers(search?: string) {
 }
 
 export async function createCustomer(
-  _prev: ActionState,
+  _prev: CustomerCreateState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<CustomerCreateState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
 
@@ -64,6 +104,27 @@ export async function createCustomer(
     phone: phone.kind === "set" ? phone.phone : null,
   });
   if (!contact.ok) return { error: contact.error };
+
+  // Same Business-scoped shared-phone contract as the quick-create surfaces:
+  // warn before the insert, never auto-select and never merge.
+  if (contact.phone) {
+    const phoneScan = await scanBusinessPhoneMatches(
+      supabase,
+      business.id,
+      contact.phone,
+    );
+    if (!phoneScan.ok) return { error: phoneScan.error };
+    if (
+      phoneScan.matches.length > 0 &&
+      !readSeparatePersonChoice(formData, contact)
+    ) {
+      return {
+        error: SHARED_PHONE_WARNING,
+        phoneMatches: phoneScan.matches,
+        warnedContactKey: contactIdentityKey(contact),
+      };
+    }
+  }
 
   const tagsRaw = (formData.get("tags") as string) || "";
   const tags = tagsRaw
@@ -107,6 +168,11 @@ export async function quickCreateCustomer(input: {
    * warning. Email collisions still block. Never merges.
    */
   createSeparatePerson?: boolean;
+  /**
+   * Contact identity the warning was shown for. The choice is only honoured
+   * for that exact email/phone pair, so an edited contact is checked again.
+   */
+  acknowledgedContactKey?: string;
 }): Promise<
   ActionState & {
     customerId?: string;
@@ -116,6 +182,8 @@ export async function quickCreateCustomer(input: {
     emailMatches?: CustomerMatch[];
     /** Shared-phone warning. Create only after an explicit choice. */
     phoneMatches?: CustomerMatch[];
+    /** Exact contact identity this warning answers. */
+    warnedContactKey?: string;
   }
 > {
   const business = await getOrCreateBusiness();
@@ -147,26 +215,22 @@ export async function quickCreateCustomer(input: {
   }
 
   if (contact.phone) {
-    const phoneScan = await collectExactPhoneMatches({
-      digits: contact.phone,
-      fetchPage: async (from, pageSize) => {
-        const page = await supabase
-          .from("customers")
-          .select("id, name, email, phone")
-          .eq("business_id", business.id)
-          .not("phone", "is", null)
-          .order("id", { ascending: true })
-          .range(from, from + pageSize - 1);
-        return {
-          data: (page.data ?? null) as CustomerMatch[] | null,
-          error: page.error ? { message: page.error.message } : null,
-        };
-      },
-    });
+    const phoneScan = await scanBusinessPhoneMatches(
+      supabase,
+      business.id,
+      contact.phone,
+    );
     if (!phoneScan.ok) return { error: phoneScan.error };
-    if (phoneScan.matches.length > 0 && !input.createSeparatePerson) {
+    const separatePerson = separatePersonChoiceMatches({
+      requested: Boolean(input.createSeparatePerson),
+      acknowledgedKey: input.acknowledgedContactKey,
+      email: contact.email,
+      phone: contact.phone,
+    });
+    if (phoneScan.matches.length > 0 && !separatePerson) {
       return {
         phoneMatches: phoneScan.matches,
+        warnedContactKey: contactIdentityKey(contact),
         error: SHARED_PHONE_WARNING,
       };
     }

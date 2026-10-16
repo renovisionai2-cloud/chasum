@@ -15,7 +15,11 @@ import {
 import { customerBalanceChipLabel } from "@/lib/commerce/customer-account-projection";
 import { formatTime, parseISO } from "@/lib/calendar/utils";
 import { useFormAction } from "@/hooks/use-form-action";
-import { customerEmailLabel, SHARED_PHONE_WARNING } from "@/lib/customers/contact-identity";
+import {
+  contactIdentityKey,
+  customerEmailLabel,
+  SHARED_PHONE_WARNING,
+} from "@/lib/customers/contact-identity";
 import { pushRecentCustomer } from "@/lib/reception/recent-customers";
 import type { ActionState, Customer } from "@/lib/types/booking";
 import { useToast } from "@/providers/toast-provider";
@@ -194,9 +198,21 @@ export function CustomerSection({
   const [pending, startTransition] = useTransition();
   const [draft, setDraft] = useState({ name: "", email: "", phone: "" });
   const [contactError, setContactError] = useState<string | null>(null);
-  const [phoneMatches, setPhoneMatches] = useState<
-    Array<{ id: string; name: string; email: string | null; phone: string | null }> | null
-  >(null);
+  const [phoneWarning, setPhoneWarning] = useState<{
+    contactKey: string;
+    matches: Array<{ id: string; name: string; email: string | null; phone: string | null }>;
+  } | null>(null);
+
+  // A warning only answers the contact that produced it. Editing the phone or
+  // email retires the chooser, so a candidate found for one number can never
+  // be used for another — including when a slow response lands late.
+  const contactKey = contactIdentityKey({
+    email: draft.email,
+    phone: draft.phone,
+  });
+  const activeWarning =
+    phoneWarning && phoneWarning.contactKey === contactKey ? phoneWarning : null;
+  const staleWarning = phoneWarning !== null && activeWarning === null;
 
   function handleSelect(c: Customer) {
     pushRecentCustomer(c);
@@ -204,31 +220,45 @@ export function CustomerSection({
     setShowQuickAdd(false);
   }
 
-  function handleQuickAdd(createSeparatePerson = false) {
+  /** Editing the contact retires any warning and its separate-person choice. */
+  function updateContact(patch: { email?: string; phone?: string }) {
+    setDraft((d) => ({ ...d, ...patch }));
+    setContactError(null);
+  }
+
+  function handleQuickAdd(acknowledgedContactKey?: string) {
     if (!draft.name.trim()) {
       setContactError("A name is how you find this customer later.");
       return;
     }
     setContactError(null);
+    const submittedKey = contactIdentityKey({
+      email: draft.email,
+      phone: draft.phone,
+    });
     startTransition(async () => {
       const result = await quickCreateCustomer({
         ...draft,
-        createSeparatePerson,
+        createSeparatePerson: acknowledgedContactKey !== undefined,
+        acknowledgedContactKey,
       });
       if (result.emailMatches && result.emailMatches.length > 0) {
-        setPhoneMatches(null);
+        setPhoneWarning(null);
         setContactError(
           result.error ?? "A customer with this email already exists.",
         );
         return;
       }
-      if (result.phoneMatches && result.phoneMatches.length > 0 && !createSeparatePerson) {
-        setPhoneMatches(result.phoneMatches);
+      if (result.phoneMatches && result.phoneMatches.length > 0) {
+        setPhoneWarning({
+          contactKey: result.warnedContactKey ?? submittedKey,
+          matches: result.phoneMatches,
+        });
         setContactError(null);
         return;
       }
       if (result.error || !result.customerId) {
-        setPhoneMatches(null);
+        setPhoneWarning(null);
         setContactError(result.error ?? "Could not add customer.");
         return;
       }
@@ -247,7 +277,7 @@ export function CustomerSection({
       onCustomersChange(
         [...customers, created].sort((a, b) => a.name.localeCompare(b.name)),
       );
-      setPhoneMatches(null);
+      setPhoneWarning(null);
       handleSelect(created);
       setDraft({ name: "", email: "", phone: "" });
       toast(result.success ?? "Customer added.", "success");
@@ -312,9 +342,7 @@ export function CustomerSection({
                 type="email"
                 value={draft.email}
                 aria-describedby="bs-qc-contact-hint"
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, email: e.target.value }))
-                }
+                onChange={(e) => updateContact({ email: e.target.value })}
               />
             </div>
             <div className="space-y-1.5">
@@ -324,9 +352,7 @@ export function CustomerSection({
                 type="tel"
                 value={draft.phone}
                 aria-describedby="bs-qc-contact-hint"
-                onChange={(e) =>
-                  setDraft((d) => ({ ...d, phone: e.target.value }))
-                }
+                onChange={(e) => updateContact({ phone: e.target.value })}
               />
             </div>
           </div>
@@ -338,11 +364,11 @@ export function CustomerSection({
               {contactError}
             </p>
           ) : null}
-          {phoneMatches && phoneMatches.length > 0 ? (
+          {activeWarning ? (
             <div className="space-y-2 rounded-[var(--radius-md)] border border-border bg-card p-2" role="status">
               <p className="text-xs text-muted-foreground">{SHARED_PHONE_WARNING}</p>
               <ul className="space-y-2">
-                {phoneMatches.map((match) => (
+                {activeWarning.matches.map((match) => (
                   <li key={match.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <span className="min-w-0 truncate text-sm">
                       {match.name}
@@ -375,7 +401,7 @@ export function CustomerSection({
                             [...customers, chosen].sort((a, b) => a.name.localeCompare(b.name)),
                           );
                         }
-                        setPhoneMatches(null);
+                        setPhoneWarning(null);
                         handleSelect(chosen);
                       }}
                     >
@@ -389,18 +415,23 @@ export function CustomerSection({
                 size="sm"
                 variant="secondary"
                 disabled={pending}
-                onClick={() => handleQuickAdd(true)}
+                onClick={() => handleQuickAdd(activeWarning.contactKey)}
               >
                 Create separate person
               </Button>
             </div>
+          ) : staleWarning ? (
+            <p className="text-xs text-muted-foreground" role="status">
+              The contact details changed, so the earlier shared-phone match no
+              longer applies. Save again to check the new number.
+            </p>
           ) : null}
           <Button
             type="button"
             size="sm"
             className="w-full"
             disabled={pending}
-            onClick={() => handleQuickAdd(false)}
+            onClick={() => handleQuickAdd()}
           >
             Save customer
           </Button>

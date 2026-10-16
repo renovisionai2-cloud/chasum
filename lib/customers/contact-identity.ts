@@ -220,6 +220,57 @@ export function resolveEmailUpdate(input: {
   return { omit: false, email: input.field.email };
 }
 
+export const ACKNOWLEDGED_CONTACT_FIELD = "acknowledged_contact";
+
+/**
+ * Identity of the contact values a shared-phone warning was raised for.
+ * A warning only answers the exact email/phone pair that produced it, so a
+ * changed contact must be checked again before anything is created.
+ */
+export function contactIdentityKey(input: {
+  email?: string | null;
+  phone?: string | null;
+}): string {
+  return `${normalizeEmail(input.email) ?? ""}|${phoneDigits(input.phone)}`;
+}
+
+/**
+ * An explicit "create a separate person" choice is only honoured for the
+ * contact it was shown for. An unbound flag must never carry a warning for
+ * phone A into a write for phone B.
+ */
+export function separatePersonChoiceMatches(input: {
+  requested: boolean;
+  acknowledgedKey: string | null | undefined;
+  email: string | null;
+  phone: string | null;
+}): boolean {
+  if (!input.requested) return false;
+  const acknowledged = String(input.acknowledgedKey ?? "");
+  if (!acknowledged) return false;
+  return acknowledged === contactIdentityKey(input);
+}
+
+/**
+ * Form-posted variant of {@link separatePersonChoiceMatches}. The field is
+ * only populated by an explicit "create a separate person" click, so an
+ * ordinary save — including an Enter keypress — always re-checks the phone.
+ */
+export function readSeparatePersonChoice(
+  formData: FormData,
+  contact: { email: string | null; phone: string | null },
+): boolean {
+  const acknowledged = String(
+    formData.get(ACKNOWLEDGED_CONTACT_FIELD) ?? "",
+  ).trim();
+  return separatePersonChoiceMatches({
+    requested: acknowledged !== "",
+    acknowledgedKey: acknowledged,
+    email: contact.email,
+    phone: contact.phone,
+  });
+}
+
 export type PhoneCandidateRow = {
   id: string;
   name: string;

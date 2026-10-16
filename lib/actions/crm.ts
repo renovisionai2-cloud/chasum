@@ -2,10 +2,15 @@
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import {
+  collectExactPhoneMatches,
+  contactIdentityKey,
   readEmailField,
   readPhoneField,
+  readSeparatePersonChoice,
   resolveEmailUpdate,
+  SHARED_PHONE_WARNING,
   validateCreateContact,
+  type PhoneCandidateRow,
 } from "@/lib/customers/contact-identity";
 import { runCrmAiQuery } from "@/lib/crm/ai";
 import {
@@ -92,10 +97,47 @@ export async function loadCrmCustomerProfile(
   return loadCrmProfile(business.id, customerId);
 }
 
+/** Shared-phone warning carried back to the CRM creation form. */
+export type CrmCustomerCreateState = ActionState & {
+  /** Existing same-phone people. Create only after an explicit choice. */
+  phoneMatches?: PhoneCandidateRow[];
+  /** Exact contact identity this warning answers. */
+  warnedContactKey?: string;
+};
+
+type CrmQueryClient = Awaited<ReturnType<typeof createClient>>;
+
+/**
+ * Business-scoped exact-digits phone scan. Paging, match rules and
+ * fail-closed behaviour all live in collectExactPhoneMatches.
+ */
+async function scanBusinessPhoneMatches(
+  supabase: CrmQueryClient,
+  businessId: string,
+  phone: string,
+) {
+  return collectExactPhoneMatches({
+    digits: phone,
+    fetchPage: async (from, pageSize) => {
+      const page = await supabase
+        .from("customers")
+        .select("id, name, email, phone")
+        .eq("business_id", businessId)
+        .not("phone", "is", null)
+        .order("id", { ascending: true })
+        .range(from, from + pageSize - 1);
+      return {
+        data: (page.data ?? null) as PhoneCandidateRow[] | null,
+        error: page.error ? { message: page.error.message } : null,
+      };
+    },
+  });
+}
+
 export async function createCrmCustomer(
-  _prev: ActionState,
+  _prev: CrmCustomerCreateState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<CrmCustomerCreateState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
   const emailField = readEmailField(formData);
@@ -110,6 +152,27 @@ export async function createCrmCustomer(
   if (!contact.ok) return { error: contact.error };
   payload.email = contact.email;
   payload.phone = contact.phone;
+
+  // Same Business-scoped shared-phone contract as the quick-create surfaces:
+  // warn before the insert, never auto-select and never merge.
+  if (contact.phone) {
+    const phoneScan = await scanBusinessPhoneMatches(
+      supabase,
+      business.id,
+      contact.phone,
+    );
+    if (!phoneScan.ok) return { error: phoneScan.error };
+    if (
+      phoneScan.matches.length > 0 &&
+      !readSeparatePersonChoice(formData, contact)
+    ) {
+      return {
+        error: SHARED_PHONE_WARNING,
+        phoneMatches: phoneScan.matches,
+        warnedContactKey: contactIdentityKey(contact),
+      };
+    }
+  }
 
   const { data, error } = await supabase
     .from("customers")

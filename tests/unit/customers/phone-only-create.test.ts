@@ -147,6 +147,12 @@ import {
   quickCreateCustomer,
   updateCustomer,
 } from "@/lib/actions/customers";
+import {
+  ACKNOWLEDGED_CONTACT_FIELD,
+  contactIdentityKey,
+  DUPLICATE_LOOKUP_FAILED,
+  SHARED_PHONE_WARNING,
+} from "@/lib/customers/contact-identity";
 
 function customerForm(entries: Record<string, string | undefined>) {
   const data = new FormData();
@@ -209,6 +215,7 @@ describe("phone-only customer create and update", () => {
       name: "Blair",
       phone: "(416) 555-0100",
       createSeparatePerson: true,
+      acknowledgedContactKey: warned.warnedContactKey,
     });
     expect(first.customerId).toBe("cust-1");
     expect(second.customerId).toBe("cust-2");
@@ -269,6 +276,184 @@ describe("phone-only customer create and update", () => {
     expect(result.error).toBeUndefined();
     expect(rows[0].email).toBe("alex@example.invalid");
     expect(rows[0].name).toBe("Alex Updated");
+  });
+
+  it("warns before inserting when the Clients form reuses a phone", async () => {
+    rows.push({
+      id: "household",
+      business_id: "biz-1",
+      name: "Dana Reed",
+      email: "dana@example.invalid",
+      phone: "416-555-0100",
+    });
+    const result = await createCustomer(
+      {},
+      customerForm({ name: "Sam Reed", phone: "(416) 555-0100", email: "" }),
+    );
+    expect(result.error).toBe(SHARED_PHONE_WARNING);
+    // The chooser shows the real existing person, not a placeholder.
+    expect(
+      result.phoneMatches?.map(({ id, name, email, phone }) => ({
+        id,
+        name,
+        email,
+        phone,
+      })),
+    ).toEqual([
+      {
+        id: "household",
+        name: "Dana Reed",
+        email: "dana@example.invalid",
+        phone: "416-555-0100",
+      },
+    ]);
+    expect(result.warnedContactKey).toBe(
+      contactIdentityKey({ email: null, phone: "(416) 555-0100" }),
+    );
+    expect(rows).toHaveLength(1);
+  });
+
+  it("creates a separate Clients person only for the acknowledged contact", async () => {
+    rows.push({
+      id: "household",
+      business_id: "biz-1",
+      name: "Dana Reed",
+      email: null,
+      phone: "4165550100",
+    });
+    const warned = await createCustomer(
+      {},
+      customerForm({ name: "Sam Reed", phone: "4165550100", email: "" }),
+    );
+    const created = await createCustomer(
+      {},
+      customerForm({
+        name: "Sam Reed",
+        phone: "4165550100",
+        email: "",
+        [ACKNOWLEDGED_CONTACT_FIELD]: warned.warnedContactKey,
+      }),
+    );
+    expect(created.error).toBeUndefined();
+    expect(created.success).toBe("Client added.");
+    expect(rows).toHaveLength(2);
+    expect(rows.map((row) => row.email)).toEqual([null, null]);
+    expect(rows.map((row) => row.phone)).toEqual(["4165550100", "4165550100"]);
+  });
+
+  it("refuses an acknowledgement raised for a different phone", async () => {
+    rows.push({
+      id: "household",
+      business_id: "biz-1",
+      name: "Dana Reed",
+      email: null,
+      phone: "4165550100",
+    });
+    rows.push({
+      id: "other-household",
+      business_id: "biz-1",
+      name: "Jo Vance",
+      email: null,
+      phone: "4165550999",
+    });
+    const warned = await createCustomer(
+      {},
+      customerForm({ name: "Sam Reed", phone: "4165550100", email: "" }),
+    );
+    expect(warned.error).toBe(SHARED_PHONE_WARNING);
+
+    // Operator edited the phone but the old authorisation is replayed.
+    const replayed = await createCustomer(
+      {},
+      customerForm({
+        name: "Sam Reed",
+        phone: "4165550999",
+        email: "",
+        [ACKNOWLEDGED_CONTACT_FIELD]: warned.warnedContactKey,
+      }),
+    );
+    expect(replayed.error).toBe(SHARED_PHONE_WARNING);
+    expect(replayed.phoneMatches?.map((match) => match.id)).toEqual([
+      "other-household",
+    ]);
+    expect(rows).toHaveLength(2);
+  });
+
+  it("refuses an acknowledgement after only the email changed", async () => {
+    rows.push({
+      id: "household",
+      business_id: "biz-1",
+      name: "Dana Reed",
+      email: null,
+      phone: "4165550100",
+    });
+    const warned = await createCustomer(
+      {},
+      customerForm({ name: "Sam Reed", phone: "4165550100", email: "" }),
+    );
+    const replayed = await createCustomer(
+      {},
+      customerForm({
+        name: "Sam Reed",
+        phone: "4165550100",
+        email: "sam@example.invalid",
+        [ACKNOWLEDGED_CONTACT_FIELD]: warned.warnedContactKey,
+      }),
+    );
+    expect(replayed.error).toBe(SHARED_PHONE_WARNING);
+    expect(rows).toHaveLength(1);
+  });
+
+  it("fails closed when the Clients phone scan errors", async () => {
+    failNext.phone = true;
+    const result = await createCustomer(
+      {},
+      customerForm({ name: "Sam Reed", phone: "4165550100", email: "" }),
+    );
+    expect(result.error).toBe(DUPLICATE_LOOKUP_FAILED);
+    expect(result.phoneMatches).toBeUndefined();
+    expect(rows).toHaveLength(0);
+  });
+
+  it("does not warn on another business's shared phone", async () => {
+    rows.push({
+      id: "foreign",
+      business_id: "biz-2",
+      name: "Foreign Person",
+      email: null,
+      phone: "4165550100",
+    });
+    const result = await createCustomer(
+      {},
+      customerForm({ name: "Sam Reed", phone: "4165550100", email: "" }),
+    );
+    expect(result.error).toBeUndefined();
+    expect(result.phoneMatches).toBeUndefined();
+    expect(rows.filter((row) => row.business_id === "biz-1")).toHaveLength(1);
+  });
+
+  it("still blocks a duplicate email on an acknowledged separate person", async () => {
+    rows.push({
+      id: "household",
+      business_id: "biz-1",
+      name: "Dana Reed",
+      email: "dana@example.invalid",
+      phone: "4165550100",
+    });
+    const result = await createCustomer(
+      {},
+      customerForm({
+        name: "Sam Reed",
+        phone: "4165550100",
+        email: "Dana@example.invalid",
+        [ACKNOWLEDGED_CONTACT_FIELD]: contactIdentityKey({
+          email: "Dana@example.invalid",
+          phone: "4165550100",
+        }),
+      }),
+    );
+    expect(result.error).toMatch(/already exists/i);
+    expect(rows).toHaveLength(1);
   });
 
   it("searches a phone-only recent customer without throwing", () => {
