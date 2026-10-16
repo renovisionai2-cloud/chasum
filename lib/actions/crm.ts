@@ -1,6 +1,17 @@
 "use server";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import {
+  collectExactPhoneMatches,
+  contactIdentityKey,
+  readEmailField,
+  readPhoneField,
+  readSeparatePersonChoice,
+  resolveEmailUpdate,
+  SHARED_PHONE_WARNING,
+  validateCreateContact,
+  type PhoneCandidateRow,
+} from "@/lib/customers/contact-identity";
 import { runCrmAiQuery } from "@/lib/crm/ai";
 import {
   CUSTOMER_CONSENT_UNAVAILABLE,
@@ -86,26 +97,82 @@ export async function loadCrmCustomerProfile(
   return loadCrmProfile(business.id, customerId);
 }
 
+/** Shared-phone warning carried back to the CRM creation form. */
+export type CrmCustomerCreateState = ActionState & {
+  /** Existing same-phone people. Create only after an explicit choice. */
+  phoneMatches?: PhoneCandidateRow[];
+  /** Exact contact identity this warning answers. */
+  warnedContactKey?: string;
+};
+
+type CrmQueryClient = Awaited<ReturnType<typeof createClient>>;
+
+/**
+ * Business-scoped exact-digits phone scan. Paging, match rules and
+ * fail-closed behaviour all live in collectExactPhoneMatches.
+ */
+async function scanBusinessPhoneMatches(
+  supabase: CrmQueryClient,
+  businessId: string,
+  phone: string,
+) {
+  return collectExactPhoneMatches({
+    digits: phone,
+    fetchPage: async (from, pageSize) => {
+      const page = await supabase
+        .from("customers")
+        .select("id, name, email, phone")
+        .eq("business_id", businessId)
+        .not("phone", "is", null)
+        .order("id", { ascending: true })
+        .range(from, from + pageSize - 1);
+      return {
+        data: (page.data ?? null) as PhoneCandidateRow[] | null,
+        error: page.error ? { message: page.error.message } : null,
+      };
+    },
+  });
+}
+
 export async function createCrmCustomer(
-  _prev: ActionState,
+  _prev: CrmCustomerCreateState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<CrmCustomerCreateState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
+  const emailField = readEmailField(formData);
+  if (emailField.kind === "invalid") return { error: emailField.error };
   const payload = parseCustomerPayload(formData);
 
   if (!payload.name) return { error: "Customer name is required." };
-  if (!payload.email && !payload.phone) {
-    return {
-      error: "Add an email or phone number so you can reach this customer.",
-    };
+  const contact = validateCreateContact({
+    email: typeof payload.email === "string" ? payload.email : null,
+    phone: typeof payload.phone === "string" ? payload.phone : null,
+  });
+  if (!contact.ok) return { error: contact.error };
+  payload.email = contact.email;
+  payload.phone = contact.phone;
+
+  // Same Business-scoped shared-phone contract as the quick-create surfaces:
+  // warn before the insert, never auto-select and never merge.
+  if (contact.phone) {
+    const phoneScan = await scanBusinessPhoneMatches(
+      supabase,
+      business.id,
+      contact.phone,
+    );
+    if (!phoneScan.ok) return { error: phoneScan.error };
+    if (
+      phoneScan.matches.length > 0 &&
+      !readSeparatePersonChoice(formData, contact)
+    ) {
+      return {
+        error: SHARED_PHONE_WARNING,
+        phoneMatches: phoneScan.matches,
+        warnedContactKey: contactIdentityKey(contact),
+      };
+    }
   }
-  // Schema requires email (unique per business). Phone-only walk-ins get a stable placeholder.
-  if (!payload.email && payload.phone) {
-    const digits = String(payload.phone).replace(/\D/g, "") || "unknown";
-    payload.email = `phone.${digits}@chasum.local`;
-  }
-  if (!payload.email) return { error: "Email is required." };
 
   const { data, error } = await supabase
     .from("customers")
@@ -186,15 +253,16 @@ export async function updateCrmCustomer(
   const consentRequested =
     consentIntent.kind === "grant" || consentIntent.kind === "revoke";
 
+  const emailField = readEmailField(formData);
+  const phoneField = readPhoneField(formData);
   const payload = parseCustomerPayload(formData, {
     consentTimestampMode: "defer",
   });
   if (!payload.name) return { error: "Customer name is required." };
-  if (!payload.email) return { error: "Email is required." };
 
   const { data: existing, error: existingError } = await supabase
     .from("customers")
-    .select("id, marketing_consent, marketing_consent_at")
+    .select("id, email, phone, marketing_consent, marketing_consent_at")
     .eq("id", id)
     .eq("business_id", business.id)
     .maybeSingle();
@@ -221,6 +289,21 @@ export async function updateCrmCustomer(
       existingAt: (existing.marketing_consent_at as string | null) ?? null,
     });
   }
+
+  const nextPhone =
+    phoneField.kind === "set"
+      ? phoneField.phone
+      : ((existing?.phone as string | null | undefined) ?? null);
+  const emailUpdate = resolveEmailUpdate({
+    field: emailField,
+    existingEmail: (existing?.email as string | null | undefined) ?? null,
+    nextPhone,
+    consentOnly: consentRequested,
+  });
+  if ("error" in emailUpdate) return { error: emailUpdate.error };
+  if (emailUpdate.omit) delete payload.email;
+  else payload.email = emailUpdate.email;
+  if (phoneField.kind === "omit") delete payload.phone;
 
   const applyUpdate = async (body: Record<string, unknown>) =>
     supabase

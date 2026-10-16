@@ -31,6 +31,7 @@ import type { Membership } from "@/lib/business/types";
 import type { CustomerCommerceAccount } from "@/lib/commerce/types";
 import { chaseHintsFromInsights } from "@/lib/crm/chase-hints";
 import { displayCustomerName } from "@/lib/crm/display";
+import { customerEmailLabel } from "@/lib/customers/contact-identity";
 import {
   COMM_METHOD_LABELS,
   CRM_STATUS_LABELS,
@@ -235,9 +236,14 @@ export function CustomerProfileView({
               {displayName}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {customer.email}
+              {customerEmailLabel(customer.email)}
               {customer.phone ? ` · ${customer.phone}` : ""}
             </p>
+            {customer.phone ? (
+              <p className="text-xs text-muted-foreground">
+                Phone on file does not by itself allow text messages. SMS still follows consent, preferences, and plan.
+              </p>
+            ) : null}
             <p className="text-xs text-muted-foreground">
               {CRM_STATUS_LABELS[
                 (customer.crm_status as keyof typeof CRM_STATUS_LABELS) ??
@@ -575,9 +581,12 @@ export function CustomerProfileView({
                         id="email"
                         name="email"
                         type="email"
-                        defaultValue={customer.email}
-                        required
+                        defaultValue={customer.email ?? ""}
+                        aria-describedby="crm-email-hint"
                       />
+                      <p id="crm-email-hint" className="text-xs text-muted-foreground">
+                        Optional when a phone number is on file.
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone</Label>
@@ -856,7 +865,7 @@ export function CustomerProfileView({
                     name="preferred_name"
                     value={customer.preferred_name ?? ""}
                   />
-                  <input type="hidden" name="email" value={customer.email} />
+                  <input type="hidden" name="email" value={customer.email ?? ""} />
                   <input
                     type="hidden"
                     name="phone"
