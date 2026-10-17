@@ -69,6 +69,7 @@ import { calendarDateInTimezone } from "@/lib/business/datetime";
 import { formatBusinessDate, formatBusinessTime, getBusinessTimezone } from "@/lib/locale";
 import { parseISO } from "@/lib/calendar/utils";
 import {
+  format,
   endOfDay,
   endOfMonth,
   endOfWeek,
@@ -580,7 +581,7 @@ export function CalendarClient({
         isNarrow ? (
           <div className="space-y-3">
             <Button variant="outline" onClick={() => openNew()} className="min-h-11 w-full">
-              Add appointment on {formatCalendarDateParam(date)}
+              Add appointment on {format(date, "MMMM d, yyyy")}
             </Button>
             <DayAgendaList
               timezone={operationalTimezone}
@@ -714,7 +715,7 @@ export function CalendarClient({
                   return;
                 }
               }
-              openNew(undefined, undefined, draft);
+              openNew(undefined, undefined, draft, false);
             }}
             searchFocusSignal={searchFocusSignal}
             bookFocusSignal={bookFocusSignal}
@@ -730,6 +731,7 @@ export function CalendarClient({
             type="button"
             variant="outline"
             className="w-full"
+            aria-label="Open reception panel"
             onClick={() => setPanelOpen(true)}
           >
             Open reception panel
