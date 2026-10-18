@@ -3,6 +3,7 @@ import type {
   CommunicationChannelAdapter,
   SendMessageInput,
 } from "@/lib/communication/types";
+import { isEligibleCustomerEmail } from "@/lib/customers/contact-identity";
 import { sendEmail } from "@/lib/integrations/providers/email";
 import { sendSms } from "@/lib/integrations/providers/sms";
 
@@ -95,7 +96,7 @@ export class EmailChannelAdapter implements CommunicationChannelAdapter {
 
   async send(input: SendMessageInput): Promise<ChannelSendResult> {
     const email = input.to.trim();
-    if (!email) {
+    if (!isEligibleCustomerEmail(email)) {
       return {
         success: false,
         status: "failed",
