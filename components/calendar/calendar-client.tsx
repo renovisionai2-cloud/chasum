@@ -66,10 +66,10 @@ import {
   parseCalendarDateParam,
 } from "@/lib/calendar/date-param";
 import { calendarDateInTimezone } from "@/lib/business/datetime";
-import { operationalSlot } from "@/lib/calendar/operational-time";
 import { formatBusinessDate, formatBusinessTime, getBusinessTimezone } from "@/lib/locale";
 import { parseISO } from "@/lib/calendar/utils";
 import {
+  format,
   endOfDay,
   endOfMonth,
   endOfWeek,
@@ -183,9 +183,12 @@ export function CalendarClient({
     useState<AppointmentWithRelations | null>(urlAppointment);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
   const [defaultStaffId, setDefaultStaffId] = useState<string | undefined>();
-  const [bookingDraft, setBookingDraft] = useState<BookingDraft | null>(null);
+  const [bookingDraft, setBookingDraft] = useState<BookingDraft | null>(
+    openBookOnLoad ? { date: formatCalendarDateParam(date) } : null,
+  );
+  const [calendarSelection, setCalendarSelection] = useState(openBookOnLoad);
   const [forceQuickAddCustomer, setForceQuickAddCustomer] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [isNarrow, setIsNarrow] = useState(false);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
@@ -214,8 +217,10 @@ export function CalendarClient({
       if (!detail?.action) return;
       switch (detail.action) {
         case "new-customer":
+          setCalendarSelection(false);
+          setBookingDraft({ date: formatCalendarDateParam(date) });
           setSelectedAppointment(null);
-          setDefaultSlot(operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined);
+          setDefaultSlot(undefined);
           setDefaultStaffId(undefined);
           setForceQuickAddCustomer(true);
           setDrawerOpen(false);
@@ -263,20 +268,24 @@ export function CalendarClient({
   const hasSetup = bookingReadiness.state === "ready";
   const effectiveView = view;
 
-  function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null) {
+  function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null, fromCalendar = !draft) {
     setSelectedAppointment(null);
-    setBookingDraft(draft ?? null);
+    setCalendarSelection(fromCalendar);
+    setBookingDraft(draft ?? {
+      date: slot ? calendarDateInTimezone(slot.toISOString(), operationalTimezone) : formatCalendarDateParam(date),
+      locationId: selectedLocationId,
+    });
     setDefaultSlot(
       draft?.startIso
         ? parseISO(draft.startIso)
-        : slot ?? operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined,
+        : slot,
     );
     setDefaultStaffId(
       draft?.staffId !== undefined && draft?.staffId !== null
         ? draft.staffId
         : staffId === "__unassigned__"
           ? ""
-          : staffId,
+          : staffId ?? (fromCalendar ? "" : undefined),
     );
     setForceQuickAddCustomer(false);
     setDrawerOpen(false);
@@ -284,9 +293,10 @@ export function CalendarClient({
   }
 
   function openNewCustomer() {
+    setCalendarSelection(false);
     setSelectedAppointment(null);
-    setBookingDraft(null);
-    setDefaultSlot(operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined);
+    setBookingDraft({ date: formatCalendarDateParam(date) });
+    setDefaultSlot(undefined);
     setDefaultStaffId(undefined);
     setForceQuickAddCustomer(true);
     setDrawerOpen(false);
@@ -300,6 +310,7 @@ export function CalendarClient({
   }
 
   function openEdit(appointment: AppointmentWithRelations) {
+    setCalendarSelection(false);
     setSelectedAppointment(appointment);
     setBookingDraft(null);
     setDefaultSlot(undefined);
@@ -568,12 +579,17 @@ export function CalendarClient({
 
       {effectiveView === "day" && (
         isNarrow ? (
-          <DayAgendaList
-            timezone={operationalTimezone}
-            date={date}
-            appointments={appointments}
-            onSelectAppointment={openDrawer}
-          />
+          <div className="space-y-3">
+            <Button variant="outline" onClick={() => openNew()} className="min-h-11 w-full">
+              Add appointment on {format(date, "MMMM d, yyyy")}
+            </Button>
+            <DayAgendaList
+              timezone={operationalTimezone}
+              date={date}
+              appointments={appointments}
+              onSelectAppointment={openDrawer}
+            />
+          </div>
         ) : (
           <DayControlCenter
             timezone={operationalTimezone}
@@ -595,7 +611,7 @@ export function CalendarClient({
           timezone={operationalTimezone}
           date={date}
           appointments={appointments}
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
           onSelectSlot={openNew}
           onReschedule={handleReschedule}
           onResize={handleResize}
@@ -608,7 +624,11 @@ export function CalendarClient({
           timezone={operationalTimezone}
           date={date}
           appointments={appointments}
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
+          onCreateAppointment={(day) => openNew(undefined, undefined, {
+            date: formatCalendarDateParam(day),
+            locationId: selectedLocationId,
+          }, true)}
           onSelectDay={(day) => {
             router.push(`/dashboard/calendar?view=day&date=${formatCalendarDateParam(day)}`);
           }}
@@ -620,7 +640,7 @@ export function CalendarClient({
           timezone={operationalTimezone}
           date={date}
           appointments={appointments}
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
         />
       )}
       {effectiveView === "timeline" && (
@@ -628,7 +648,7 @@ export function CalendarClient({
           timezone={operationalTimezone}
           date={date}
           appointments={appointments}
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
         />
       )}
       {(effectiveView === "employees" || effectiveView === "resource") && (
@@ -639,7 +659,7 @@ export function CalendarClient({
           staff={staff}
           locations={locations}
           mode={effectiveView === "resource" ? "resource" : "employees"}
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
         />
       )}
       {effectiveView === "locations" && (
@@ -650,7 +670,7 @@ export function CalendarClient({
           staff={staff}
           locations={locations}
           mode="locations"
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
         />
       )}
     </div>
@@ -695,7 +715,7 @@ export function CalendarClient({
                   return;
                 }
               }
-              openNew(undefined, undefined, draft);
+              openNew(undefined, undefined, draft, false);
             }}
             searchFocusSignal={searchFocusSignal}
             bookFocusSignal={bookFocusSignal}
@@ -711,6 +731,7 @@ export function CalendarClient({
             type="button"
             variant="outline"
             className="w-full"
+            aria-label="Open reception panel"
             onClick={() => setPanelOpen(true)}
           >
             Open reception panel
@@ -752,7 +773,7 @@ export function CalendarClient({
       <BookingSheet
         key={
           selectedAppointment?.id ??
-          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${selectedLocationId ?? "all"}-${forceQuickAddCustomer ? "qc" : ""}`
+          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${bookingDraft?.date ?? ""}-${calendarSelection}-${selectedLocationId ?? "all"}-${forceQuickAddCustomer ? "qc" : ""}`
         }
         open={dialogOpen}
         onClose={() => {
@@ -765,6 +786,7 @@ export function CalendarClient({
         staff={staff}
         customers={customers}
         locations={locations}
+        calendarSelection={calendarSelection}
         defaultDate={defaultSlot}
         defaultStaffId={defaultStaffId}
         defaultCustomerId={bookingDraft?.customerId ?? undefined}
