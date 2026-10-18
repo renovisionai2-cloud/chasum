@@ -48,6 +48,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### 2026-09-30 — M1C Mobile Account Control — implementation candidate (Issue #127)
+
+- Make the existing top-right Account/avatar interactive, opening a compact shared Sheet with the exact supplied email and prominent canonical Sign out form; preserve the sidebar fallback and phone header footprint.
+- PO-authorized bounded implementation; Issue #127 Competitive Product Gate **PASS**, **LAUNCH REQUIRED**. Auth, database, Location state and mobile bottom navigation remain unchanged.
+- Account/navigation regression coverage: **32/32 PASS** across the focused Account, portal-nav and mobile-workspace suites; typecheck and changed-file ESLint pass. Authorized real-Chromium top-nav containment also passes **2/2** cases across 18 widths × both quota branches (**36 geometry combinations**) with 64px header, zero overflow/overlap, exactly one workspace control and ≥44px Account trigger.
+- Zero-write real-Chromium Account-panel acceptance also passes at **390×844 / 1024×768 / 1440×900** with real compiled Chasum CSS: light/dark, long-email containment, focus entry/trap/return, Escape/overlay close, body-scroll restoration, zero horizontal overflow, 0 console/page errors and **no Sign out call**. Exact runtime/test candidate `fc1c015f06d250c3f7ecc207d42a50fea3debe9f` is on Draft PR #128; governed Quality **1,706 pass / 36 skip / 0 fail** and Vercel Preview `dpl_4wLcyCazb7wHnuuY7jFoz99qdGTt` READY. Preview `/api/build-info` confirms exact candidate / correct branch / `env=preview` / `production=false`; unauthenticated `/dashboard` correctly redirects to login, so no live Account panel or Sign out was manufactured. **IMPLEMENTATION CANDIDATE / NO MERGE / NO PRODUCTION.** No real sign-out or Staging/Production access.
+
 ### 2026-10-12 — Slice 2B Phase 0 Claude findings corrected; re-audit pending
 
 - Corrected existing Draft PR #161's proposed addendum against supplied C1–C9; adopted optional C10's single journal-as-permit mechanism. Added linked appointment DELETE/cascade refusal, fresh customer-history enforcement, command-specific lock modes, child-row/RPC-set responsibility, exact single-effect permit checks, child read/lock order, reachable cancellation reasons, emitter containment and safe errors.
