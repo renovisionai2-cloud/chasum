@@ -5,23 +5,24 @@ import {randomUUID} from 'node:crypto';
 // and its legitimate setup/correction operations persist in this disposable DB.
 export async function runAvailability({ctx:c,summary,log}) {
  const {ids,q,run,role,one,create,schedule,assert,moneyDigest}=c;
- const f=Object.fromEntries(['location','locationBad','service','candidateService','unqualifiedService','staff','otherStaff','existing','foreignService','foreignStaff'].map(k=>[k,randomUUID()]));
+ const f=Object.fromEntries(['location','locationBad','foreignLocation','service','candidateService','unqualifiedService','staff','otherStaff','existing','foreignService','foreignStaff'].map(k=>[k,randomUUID()]));
  summary.availability={fixture:f,cases:[]};
  const add=(name,result,evidence)=>{const entry={name,result,...evidence};summary.availability.cases.push(entry);log({kind:'availability',...entry});};
  role(`insert into public.locations(id,business_id,name,slug,timezone) values
  (${q(f.location)},${q(ids.business)},'Availability proof','availability-proof','UTC'),
- (${q(f.locationBad)},${q(ids.business)},'Unmapped proof','unmapped-proof','UTC');
+ (${q(f.locationBad)},${q(ids.business)},'Unmapped proof','unmapped-proof','UTC'),
+ (${q(f.foreignLocation)},${q(ids.other)},'Foreign availability proof','foreign-availability-proof','UTC');
  insert into public.location_settings(location_id,booking_limit_days,appointment_interval_minutes) values(${q(f.location)},3650,5),(${q(f.locationBad)},3650,5);
  insert into public.location_hours(location_id,day_of_week,is_open,open_time,close_time) select ${q(f.location)},n,true,'00:00'::time,'23:59'::time from generate_series(0,6) n;
  insert into public.services(id,business_id,location_id,name,duration_minutes,price) values
  (${q(f.service)},${q(ids.business)},${q(f.location)},'Existing availability service',30,25),
  (${q(f.candidateService)},${q(ids.business)},${q(f.location)},'Zero-buffer candidate service',30,25),
  (${q(f.unqualifiedService)},${q(ids.business)},${q(f.location)},'Unqualified service',30,25),
- (${q(f.foreignService)},${q(ids.other)},null,'Foreign metadata only',30,25);
+ (${q(f.foreignService)},${q(ids.other)},${q(f.foreignLocation)},'Foreign metadata only',30,25);
  insert into public.staff(id,business_id,location_id,name) values
  (${q(f.staff)},${q(ids.business)},${q(f.location)},'Availability staff'),
  (${q(f.otherStaff)},${q(ids.business)},${q(f.location)},'Availability replacement'),
- (${q(f.foreignStaff)},${q(ids.other)},null,'Foreign metadata staff');
+ (${q(f.foreignStaff)},${q(ids.other)},${q(f.foreignLocation)},'Foreign metadata staff');
  insert into public.staff_services(staff_id,service_id) values(${q(f.staff)},${q(f.service)}),(${q(f.staff)},${q(f.candidateService)}),(${q(f.otherStaff)},${q(f.candidateService)});
  insert into public.staff_locations(staff_id,location_id) values(${q(f.staff)},${q(ids.location)});
  insert into public.service_locations(service_id,location_id) values(${q(f.candidateService)},${q(ids.location)});
