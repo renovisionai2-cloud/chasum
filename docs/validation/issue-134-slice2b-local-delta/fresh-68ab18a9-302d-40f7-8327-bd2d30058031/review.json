@@ -1,0 +1,372 @@
+{
+  "run_id": "68ab18a9-302d-40f7-8327-bd2d30058031",
+  "verdict": "GVM_FIN_A1_CORRECTION_REQUIRED",
+  "cause": "HARNESS",
+  "exit_code": 1,
+  "start": "2026-10-20T00:06:26.688Z",
+  "end": "2026-10-20T00:06:33.994Z",
+  "tested_source": {
+    "head": "5ea8bccb5b50d5d550b018cfc18f044e6b277617",
+    "tree": "6e80f3f3023112eda0b80550388dfcb0fd98e3e8"
+  },
+  "capability_cases": [
+    {
+      "case": "unsafe-anon-appointments-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32111,
+      "rollback_backend": 32113
+    },
+    {
+      "case": "unsafe-anon-appointments-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32117,
+      "rollback_backend": 32119
+    },
+    {
+      "case": "unsafe-anon-appointment_resources-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32123,
+      "rollback_backend": 32125
+    },
+    {
+      "case": "unsafe-anon-appointment_resources-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32129,
+      "rollback_backend": 32131
+    },
+    {
+      "case": "unsafe-authenticated-appointments-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32135,
+      "rollback_backend": 32137
+    },
+    {
+      "case": "unsafe-authenticated-appointments-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32141,
+      "rollback_backend": 32143
+    },
+    {
+      "case": "unsafe-authenticated-appointment_resources-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32147,
+      "rollback_backend": 32149
+    },
+    {
+      "case": "unsafe-authenticated-appointment_resources-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32153,
+      "rollback_backend": 32155
+    },
+    {
+      "case": "unsafe-authenticator-appointments-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32159,
+      "rollback_backend": 32161
+    },
+    {
+      "case": "unsafe-authenticator-appointments-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32165,
+      "rollback_backend": 32167
+    },
+    {
+      "case": "unsafe-authenticator-appointment_resources-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32171,
+      "rollback_backend": 32173
+    },
+    {
+      "case": "unsafe-authenticator-appointment_resources-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32177,
+      "rollback_backend": 32179
+    },
+    {
+      "case": "unsafe-service_role-appointments-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32183,
+      "rollback_backend": 32185
+    },
+    {
+      "case": "unsafe-service_role-appointments-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32189,
+      "rollback_backend": 32191
+    },
+    {
+      "case": "unsafe-service_role-appointment_resources-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32195,
+      "rollback_backend": 32197
+    },
+    {
+      "case": "unsafe-service_role-appointment_resources-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32201,
+      "rollback_backend": 32203
+    },
+    {
+      "case": "unsafe-public-appointments-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32207,
+      "rollback_backend": 32209
+    },
+    {
+      "case": "unsafe-public-appointments-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32213,
+      "rollback_backend": 32215
+    },
+    {
+      "case": "unsafe-public-appointment_resources-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32219,
+      "rollback_backend": 32221
+    },
+    {
+      "case": "unsafe-public-appointment_resources-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32226,
+      "rollback_backend": 32228
+    },
+    {
+      "case": "unsafe-anon-inherited-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32232,
+      "rollback_backend": 32234
+    },
+    {
+      "case": "unsafe-anon-inherited-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32238,
+      "rollback_backend": 32240
+    },
+    {
+      "case": "unsafe-anon-set-role-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32244,
+      "rollback_backend": 32246
+    },
+    {
+      "case": "unsafe-anon-set-role-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32250,
+      "rollback_backend": 32252
+    },
+    {
+      "case": "unsafe-authenticator-inherited-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32256,
+      "rollback_backend": 32258
+    },
+    {
+      "case": "unsafe-authenticator-inherited-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32262,
+      "rollback_backend": 32264
+    },
+    {
+      "case": "unsafe-authenticator-set-role-truncate",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32268,
+      "rollback_backend": 32270
+    },
+    {
+      "case": "unsafe-authenticator-set-role-trigger",
+      "status": "PASS",
+      "sqlstate": "55000",
+      "preimage_backend": 32274,
+      "rollback_backend": 32276
+    }
+  ],
+  "cases": {
+    "D01": "PASS",
+    "D02": "PASS",
+    "D03": "NOT_PROVEN",
+    "D04": "NOT_PROVEN",
+    "D05": "NOT_PROVEN",
+    "D06": "NOT_PROVEN",
+    "D07": "PASS",
+    "D08": "PASS",
+    "D09": "NOT_PROVEN",
+    "D10": "PASS",
+    "D11": "NOT_PROVEN",
+    "D12": "PASS",
+    "D13": "NOT_PROVEN",
+    "D14": "NOT_PROVEN",
+    "D15": "NOT_PROVEN",
+    "C01": "NOT_RUN",
+    "C02": "NOT_RUN",
+    "C03": "NOT_RUN",
+    "C04": "NOT_RUN",
+    "C05": "NOT_RUN",
+    "C06": "NOT_RUN",
+    "C07": "NOT_RUN",
+    "C08": "NOT_RUN",
+    "C09": "NOT_RUN",
+    "C10": "NOT_RUN",
+    "C11": "NOT_RUN",
+    "D12-E": "PASS",
+    "D12-F": "PASS",
+    "D14-E": "PASS",
+    "D14-F": "PASS",
+    "D14-G": "PASS"
+  },
+  "passed_subcases": [
+    "D01 named create / admitted resources / zero journal",
+    "D01 explicit zero price",
+    "D02 status progression / correction / no-show / money preservation",
+    "D03 cancelled notes and terminal schedule",
+    "D04/D05 staff price/duration / reschedule :30 / resize / resources",
+    "D12-E SKIPPED corrected replay",
+    "D06 first and repeated correction original identity preserved",
+    "D12-E FAILED corrected replay",
+    "D14-F paid reassignment veto and original transaction replay",
+    "D14-E original zero coexists with independent appointment payment",
+    "D08 linked DELETE",
+    "D09 revision spoof",
+    "D09 direct no permit",
+    "D10 direct child DELETE",
+    "D11 journal UPDATE ACL",
+    "D11 no TRUNCATE",
+    "D11 no replica",
+    "D11 cross tenant no existence payload",
+    "D15 no queued or notification effects",
+    "D04 primary-or-mapped Location",
+    "D05 duration override null",
+    "D05 duration override 0",
+    "D05 duration override -1",
+    "D12-F actor boundaries / actual JSON keys",
+    "D14 committed response loss / later revision replay",
+    "D13 rollback after lifecycle RPC",
+    "D05 notes null / empty / NO_CHANGE",
+    "D05 numeric service equality / incompatible price refusal",
+    "D06 failed-labelled legacy transaction veto",
+    "D14-G independent appointment/attempt and refund axes",
+    "D11 anon RPC denial",
+    "D11 authenticated RPC denial",
+    "D12 PRICING_CHANGED no-parent fence / EXISTING",
+    "D12 PRICING_CHANGED existing-parent RECOVERY_REQUIRED",
+    "D12 SLOT_CONFLICT no-parent fence / EXISTING",
+    "D12 SLOT_CONFLICT existing-parent RECOVERY_REQUIRED",
+    "D12 OPERATOR_ABANDONED no-parent fence / EXISTING",
+    "D12 OPERATOR_ABANDONED existing-parent RECOVERY_REQUIRED",
+    "D12 APPOINTMENT_CANCELLED effect / historical EXISTING",
+    "v1-noncreator",
+    "D12 CUSTOMER_REASSIGNED effect / historical EXISTING",
+    "v1-noncreator",
+    "linked-retention",
+    "linked-retention",
+    "linked-retention",
+    "D08 Business cascade reached the linked-history guard; exact refusal observed",
+    "resource-unadmitted-insert",
+    "resource-direct-update",
+    "revision-skip-2",
+    "revision-skip-9223372036854775807",
+    "notes-bound",
+    "D13 journal injection atomic rollback",
+    "D13 parent injection atomic rollback",
+    "D13 child injection atomic rollback",
+    "D13 final injection atomic rollback",
+    "D13 cache injection atomic rollback",
+    "D10 missing child delta refused and rolled back",
+    "D10 wrong-extra child delta refused and rolled back",
+    "revision-reset-after-effect",
+    "old-permit-child-reuse",
+    "linked-child-reparent",
+    "isolated-invalid-permit-transaction_id",
+    "isolated-invalid-permit-actor_id",
+    "isolated-invalid-permit-business_id",
+    "isolated-invalid-permit-appointment_id",
+    "isolated-invalid-permit-operation_id",
+    "isolated-invalid-permit-original_attempt_id",
+    "isolated-invalid-permit-command",
+    "isolated-invalid-permit-after_image",
+    "isolated-invalid-permit-allowed_fields",
+    "isolated-invalid-permit-result_revision",
+    "D09 two successive keys and replay in one xid8",
+    "v1-current-customer-mismatch",
+    "D12 repeated CLOSED v1 correction is an actual revision",
+    "original-insert-customer-binding",
+    "K-5 A/B/C original customer binding and operation/attempt immutable identity",
+    "D08 authenticated linked DELETE variant",
+    "D08 authenticated linked DELETE variant",
+    "D08 authenticated linked DELETE variant",
+    "D08 authenticated linked DELETE variant",
+    "D08 separate unlinked Business deletion characterized under real policies/FKs",
+    "D10 RLS-hidden parent is not physical absence",
+    "D10 authenticated legacy DELETE cascade principal observed; instrumentation rolled back",
+    "no-disable-anon",
+    "no-disable-authenticated",
+    "no-disable-service_role",
+    "D01 package original tuple / exact two resources / correction holds",
+    "D02 pending / configured skip / past inactive-catalog maintenance",
+    "D03/D12 paid v1 cancellation retained ledger",
+    "D06 foreign direct-refund contradiction veto",
+    "D05 buffer/cleanup conflict",
+    "D04 explicit DST interval / :30 integrity",
+    "D05 oversized existing notes held",
+    "D04 room-only lifecycle effect",
+    "D03 stale cancellation fence is UNKNOWN/HOLD",
+    "D07 invoice_settlement FAILED unchanged through maintenance",
+    "D07 customer_payment_events FAILED unchanged through maintenance",
+    "D07 receipt FAILED unchanged through maintenance",
+    "D07 pending/failed projection state preserved"
+  ],
+  "availability": {
+    "setup": "FAIL",
+    "matrix": "NOT_RUN",
+    "observations": 0,
+    "sqlstate": "23502",
+    "reason": "foreign service fixture location_id NULL; existing NOT NULL constraint"
+  },
+  "remaining_final_catalog_non_super_and_side_effect_sweep": "NOT_RUN",
+  "shutdown": {
+    "runner_stopped": true,
+    "postmaster_pid_absent": true,
+    "socket_absent": true,
+    "independent_ps": "PID 31991 absent",
+    "pg_ctl_status": "no server running"
+  },
+  "protected_hashes": {
+    "docs/reviews/issue-134-slice2b-d1-lifecycle-sql-contract-freeze.md": "0caf4f79ce43088520313728b4d3cd77758b0aa066f8f2f776f4714f9ebff6ed",
+    "supabase/migrations/20261013201608_issue_134_slice2b_lifecycle_amendment.sql": "3c5179f29f53678ec51798d6fb2929448cba98cf64bd7c44a1d6c796e56eb3a1"
+  },
+  "historical_evidence_unchanged": 98,
+  "raw_files": 685,
+  "archive_members": 698,
+  "archive_sha256": "d5b77fbce98ac2d10a2e457f0baaecba9a5911cace902de3cf3793c8bb347752",
+  "member_manifest_sha256": "79b1b4f69319efe98e12c966a2ab9b354aff9d335772ed33957d7908d697dcf4",
+  "full_invocations": 1,
+  "second_run": false,
+  "hosted_connection": false,
+  "source_pushed": false
+}
