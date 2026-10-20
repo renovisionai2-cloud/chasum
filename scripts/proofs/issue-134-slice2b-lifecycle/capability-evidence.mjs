@@ -56,7 +56,7 @@ export function parseCapabilityPreimage(output, name, data, user) {
  if(lines.length!==1)throw new Error('Missing/ambiguous capability preimage: '+name);
  const p=JSON.parse(lines[0].slice('CAPABILITY_PREIMAGE:'.length));
  if(p.case!==name||p.assertion!==true||p.database!=='d1_assertion_rollback'||p.data_directory!==data||p.server_addr!==null||p.session_user!==user||p.current_user!==user||p.acl.length!==1)throw new Error('Invalid capability preimage: '+name);
- if(p.mode==='public'&&p.acl[0].grantee!==0)throw new Error('PUBLIC is not ACL grantee zero');
+ if(p.mode==='public'&&p.acl[0].grantee!==0&&p.acl[0].grantee!=="0")throw new Error('PUBLIC is not ACL grantee zero');
  if(['inherited','set-role'].includes(p.mode)) {
   const edges=p.membership_chain;
   if(edges.length!==2||!edges.some(e=>e.role==='d1_capability_leaf'&&e.member==='d1_capability_bridge')||!edges.some(e=>e.role==='d1_capability_bridge'&&e.member===p.principal)||edges.some(e=>e.inherit_option!==(p.mode==='inherited')||e.set_option!==(p.mode==='set-role'))||p.leaf_effective_privilege!==true)throw new Error('Wrong membership witness: '+name);
