@@ -242,3 +242,22 @@ describe("Calendar routes into the real Booking Sheet", () => {
     expect(mocks.create).not.toHaveBeenCalled();
   });
 });
+
+it("filters the displayed schedule without narrowing the canonical Booking Sheet catalog", async () => {
+  const second = { ...service, id: "svc2", name: "Second service" };
+  const appointment = { id: "a", business_id: "biz", customer_id: customer.id, service_id: service.id, staff_id: staff.id, location_id: location.id,
+    customer, service, staff, status: "confirmed", notes: null, start_time: "2026-10-10T16:00:00Z", end_time: "2026-10-10T16:30:00Z"
+  } as ComponentProps<typeof CalendarClient>["appointments"][number];
+  renderCalendar({ appointments: [appointment], services: [service, second] });
+  expect(screen.getByRole("button", { name: /Test Customer, Deposit Service/ })).toBeVisible();
+  await userEvent.click(screen.getByText("Filters"));
+  await userEvent.click(screen.getByRole("checkbox", { name: "Deposit Service" }));
+  expect(screen.queryByRole("button", { name: /Test Customer, Deposit Service/ })).not.toBeInTheDocument();
+  expect(screen.getByRole("status")).toHaveTextContent("Calendar filtered");
+  await userEvent.click(screen.getByRole("button", { name: "New appointment", exact: true }));
+  expect(screen.getByRole("dialog")).toBeVisible();
+  expect(screen.getByLabelText("Service")).toHaveValue("");
+  expect(screen.getByLabelText("Service").querySelector('option[value="svc"]')).not.toBeNull();
+  expect(screen.getByLabelText("Service").querySelector('option[value="svc2"]')).not.toBeNull();
+  expect(mocks.create).not.toHaveBeenCalled();
+});

@@ -129,18 +129,18 @@ function StaffColumn({
 
   return (
     <div
-      className="relative min-w-[9.5rem] flex-1 border-l border-border/80 first:border-l-0 sm:min-w-[11rem]"
+      className="relative min-w-[14rem] flex-1 border-l border-border/80 first:border-l-0"
       data-staff-column={member.id}
     >
       <div
-        className="sticky top-0 z-20 border-b border-border px-2 py-2 backdrop-blur-sm"
+        className="sticky top-0 z-20 flex h-14 flex-col justify-center border-b border-border px-3 py-2 backdrop-blur-sm"
         style={{
           background:
             "color-mix(in oklab, var(--card) 92%, transparent)",
           boxShadow: `inset 0 -2px 0 ${member.color}`,
         }}
       >
-        <p className="truncate text-xs font-semibold sm:text-sm">
+        <p className="break-words text-sm font-semibold">
           {member.name}
         </p>
         <p className="truncate text-[10px] text-muted-foreground">
@@ -195,7 +195,7 @@ function StaffColumn({
             date={date}
             hour={hour}
             intervalMinutes={intervalMinutes}
-            className="relative min-h-[64px] w-full border-b border-border/60 last:border-b-0 sm:min-h-[68px]"
+            className="relative h-20 w-full border-b border-border/60 last:border-b-0"
             onClick={(slot) => onSelectSlot(slot, member.id)}
             onDrop={(slot, appointmentId) => {
               if (!appointmentId || !onReschedule) return;
@@ -281,13 +281,13 @@ export function DayControlCenter({
 
   return (
     <div
-      className="max-h-[min(72vh,54rem)] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm"
+      className="max-h-[max(20rem,calc(100dvh-30rem))] scroll-smooth overflow-auto rounded-[var(--radius-lg)] border border-border bg-card shadow-sm lg:max-h-[max(24rem,calc(100dvh-20rem))]"
       role="region"
       aria-label={`Day view for ${format(date, "EEEE, MMMM d")}`}
     >
       <div
         className={cn(
-          "sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border px-3 py-2.5 backdrop-blur-sm",
+          "flex items-center justify-between gap-3 border-b border-border px-3 py-2.5 backdrop-blur-sm",
           showNow ? "bg-accent/45" : "bg-card/95",
         )}
       >
@@ -310,22 +310,22 @@ export function DayControlCenter({
 
       <div className="flex min-w-0">
         <div
-          className="sticky left-0 z-20 w-14 shrink-0 border-r border-border bg-card sm:w-16"
+          className="sticky left-0 z-20 w-16 shrink-0 border-r border-border bg-card sm:w-20"
           aria-hidden
         >
-          <div className="h-[52px] border-b border-border" />
+          <div className="sticky top-0 z-30 h-14 border-b border-border bg-card" />
           {hours.map((hour) => (
             <div
               key={hour}
-              className="flex min-h-[64px] items-start justify-end border-b border-border/60 px-1.5 pt-1.5 text-[10px] tabular-nums text-muted-foreground sm:min-h-[68px] sm:px-2 sm:text-[11px]"
+              className="flex h-20 items-start justify-end border-b border-border/60 px-1 pt-1.5 whitespace-nowrap text-[11px] tabular-nums text-muted-foreground"
             >
               {formatTime(new Date(2024, 0, 1, hour))}
             </div>
           ))}
         </div>
 
-        <div className="flex min-w-0 flex-1 overflow-x-auto">
-          <StaffColumn
+        <div className="flex min-w-0 flex-1">
+          {appointments.some(appointment => !appointment.staff_id && appointment.status !== "cancelled" && overlapsOperationalDay(appointment.start_time, appointment.end_time, date, timezone)) && <StaffColumn
             timezone={timezone}
             key="__unassigned__"
             member={
@@ -349,7 +349,7 @@ export function DayControlCenter({
             onResize={onResize}
             colorMode={colorMode}
             intervalMinutes={intervalMinutes}
-          />
+          />}
           {activeStaff.map((member) => (
             <StaffColumn
               timezone={timezone}
@@ -405,16 +405,16 @@ export function DayAgendaList({
   }
 
   return (
-    <ul className="divide-y divide-border overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+    <ul className="space-y-3">
       {items.map((appt) => (
-        <li key={appt.id}>
+        <li key={appt.id} className="overflow-hidden rounded-[var(--radius-lg)] border border-border bg-card shadow-xs">
           <button
             type="button"
             className="flex w-full items-start gap-3 px-3 py-3 text-left hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
             onClick={() => onSelectAppointment(appt)}
           >
             <span
-              className="mt-0.5 size-2.5 shrink-0 rounded-full"
+              className="mt-1 h-12 w-1 shrink-0 rounded-full"
               style={{ backgroundColor: appt.service.color }}
               aria-hidden
             />
@@ -422,10 +422,11 @@ export function DayAgendaList({
               <span className="block text-sm font-medium">
                 {formatBusinessTime(appt.start_time, { timezone })} · {appt.customer.name}
               </span>
-              <span className="block truncate text-xs text-muted-foreground">
+              <span className="block break-words text-xs leading-relaxed text-muted-foreground">
                 {appt.service.name}
                 {appt.staff?.name ? ` · ${appt.staff.name}` : ""}
               </span>
+              <span className="mt-1 block text-xs capitalize">{formatBusinessTime(appt.end_time, { timezone })} · {Math.round((Date.parse(appt.end_time) - Date.parse(appt.start_time)) / 60000)} min · {appt.status.replaceAll("_", " ")}</span>
             </span>
           </button>
         </li>

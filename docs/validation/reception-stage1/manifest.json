@@ -1,0 +1,150 @@
+{
+  "baseline_commit": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+  "baseline_tree": "e1f5d0f1bedfc5f6143e6a31f7989a7ea467dae3",
+  "baseline_application_blobs_verified": 688,
+  "design_archive_sha256": "57f50cffa682fb55192f4775c5a42081ad90d1d4f680f66655f379ee5249e399",
+  "versions": {
+    "next": "16.3.6",
+    "react": "19.2.4",
+    "playwright": "1.61.1",
+    "node": "v26.7.0"
+  },
+  "evidence_kind": "Local Chromium synthetic fixtures; not hosted or physical devices",
+  "source_sha256": {
+    "app/(dashboard)/dashboard/calendar/page.tsx": "1ab537e59e145ff417413bf877aa864431cdf482743d52103250f2da15a6ed60",
+    "components/calendar/calendar-client.tsx": "823eafc11dbe4ae6691a3d618f6f0af7332c2600ae582a1b49d62d7c188728d4",
+    "components/calendar/calendar-toolbar.tsx": "04f973db0afbf0eacb47afb93e0099be811a6f32abd4049dd05090c9bf03ee86",
+    "components/day-view/appointment-card.module.css": "46459295edef14e94db89d838eea813f5cfb3e0fbba6eff95e7c83b2e95776c7",
+    "components/day-view/appointment-card.tsx": "029c0dd1f5dae46f949bfb791a1a7d8428a8a79c16e0d2cbd6c3dc36e83d3159",
+    "components/day-view/day-control-center.tsx": "ef5ddb9ed7beac8ca4aa42985498f2798ed719d1c48526c1962039f51e457871",
+    "components/day-view/morning-brief.tsx": "102d69902887882bba22909be44177d70d07c0cd9e5deee302217a147d50ed58",
+    "components/reception/color-legend.tsx": "88afdb660d48b22489ecd86afd341d96f0579cb27938fd4edffaa6e5a86268a7",
+    "components/reception/reception-panel.tsx": "78baeb7c284b75672a02d9b65c18187f6cf9e78ccc85811d158fbf5487399066",
+    "components/reception/reception-workspace.tsx": "1ec86a3393e6993ec35b71bb0250956a5eaa08a0c2c09867c0836a0c06441ff7",
+    "tests/unit/booking/m1b-scope-transport.test.tsx": "f440a980c3e522c4c55c08fc3361de8487e902324bf07b396a6697dc0207066a",
+    "tests/unit/calendar/browser/run.mjs": "4f36f6417e253fac16e665c71989e92ecb9f6e6df1c2ad0d4c822163df9078bb",
+    "tests/unit/calendar/calendar-booking-selection.test.tsx": "d76f7f827f757bafddfac91692d565c8462cd43b92490e6742fe9ba87d871a4b",
+    "tests/unit/calendar/operational-calendar.test.tsx": "3f1571c221fb5a7322cf46a99b1f18943323410144cb9a3b9e5d644cf275984c",
+    "tests/unit/calendar/stage1-browser/entry.tsx": "580dfd8f755fd97a2ea5eb44b2695a9df2790237e9bfb6fc11fb5b2110258565",
+    "tests/unit/calendar/stage1-browser/index.html": "678c8b87f2b1cb42095d464997a8704ac68931a57004e9c69677a8ca88569f43",
+    "tests/unit/calendar/stage1-browser/run.mjs": "dc6c8572f2609ff71787ffc28f3b4fd1bb84f37cd45d534d1b0574f4ae9a0330",
+    "tests/unit/calendar/stage1-presentation.test.tsx": "44c5811048600ad36b1ed5ee44aa608186ce8bd0a2ccd5873f7a2437683ef9f6"
+  },
+  "screenshots": {
+    "after-desktop-cards.png": {
+      "sha256": "a225eba567752499daa4aacf4c918719a8d0caf8a913befb7c76904eaecea2f5",
+      "width": 1120,
+      "height": 580
+    },
+    "after-desktop-closed.png": {
+      "sha256": "f6216173ca5b82507010217ff8434c525879a6f471296dbc333916adfb58a4cf",
+      "width": 1440,
+      "height": 900
+    },
+    "after-desktop-dark.png": {
+      "sha256": "95413271ee8a01e26a510a3413292cc6d25f506394cdde48ec98e4b299980d7e",
+      "width": 1440,
+      "height": 900
+    },
+    "after-desktop-open.png": {
+      "sha256": "669ee1fcd28cc950bbd96c84bda3075d448ccb729b9675ddc0ed2cbe91bcf57d",
+      "width": 1440,
+      "height": 900
+    },
+    "after-iphone-closed.png": {
+      "sha256": "985c03925709a887d219241d418686a061582a24df8552b290dd78eb0be54cee",
+      "width": 390,
+      "height": 844
+    },
+    "after-iphone-dark.png": {
+      "sha256": "9c3bd8171368e19cf879e0a92362052039804ae0e643e0d786dc91b0753d20ea",
+      "width": 390,
+      "height": 844
+    },
+    "after-iphone-open.png": {
+      "sha256": "5f451ef9ccf32ed9195d18769f71bd1cef244404a75d62b22bf21626ab971361",
+      "width": 390,
+      "height": 844
+    },
+    "after-laptop-cards.png": {
+      "sha256": "d204be0fa347c3c07ec679ef78d7c4f252c957f67667ea6b9171c48261604912",
+      "width": 1046,
+      "height": 448
+    },
+    "after-laptop-closed.png": {
+      "sha256": "12b5f99415635a0bf70613d8462465f5237323a0199971a7929592cabde766c8",
+      "width": 1366,
+      "height": 768
+    },
+    "after-laptop-dark.png": {
+      "sha256": "a2d00915f7bee1d85c064615504b41a0018a900e6230cc84cc223ecd4f70a21a",
+      "width": 1366,
+      "height": 768
+    },
+    "after-laptop-open.png": {
+      "sha256": "27751e49b0e81c0ae94c6b50369422367a8ac780d94632b712cc353acd917337",
+      "width": 1366,
+      "height": 768
+    },
+    "after-tablet-cards.png": {
+      "sha256": "5279ed17b905d829b6649264fe578797d10483f10a1a37a621713e32cf56f621",
+      "width": 786,
+      "height": 632
+    },
+    "after-tablet-closed.png": {
+      "sha256": "3e29c4b0c8f07d957018d56d4a2692d3238c5b9392bfdb8f22c640e5deb855ef",
+      "width": 834,
+      "height": 1112
+    },
+    "after-tablet-dark.png": {
+      "sha256": "b05aae737efeb5726d165d482af62e705d9006d37cb9ee01b39572a14dda4c65",
+      "width": 834,
+      "height": 1112
+    },
+    "after-tablet-open.png": {
+      "sha256": "9c41d5797b2a8526bb87c6f93fb9886296db087baee2b370710ea86ad6b41c23",
+      "width": 834,
+      "height": 1112
+    },
+    "before-desktop-closed.png": {
+      "sha256": "f986a46263dfa5401a6afb04d8fea54719ceaf3bc3d5ccc897fec40637af37d9",
+      "width": 1440,
+      "height": 900
+    },
+    "before-desktop-open.png": {
+      "sha256": "a4f8586816db1314c07507dfe8ea3c2bc5cef4e803bc98cde52dd613c225d2fd",
+      "width": 1440,
+      "height": 900
+    },
+    "before-iphone-closed.png": {
+      "sha256": "2ea05c71a00088831ef8cb3a0066dda9bf3ed2ad579c65e70450b0fc2a0794c3",
+      "width": 390,
+      "height": 844
+    },
+    "before-iphone-open.png": {
+      "sha256": "d7aa4f151e3d88e33fa198652e54374f8cce0ef13b0b4ff2a78bf1fb1bd11e56",
+      "width": 390,
+      "height": 844
+    },
+    "before-laptop-closed.png": {
+      "sha256": "6fa1a0f1c25ac8373ac9c0801ae1b2eaa2c52c81920c6fe84a714e32c76fd8f0",
+      "width": 1366,
+      "height": 768
+    },
+    "before-laptop-open.png": {
+      "sha256": "87297c42c332af7020d8795124c28857f23501e033847ba96adb0bbab7f5b17c",
+      "width": 1366,
+      "height": 768
+    },
+    "before-tablet-closed.png": {
+      "sha256": "f572e4263540c3f463640988cceedcc6c5e48e0934ecc308a1f3d177c08e5b54",
+      "width": 834,
+      "height": 1112
+    },
+    "before-tablet-open.png": {
+      "sha256": "3754c63241a2ab4c837d91680f155ee8474c4a9b696de57e157f10db25204ab7",
+      "width": 834,
+      "height": 1112
+    }
+  }
+}

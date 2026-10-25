@@ -1,5 +1,11 @@
 # Chasum — Current Project State
 
+## Reception Stage 1 candidate — October 25, 2026
+
+Darshan explicitly authorized bounded local implementation and one Draft PR on October 25, after all four approved designs were inspected. Branch `codex/reception-stage1-calendar-first` starts from verified main `80968d24dc1d87407205e54ccc949433ed39e8eb` and delivers Calendar-first composition, disclosure, readable cards and local responsive evidence. See [candidate evidence](validation/reception-stage1/README.md).
+
+**Next gate: independent Claude review, manually dispatched by Darshan.** This candidate is not merged or Production accepted. No hosted mutation/configuration, financial/booking-engine change, release, or deposit resumption. Prior financial evidence and holds remain unchanged. The October 13 program snapshot below remains dated history; it is not the authorization for this candidate.
+
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
 **Snapshot date:** 2026-10-13 (America/Toronto). **Updated by:** Codex K-1–K-7 independent acceptance closeout; fresh GitHub main/PR checks, documentation only. Prior Production observations below were not re-probed.
 

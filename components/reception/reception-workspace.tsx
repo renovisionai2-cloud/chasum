@@ -70,7 +70,6 @@ export function ReceptionWorkspace({
 }: ReceptionWorkspaceProps) {
   return (
     <div className="ds-page">
-      <MorningBrief brief={brief} />
       <CalendarClient
         appointments={appointments}
         services={services}
@@ -91,6 +90,7 @@ export function ReceptionWorkspace({
         appointmentIntervalMinutes={appointmentIntervalMinutes}
         scope={scope}
       />
+      <MorningBrief brief={brief} />
     </div>
   );
 }

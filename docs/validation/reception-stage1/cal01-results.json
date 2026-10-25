@@ -1,0 +1,47 @@
+[
+  {
+    "name": "desktop",
+    "width": 1440,
+    "height": 1000,
+    "pointer": {
+      "hover": true,
+      "coarse": false
+    },
+    "errors": [],
+    "writes": [],
+    "receptionDraft": "PASS",
+    "hiddenFocus": "PASS",
+    "monthKeyboard": "PASS",
+    "monthTouch": "NOT APPLICABLE"
+  },
+  {
+    "name": "tablet",
+    "width": 834,
+    "height": 1112,
+    "pointer": {
+      "hover": false,
+      "coarse": true
+    },
+    "errors": [],
+    "writes": [],
+    "receptionDraft": "PASS",
+    "hiddenFocus": "PASS",
+    "monthKeyboard": "PASS",
+    "monthTouch": "PASS"
+  },
+  {
+    "name": "phone",
+    "width": 390,
+    "height": 844,
+    "pointer": {
+      "hover": false,
+      "coarse": true
+    },
+    "errors": [],
+    "writes": [],
+    "receptionDraft": "PASS",
+    "hiddenFocus": "PASS",
+    "monthKeyboard": "PASS",
+    "monthTouch": "PASS"
+  }
+]

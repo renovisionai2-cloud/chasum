@@ -15,8 +15,9 @@ import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { addMinutes } from "date-fns";
-import { FileText, Wallet } from "lucide-react";
-import { useState } from "react";
+import { FileText, Wallet, ChevronRight } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import styles from "./appointment-card.module.css";
 
 export type CalendarColorMode = "service" | "staff";
 
@@ -31,14 +32,6 @@ type DayAppointmentCardProps = {
   column?: number;
   columns?: number;
 };
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 export function DayAppointmentCard({
   appointment,
@@ -67,6 +60,8 @@ export function DayAppointmentCard({
   const leftPct = column * widthPct;
   const startLabel = timezone ? formatBusinessTime(appointment.start_time, { timezone }) : formatTime(parseISO(appointment.start_time));
   const endLabel = timezone ? formatBusinessTime(appointment.end_time, { timezone }) : formatTime(parseISO(appointment.end_time));
+  const duration = Math.round((Date.parse(appointment.end_time) - Date.parse(appointment.start_time)) / 60000);
+  const statusLabel = appointment.status.replaceAll("_", " ");
   const hasNotes = Boolean(appointment.notes?.trim());
   const deposit = Number(appointment.deposit_cents ?? 0);
   const priceCents =
@@ -148,10 +143,12 @@ export function DayAppointmentCard({
       draggable={draggable && appointment.status !== "cancelled"}
       onDragStart={handleDragStart}
       onDragEnd={() => setDragging(false)}
-      title={`${appointment.customer.name} · ${appointment.service.name} · ${startLabel}–${endLabel}`}
+      data-interacting={dragging || previewHeight !== null || undefined}
+      title={`${appointment.customer.name} · ${appointment.service.name} · ${startLabel}–${endLabel} · ${duration} min · ${statusLabel}`}
       className={cn(
-        "pointer-events-auto absolute overflow-hidden rounded-[0.55rem] border border-white/25 px-1.5 py-1 text-left text-white shadow-sm transition-[box-shadow,opacity,transform] motion-safe:hover:z-20 motion-safe:hover:scale-[1.01] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        "text-[10px] leading-tight sm:text-[11px]",
+        styles.card,
+        "pointer-events-auto absolute rounded-lg border border-border px-2 py-1 text-left text-foreground shadow-xs hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "text-xs leading-4",
         draggable &&
           appointment.status !== "cancelled" &&
           "cursor-grab active:cursor-grabbing",
@@ -162,56 +159,38 @@ export function DayAppointmentCard({
         height: `${previewHeight ?? height}%`,
         left: `calc(${leftPct}% + 2px)`,
         width: `calc(${widthPct}% - 4px)`,
-        minHeight: "36px",
+        minHeight: "40px",
+        "--card-time-height": `${previewHeight ?? height}%`,
         ...getAppointmentBlockStyle(appointment.status, fillColor),
-      }}
+        backgroundColor: `color-mix(in oklab, ${fillColor} 9%, var(--card))`,
+      } as CSSProperties}
       onClick={() => onSelect(appointment)}
-      aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${startLabel}, ${appointment.status}`}
+      aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${startLabel} to ${endLabel}, ${duration} minutes, ${statusLabel}. Open appointment details`}
     >
-      <div className="flex items-start gap-1.5">
-        <span
-          className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-black/25 text-[9px] font-semibold"
-          aria-hidden
-        >
-          {initials(appointment.customer.name || "?")}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold tracking-tight">
-            {appointment.customer.name}
-          </p>
-          <p className="truncate opacity-95">{appointment.service.name}</p>
-          <p className="truncate text-[9px] opacity-85 sm:text-[10px]">
-            {startLabel}–{endLabel}
-          </p>
-        </div>
+      <div className="flex items-start justify-between gap-1">
+        <span className="min-w-0 break-words font-semibold">{appointment.customer.name}</span>
+        {duration < 45 && <span className="shrink-0 text-[10px] capitalize">{statusLabel}</span>}
+        <ChevronRight className="size-3.5 shrink-0" aria-hidden />
       </div>
-      <div className="mt-1 flex flex-wrap items-center gap-1">
-        <span className="rounded bg-black/20 px-1 py-px text-[9px] font-medium capitalize">
-          {appointment.status.replace("_", " ")}
-        </span>
-        {paymentDue ? (
-          <span className="inline-flex items-center gap-0.5 rounded bg-black/20 px-1 py-px text-[9px]">
-            <Wallet className="size-2.5" aria-hidden />
-            Due
-          </span>
-        ) : null}
-        {hasNotes ? (
-          <span className="inline-flex items-center gap-0.5 rounded bg-black/20 px-1 py-px text-[9px]">
-            <FileText className="size-2.5" aria-hidden />
-            Note
-          </span>
-        ) : null}
-      </div>
+      <p className="flex flex-wrap gap-x-1 text-[11px] leading-4">
+        <span>{startLabel}–{endLabel}</span><span>· {duration} min</span>
+      </p>
+      <p className="flex flex-wrap items-center gap-x-2 text-[11px] leading-4">
+        {duration >= 45 && <span className="font-medium capitalize">{statusLabel}</span>}
+        {paymentDue && <span className="inline-flex items-center gap-0.5"><Wallet className="size-3" aria-hidden />Due</span>}
+        {hasNotes && <span className="inline-flex items-center gap-0.5"><FileText className="size-3" aria-hidden />Note</span>}
+      </p>
+      <p className={styles.service}>{appointment.service.name}</p>
       {invalidResize && <span role="status">Unavailable or ambiguous local end time.</span>}
       {onResize && appointment.status !== "cancelled" ? (
         <span
           role="separator"
           aria-label="Resize duration"
-          className="absolute inset-x-0 bottom-0 flex h-3 cursor-ns-resize items-end justify-center rounded-b bg-gradient-to-t from-black/30 to-transparent"
+          className="absolute inset-x-0 bottom-0 flex h-3 cursor-ns-resize items-end justify-center rounded-b"
           onPointerDown={handleResizePointerDown}
           onClick={(ev) => ev.stopPropagation()}
         >
-          <span className="mb-0.5 h-0.5 w-8 rounded-full bg-white/85" />
+          <span className="mb-0.5 h-0.5 w-8 rounded-full bg-foreground/30" />
         </span>
       ) : null}
     </button>
