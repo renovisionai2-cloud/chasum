@@ -1,5 +1,9 @@
 # Reception Stage 1 review evidence
 
+## R1 correction after independent audit
+
+Claude's audit of `facddb9f143fde86d033183ea6dee2cdf2196bf1` required visible payment/notes indicators on short cards. The bounded correction and dense-schedule evidence are in [R1 evidence](r1/README.md). All 23 original screenshots below remain byte-for-byte unchanged and describe that audited candidate. The original full-suite result below is historical; R1 runs focused regressions and awaits independent delta review.
+
 This candidate makes Reception calendar-first using Darshan's October 25, 2026 implementation authorization and four approved visual references. It is ready for a manually dispatched independent Claude review after the Draft PR is available. Merge, hosted acceptance and Production release remain separate gates.
 
 The base is `80968d24dc1d87407205e54ccc949433ed39e8eb`, tree `e1f5d0f1bedfc5f6143e6a31f7989a7ea467dae3`. The older primary checkout was preserved. The design archive SHA-256 is `57f50cffa682fb55192f4775c5a42081ad90d1d4f680f66655f379ee5249e399`.

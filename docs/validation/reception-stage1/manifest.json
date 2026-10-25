@@ -146,5 +146,7 @@
       "width": 834,
       "height": 1112
     }
-  }
+  },
+  "source_snapshot_commit": "facddb9f143fde86d033183ea6dee2cdf2196bf1",
+  "r1_correction_manifest": "r1/manifest.json"
 }

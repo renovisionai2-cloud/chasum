@@ -15,7 +15,7 @@ import { getAppointmentBlockStyle } from "@/lib/calendar/status-colors";
 import type { AppointmentWithRelations } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { addMinutes } from "date-fns";
-import { FileText, Wallet, ChevronRight } from "lucide-react";
+import { FileText, ChevronRight } from "lucide-react";
 import { useState, type CSSProperties } from "react";
 import styles from "./appointment-card.module.css";
 
@@ -74,6 +74,7 @@ export function DayAppointmentCard({
     priceCents != null &&
     priceCents > 0 &&
     deposit < priceCents;
+  const indicators = [paymentDue && "Payment due", hasNotes && "Has notes"].filter(Boolean);
 
   function handleDragStart(e: React.DragEvent) {
     setDragging(true);
@@ -144,10 +145,11 @@ export function DayAppointmentCard({
       onDragStart={handleDragStart}
       onDragEnd={() => setDragging(false)}
       data-interacting={dragging || previewHeight !== null || undefined}
-      title={`${appointment.customer.name} · ${appointment.service.name} · ${startLabel}–${endLabel} · ${duration} min · ${statusLabel}`}
+      title={[appointment.customer.name, appointment.service.name, `${startLabel}–${endLabel}`, `${duration} min`, statusLabel, ...indicators].join(" · ")}
       className={cn(
         styles.card,
-        "pointer-events-auto absolute rounded-lg border border-border px-2 py-1 text-left text-foreground shadow-xs hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "pointer-events-auto absolute rounded-lg border border-border px-2 text-left text-foreground shadow-xs hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        duration < 45 ? "py-0.5" : "py-1",
         "text-xs leading-4",
         draggable &&
           appointment.status !== "cancelled" &&
@@ -165,20 +167,22 @@ export function DayAppointmentCard({
         backgroundColor: `color-mix(in oklab, ${fillColor} 9%, var(--card))`,
       } as CSSProperties}
       onClick={() => onSelect(appointment)}
-      aria-label={`${appointment.customer.name}, ${appointment.service.name}, ${startLabel} to ${endLabel}, ${duration} minutes, ${statusLabel}. Open appointment details`}
+      aria-label={`${[appointment.customer.name, appointment.service.name, `${startLabel} to ${endLabel}`, `${duration} minutes`, statusLabel, ...indicators].join(", ")}. Open appointment details`}
     >
       <div className="flex items-start justify-between gap-1">
-        <span className="min-w-0 break-words font-semibold">{appointment.customer.name}</span>
-        {duration < 45 && <span className="shrink-0 text-[10px] capitalize">{statusLabel}</span>}
+        <span className="min-w-0 flex-1 break-words font-semibold">{appointment.customer.name}</span>
+        {(paymentDue || hasNotes) && <span className="inline-flex shrink-0 items-center gap-1 text-[10px] leading-4" aria-hidden>
+          {paymentDue && <span title="Payment due" className="rounded bg-warning/15 px-1 font-semibold">Due</span>}
+          {hasNotes && <span title="Has notes" className="inline-flex h-4 items-center"><FileText className="size-3.5" /></span>}
+        </span>}
         <ChevronRight className="size-3.5 shrink-0" aria-hidden />
       </div>
       <p className="flex flex-wrap gap-x-1 text-[11px] leading-4">
+        {duration < 45 && <span className="text-[10px] font-medium capitalize">{statusLabel}</span>}
         <span>{startLabel}–{endLabel}</span><span>· {duration} min</span>
       </p>
       <p className="flex flex-wrap items-center gap-x-2 text-[11px] leading-4">
         {duration >= 45 && <span className="font-medium capitalize">{statusLabel}</span>}
-        {paymentDue && <span className="inline-flex items-center gap-0.5"><Wallet className="size-3" aria-hidden />Due</span>}
-        {hasNotes && <span className="inline-flex items-center gap-0.5"><FileText className="size-3" aria-hidden />Note</span>}
       </p>
       <p className={styles.service}>{appointment.service.name}</p>
       {invalidResize && <span role="status">Unavailable or ambiguous local end time.</span>}

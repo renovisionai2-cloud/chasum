@@ -34,6 +34,25 @@ const appointments: AppointmentWithRelations[] = names.map((name, i) => {
     created_at: "2026-01-01", updated_at: "2026-01-01",
   } as AppointmentWithRelations;
 });
+// Optional audit fixture; the original nine-appointment screenshot fixture stays intact.
+if (new URLSearchParams(window.location.search).get("fixture") === "dense") {
+  for (let i = members.length; i < 10; i++) members.push({ ...members[0], id: `staff${i}`, name: `Staff ${i + 1}` });
+  const template = appointments[0];
+  appointments.splice(0);
+  for (const [i, member] of members.entries()) {
+    for (let slot = 0; slot < 3; slot++) {
+      const duration = slot === 0 ? [5, 15, 30][i % 3] : i === 0 && slot === 1 ? 5 : 30;
+      const name = slot === 0 && i === 0 ? "Alexandria Montgomery-Wellington" : slot === 0 && i === 1 ? "Payment Only" : slot === 0 && i === 2 ? "Notes Only" : i === 0 && slot === 1 ? "Both flags" : `Client ${i + 1} Session ${slot + 1}`;
+      const start = new Date(`2026-10-26T${13 + slot}:00:00Z`);
+      appointments.push({ ...template, id: `dense-${i}-${slot}`, customer: { ...customer, name }, staff: member, staff_id: member.id,
+        start_time: start.toISOString(), end_time: new Date(+start + duration * 60000).toISOString(),
+        price_cents: 1000, deposit_cents: i % 3 === 2 ? 1000 : 0,
+        notes: i % 3 === 1 ? null : "PRIVATE_SYNTHETIC_NOTE_MUST_NOT_LEAK" });
+    }
+  }
+  appointments.push({ ...appointments[0], id: "dense-overlap", customer: { ...customer, name: "Overlapping Customer" },
+    end_time: "2026-10-26T13:30:00Z", deposit_cents: 1000, notes: null });
+}
 let scope: LocationScope = { mode: "single", locationId: "loc" };
 const scopedAppointments = () => scope.mode === "single" && scope.locationId === "loc2" ? [] : appointments;
 fixtureWindow.__fixtureActions = {
@@ -49,7 +68,7 @@ fixtureWindow.__fixtureActions = {
   getCustomers: () => [customer],
   getMorningBrief: () => ({
     todayAppointments: scopedAppointments().length, todayRevenue: { state: "UNKNOWN", reason: "Synthetic local fixture" },
-    staffWorking: 3, availableSlots: 0, waitlistCount: 0, noShows: 0, outstandingPayments: null, pendingConfirmations: 1, customersToday: 9,
+    staffWorking: members.length, availableSlots: 0, waitlistCount: 0, noShows: 0, outstandingPayments: null, pendingConfirmations: 1, customersToday: scopedAppointments().length,
     summer: { bookingsToday: 0, reschedulesToday: 0, confirmationsToday: 0 },
     chase: { revenueDeltaPct: null, recommendation: "Review pending confirmations.", availableSlots: 0, overdueCustomers: null },
   }),

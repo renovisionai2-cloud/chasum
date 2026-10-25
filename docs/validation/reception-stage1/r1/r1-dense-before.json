@@ -1,0 +1,140 @@
+[
+  {
+    "name": "tablet",
+    "width": 834,
+    "height": 1112,
+    "touch": true,
+    "noHover": true,
+    "staff": 10,
+    "appointments": 31,
+    "cards": [
+      {
+        "name": "Alexandria Montgomery-Wellington, Consultation, 9:00 AM to 9:05 AM, 5 minutes, confirmed. Open appointment details",
+        "title": "Alexandria Montgomery-Wellington · Consultation · 9:00 AM–9:05 AM · 5 min · confirmed",
+        "height": 40,
+        "top": "13.3333%",
+        "timeHeight": "0.555556%",
+        "focused": false,
+        "hovered": false,
+        "due": true,
+        "notes": true,
+        "restingText": [
+          {
+            "text": "9:00 AM–9:05 AM",
+            "visible": false
+          },
+          {
+            "text": "· 5 min",
+            "visible": false
+          }
+        ],
+        "indicators": [
+          {
+            "label": "Due",
+            "visible": false
+          },
+          {
+            "label": "Note",
+            "visible": false
+          }
+        ]
+      },
+      {
+        "name": "Payment Only, Consultation, 9:00 AM to 9:15 AM, 15 minutes, confirmed. Open appointment details",
+        "title": "Payment Only · Consultation · 9:00 AM–9:15 AM · 15 min · confirmed",
+        "height": 40,
+        "top": "13.3333%",
+        "timeHeight": "1.66667%",
+        "focused": false,
+        "hovered": false,
+        "due": true,
+        "notes": false,
+        "restingText": [
+          {
+            "text": "9:00 AM–9:15 AM",
+            "visible": true
+          },
+          {
+            "text": "· 15 min",
+            "visible": true
+          }
+        ],
+        "indicators": [
+          {
+            "label": "Due",
+            "visible": false
+          }
+        ]
+      },
+      {
+        "name": "Notes Only, Consultation, 9:00 AM to 9:30 AM, 30 minutes, confirmed. Open appointment details",
+        "title": "Notes Only · Consultation · 9:00 AM–9:30 AM · 30 min · confirmed",
+        "height": 42.5,
+        "top": "13.3333%",
+        "timeHeight": "3.33333%",
+        "focused": false,
+        "hovered": false,
+        "due": false,
+        "notes": true,
+        "restingText": [
+          {
+            "text": "9:00 AM–9:30 AM",
+            "visible": true
+          },
+          {
+            "text": "· 30 min",
+            "visible": true
+          }
+        ],
+        "indicators": [
+          {
+            "label": "Note",
+            "visible": false
+          }
+        ]
+      },
+      {
+        "name": "Both flags, Consultation, 10:00 AM to 10:05 AM, 5 minutes, confirmed. Open appointment details",
+        "title": "Both flags · Consultation · 10:00 AM–10:05 AM · 5 min · confirmed",
+        "height": 40,
+        "top": "20%",
+        "timeHeight": "0.555556%",
+        "focused": false,
+        "hovered": false,
+        "due": true,
+        "notes": true,
+        "restingText": [
+          {
+            "text": "10:00 AM–10:05 AM",
+            "visible": true
+          },
+          {
+            "text": "· 5 min",
+            "visible": true
+          }
+        ],
+        "indicators": [
+          {
+            "label": "Due",
+            "visible": false
+          },
+          {
+            "label": "Note",
+            "visible": false
+          }
+        ]
+      }
+    ],
+    "dimensions": {
+      "clientWidth": 784,
+      "scrollWidth": 2320
+    },
+    "scrollLeft": 1536,
+    "bodyOverflow": false,
+    "stickyStaff": true,
+    "stickyTime": false,
+    "overlapOpening": "NOT RUN",
+    "errors": [],
+    "writes": []
+  }
+]

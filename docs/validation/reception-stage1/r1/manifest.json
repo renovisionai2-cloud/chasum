@@ -1,0 +1,94 @@
+{
+  "audited_head": "facddb9f143fde86d033183ea6dee2cdf2196bf1",
+  "audited_tree": "ec21adcfb961e60fc75b7e01337e15cd7a137001",
+  "base_main": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+  "audited_application_blobs_verified": 689,
+  "original_screenshots_preserved": 23,
+  "evidence_kind": "Local Chromium synthetic fixtures; not hosted or physical devices",
+  "source_sha256": {
+    "components/day-view/appointment-card.tsx": "e04e070c70cd2d4949b1538a49e3d62f7a6617f307635a7b70c19f88fcf246f5",
+    "components/day-view/day-control-center.tsx": "900e07e90245d2995de41e04bb174c3aaed97e9534d021b1e1e810fe0a75a6e0",
+    "tests/unit/calendar/appointment-card-indicators.test.tsx": "c1b51afbc8400566051bebdbdea4ee535d5fd5ce8f273622b7d77adb3c1f1620",
+    "tests/unit/calendar/stage1-browser/dense.mjs": "271c38f6a0cac61498063fa81b75b0cdd12cbafb4f5ef06473047f08cd716a34",
+    "tests/unit/calendar/stage1-browser/entry.tsx": "d9e9dd127af9a04296cab0912705edb46347884bf47e71ae0e71e7f7571cea17",
+    "tests/unit/calendar/stage1-browser/run.mjs": "fea5b2563562b6afc2308e31500402aed5d9454298701d2e8f46fb03a8e10cd9"
+  },
+  "unchanged_geometry": [
+    {
+      "accessible_name": "Alexandria Montgomery-Wellington, Consultation, 9:00 AM to 9:05 AM, 5 minutes, confirmed, Payment due, Has notes. Open appointment details",
+      "unchanged_height_px": 40,
+      "unchanged_top": "13.3333%",
+      "unchanged_time_height": "0.555556%"
+    },
+    {
+      "accessible_name": "Payment Only, Consultation, 9:00 AM to 9:15 AM, 15 minutes, confirmed, Payment due. Open appointment details",
+      "unchanged_height_px": 40,
+      "unchanged_top": "13.3333%",
+      "unchanged_time_height": "1.66667%"
+    },
+    {
+      "accessible_name": "Notes Only, Consultation, 9:00 AM to 9:30 AM, 30 minutes, confirmed, Has notes. Open appointment details",
+      "unchanged_height_px": 42.5,
+      "unchanged_top": "13.3333%",
+      "unchanged_time_height": "3.33333%"
+    },
+    {
+      "accessible_name": "Both flags, Consultation, 10:00 AM to 10:05 AM, 5 minutes, confirmed, Payment due, Has notes. Open appointment details",
+      "unchanged_height_px": 40,
+      "unchanged_top": "20%",
+      "unchanged_time_height": "0.555556%"
+    }
+  ],
+  "evidence": {
+    "README.md": {
+      "sha256": "fe21363c2d4c94cb1d5b81dc5c5300f538cbb5b577923b23f6553cba87ae25f2"
+    },
+    "audited-reproduction.log": {
+      "sha256": "293cbd8dc83809905bdc6db9d920128cc55f516463906c0a2fe2441b9553e754"
+    },
+    "browser.log": {
+      "sha256": "0352a9b2c980458b43d3b046b56f0ed254902a15943d2d55c75baf7810731d8a"
+    },
+    "build.log": {
+      "sha256": "944b1a798f97667a4d44322e26e191e38755f21833a4698d0d0f458a9607c7ba"
+    },
+    "focused-tests.log": {
+      "sha256": "bf0682922b74504544f94308c6d890b9814315f5e85c42072c0ea88029f3cd92"
+    },
+    "lint.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r1-before-tablet-touch.png": {
+      "sha256": "7a16f6a4e593b51461e221f65c258d63967e0ee8d884295a3ac2937ce0941a2f",
+      "width": 834,
+      "height": 1112
+    },
+    "r1-dense-after.json": {
+      "sha256": "ac653cca344ae9c2964ee3bde15b06ff96687cf6c27a0cc9099a1b294e7f4c72"
+    },
+    "r1-dense-before.json": {
+      "sha256": "1e8aba0ccdea9cced16996f6c0c87cb859bdf09b556c240be11ff8252b9a6c1c"
+    },
+    "r1-laptop-scrolled.png": {
+      "sha256": "a348768d7e2868c18d71b8c38b96fbec7645fcb56f07735af40e6db73b2a8590",
+      "width": 1366,
+      "height": 768
+    },
+    "r1-results.json": {
+      "sha256": "4e092907a21c037322182213a5d1272bddf32ff3a260fc3e404cb1f5b272d252"
+    },
+    "r1-tablet-touch-dark.png": {
+      "sha256": "0560f1a4727369b73f5940fb9d4ba256c6eb30510e48a590c5a96caff357d05e",
+      "width": 834,
+      "height": 1112
+    },
+    "r1-tablet-touch-light.png": {
+      "sha256": "3fb714765d305e4145c10981ba7853669f7e5b6ed7b90aabe5f2e61708de238f",
+      "width": 834,
+      "height": 1112
+    },
+    "typecheck.log": {
+      "sha256": "64feb4cf9c4896e7cc87bbf9e84ff48406125129df5d791a8c1feb35bc362133"
+    }
+  }
+}

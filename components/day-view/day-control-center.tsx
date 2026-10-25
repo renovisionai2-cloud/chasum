@@ -308,7 +308,7 @@ export function DayControlCenter({
         </div>
       </div>
 
-      <div className="flex min-w-0">
+      <div className="flex w-max min-w-full">
         <div
           className="sticky left-0 z-20 w-16 shrink-0 border-r border-border bg-card sm:w-20"
           aria-hidden

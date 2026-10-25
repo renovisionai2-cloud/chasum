@@ -6,6 +6,7 @@ import ts from 'typescript';
 import { chromium, expect } from '@playwright/test';
 import { readFile, readdir, mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { runDenseValidation } from './dense.mjs';
 const root = process.cwd();
 const output = resolve(process.argv[2] || '/private/tmp/chasum-cal01-evidence');
 await mkdir(output, { recursive: true });
@@ -74,10 +75,13 @@ await server.listen();
 const address = server.httpServer.address();
 const origin = `http://127.0.0.1:${address.port}`;
 const browser = await chromium.launch({ headless: true });
-const phase = process.argv[3] || 'before';
+const requestedPhase = process.argv[3] || 'before';
+const correction = requestedPhase.startsWith('r1');
+const phase = correction ? 'after' : requestedPhase;
 const results = [];
 try {
-  for (const [name,width,height] of [['desktop',1440,900],['laptop',1366,768],['tablet',834,1112],['iphone',390,844]]) {
+  if (correction) await runDenseValidation({browser,origin,output,before:requestedPhase === 'r1-before'});
+  for (const [name,width,height] of requestedPhase === 'r1-before' ? [] : [['desktop',1440,900],['laptop',1366,768],['tablet',834,1112],['iphone',390,844]]) {
     const context=await browser.newContext({viewport:{width,height},timezoneId:'America/Los_Angeles',hasTouch:width<1024,isMobile:width<1024});
     const writes=[], errors=[];
     await context.exposeFunction('__recordWriteAttempt',name=>writes.push(name));
@@ -90,7 +94,7 @@ try {
     await page.evaluate(async()=>{await document.fonts.ready});
     expect(await page.evaluate(()=>document.fonts.check('12px Inter'))).toBe(true);
     await page.waitForTimeout(300);
-    await page.screenshot({animations:"disabled",path:resolve(output,`${phase}-${name}-closed.png`)});
+    if (!correction) await page.screenshot({animations:"disabled",path:resolve(output,`${phase}-${name}-closed.png`)});
     if(width<768) await page.getByRole('button',{name:phase==='before'?'New':'New appointment',exact:true}).click();
     else {
       const slot=page.locator('[data-staff-column="staff"] button').nth(5);
@@ -100,7 +104,7 @@ try {
     await expect(page.locator('#bs-service')).toHaveValue('');
     await expect(page.locator('[name="date"]')).toHaveValue('2026-10-26');
     await expect(page.locator('[name="start_time"]')).toHaveValue(width<768?'':'2026-10-26T16:30:00.000Z');
-    await page.screenshot({animations:"disabled",path:resolve(output,`${phase}-${name}-open.png`)});
+    if (!correction) await page.screenshot({animations:"disabled",path:resolve(output,`${phase}-${name}-open.png`)});
     if (phase === 'after') {
       const dialog=page.getByRole('dialog');
       await expect(page.locator('body')).toHaveCSS('overflow','hidden');
@@ -185,12 +189,12 @@ try {
       if(width<640) for(const label of ['Centre','Reception','Customers','Payments','More']) await expect(page.getByRole('navigation').last().getByText(label,{exact:true})).toBeVisible();
       await page.evaluate(()=>scrollTo(0,0));
       await page.getByRole('button',{name:'Switch to dark mode'}).click();
-      await page.screenshot({animations:'disabled',path:resolve(output,`after-${name}-dark.png`)});
+      if (!correction) await page.screenshot({animations:'disabled',path:resolve(output,`after-${name}-dark.png`)});
       await page.getByRole('button',{name:'Switch to light mode'}).click();
       if(width>=768) {
         const grid=page.getByRole('region',{name:/^Day view/});
         await grid.evaluate(el=>{el.scrollTo({top:80,left:0,behavior:'instant'})});
-        await grid.screenshot({animations:'disabled',path:resolve(output,`after-${name}-cards.png`)});
+        if (!correction) await grid.screenshot({animations:'disabled',path:resolve(output,`after-${name}-cards.png`)});
         const headings=page.locator('[data-staff-column] > div:first-child');
         const initial=(await headings.first().boundingBox()).y;
         await grid.evaluate(el=>{el.scrollTo({top:el.scrollTop+100,left:el.scrollWidth,behavior:'instant'})});
@@ -226,6 +230,6 @@ try {
     expect(errors).toEqual([]);expect(writes).toEqual([]);
     await context.close();
   }
-  await writeFile(resolve(output,`${phase}-results.json`),JSON.stringify(results,null,2));
+  await writeFile(resolve(output,`${correction ? requestedPhase : phase}-results.json`),JSON.stringify(results,null,2));
   console.log(JSON.stringify({phase,output,results},null,2));
 } finally {await browser.close();await server.close();}

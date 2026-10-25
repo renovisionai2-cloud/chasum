@@ -1,0 +1,350 @@
+{
+  "dense": [
+    {
+      "name": "laptop",
+      "width": 1366,
+      "height": 768,
+      "touch": false,
+      "noHover": false,
+      "staff": 10,
+      "appointments": 31,
+      "cards": [
+        {
+          "name": "Alexandria Montgomery-Wellington, Consultation, 9:00 AM to 9:05 AM, 5 minutes, confirmed, Payment due, Has notes. Open appointment details",
+          "title": "Alexandria Montgomery-Wellington · Consultation · 9:00 AM–9:05 AM · 5 min · confirmed · Payment due · Has notes",
+          "height": 40,
+          "top": "13.3333%",
+          "timeHeight": "0.555556%",
+          "focused": false,
+          "hovered": false,
+          "due": true,
+          "notes": true,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": false
+            },
+            {
+              "text": "9:00 AM–9:05 AM",
+              "visible": false
+            },
+            {
+              "text": "· 5 min",
+              "visible": false
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Payment due",
+              "visible": true
+            },
+            {
+              "label": "Has notes",
+              "visible": true
+            }
+          ]
+        },
+        {
+          "name": "Payment Only, Consultation, 9:00 AM to 9:15 AM, 15 minutes, confirmed, Payment due. Open appointment details",
+          "title": "Payment Only · Consultation · 9:00 AM–9:15 AM · 15 min · confirmed · Payment due",
+          "height": 40,
+          "top": "13.3333%",
+          "timeHeight": "1.66667%",
+          "focused": false,
+          "hovered": false,
+          "due": true,
+          "notes": false,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": true
+            },
+            {
+              "text": "9:00 AM–9:15 AM",
+              "visible": true
+            },
+            {
+              "text": "· 15 min",
+              "visible": true
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Payment due",
+              "visible": true
+            }
+          ]
+        },
+        {
+          "name": "Notes Only, Consultation, 9:00 AM to 9:30 AM, 30 minutes, confirmed, Has notes. Open appointment details",
+          "title": "Notes Only · Consultation · 9:00 AM–9:30 AM · 30 min · confirmed · Has notes",
+          "height": 42.5,
+          "top": "13.3333%",
+          "timeHeight": "3.33333%",
+          "focused": false,
+          "hovered": false,
+          "due": false,
+          "notes": true,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": true
+            },
+            {
+              "text": "9:00 AM–9:30 AM",
+              "visible": true
+            },
+            {
+              "text": "· 30 min",
+              "visible": true
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Has notes",
+              "visible": true
+            }
+          ]
+        },
+        {
+          "name": "Both flags, Consultation, 10:00 AM to 10:05 AM, 5 minutes, confirmed, Payment due, Has notes. Open appointment details",
+          "title": "Both flags · Consultation · 10:00 AM–10:05 AM · 5 min · confirmed · Payment due · Has notes",
+          "height": 40,
+          "top": "20%",
+          "timeHeight": "0.555556%",
+          "focused": false,
+          "hovered": false,
+          "due": true,
+          "notes": true,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": true
+            },
+            {
+              "text": "10:00 AM–10:05 AM",
+              "visible": true
+            },
+            {
+              "text": "· 5 min",
+              "visible": true
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Payment due",
+              "visible": true
+            },
+            {
+              "label": "Has notes",
+              "visible": true
+            }
+          ]
+        }
+      ],
+      "dimensions": {
+        "clientWidth": 1044,
+        "scrollWidth": 2320
+      },
+      "scrollLeft": 1276,
+      "bodyOverflow": false,
+      "stickyStaff": true,
+      "stickyTime": true,
+      "overlapOpening": "PASS",
+      "errors": [],
+      "writes": []
+    },
+    {
+      "name": "tablet",
+      "width": 834,
+      "height": 1112,
+      "touch": true,
+      "noHover": true,
+      "staff": 10,
+      "appointments": 31,
+      "cards": [
+        {
+          "name": "Alexandria Montgomery-Wellington, Consultation, 9:00 AM to 9:05 AM, 5 minutes, confirmed, Payment due, Has notes. Open appointment details",
+          "title": "Alexandria Montgomery-Wellington · Consultation · 9:00 AM–9:05 AM · 5 min · confirmed · Payment due · Has notes",
+          "height": 40,
+          "top": "13.3333%",
+          "timeHeight": "0.555556%",
+          "focused": false,
+          "hovered": false,
+          "due": true,
+          "notes": true,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": false
+            },
+            {
+              "text": "9:00 AM–9:05 AM",
+              "visible": false
+            },
+            {
+              "text": "· 5 min",
+              "visible": false
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Payment due",
+              "visible": true
+            },
+            {
+              "label": "Has notes",
+              "visible": true
+            }
+          ]
+        },
+        {
+          "name": "Payment Only, Consultation, 9:00 AM to 9:15 AM, 15 minutes, confirmed, Payment due. Open appointment details",
+          "title": "Payment Only · Consultation · 9:00 AM–9:15 AM · 15 min · confirmed · Payment due",
+          "height": 40,
+          "top": "13.3333%",
+          "timeHeight": "1.66667%",
+          "focused": false,
+          "hovered": false,
+          "due": true,
+          "notes": false,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": true
+            },
+            {
+              "text": "9:00 AM–9:15 AM",
+              "visible": true
+            },
+            {
+              "text": "· 15 min",
+              "visible": true
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Payment due",
+              "visible": true
+            }
+          ]
+        },
+        {
+          "name": "Notes Only, Consultation, 9:00 AM to 9:30 AM, 30 minutes, confirmed, Has notes. Open appointment details",
+          "title": "Notes Only · Consultation · 9:00 AM–9:30 AM · 30 min · confirmed · Has notes",
+          "height": 42.5,
+          "top": "13.3333%",
+          "timeHeight": "3.33333%",
+          "focused": false,
+          "hovered": false,
+          "due": false,
+          "notes": true,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": true
+            },
+            {
+              "text": "9:00 AM–9:30 AM",
+              "visible": true
+            },
+            {
+              "text": "· 30 min",
+              "visible": true
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Has notes",
+              "visible": true
+            }
+          ]
+        },
+        {
+          "name": "Both flags, Consultation, 10:00 AM to 10:05 AM, 5 minutes, confirmed, Payment due, Has notes. Open appointment details",
+          "title": "Both flags · Consultation · 10:00 AM–10:05 AM · 5 min · confirmed · Payment due · Has notes",
+          "height": 40,
+          "top": "20%",
+          "timeHeight": "0.555556%",
+          "focused": false,
+          "hovered": false,
+          "due": true,
+          "notes": true,
+          "restingText": [
+            {
+              "text": "confirmed",
+              "visible": true
+            },
+            {
+              "text": "10:00 AM–10:05 AM",
+              "visible": true
+            },
+            {
+              "text": "· 5 min",
+              "visible": true
+            }
+          ],
+          "indicators": [
+            {
+              "label": "Payment due",
+              "visible": true
+            },
+            {
+              "label": "Has notes",
+              "visible": true
+            }
+          ]
+        }
+      ],
+      "dimensions": {
+        "clientWidth": 784,
+        "scrollWidth": 2320
+      },
+      "scrollLeft": 1536,
+      "bodyOverflow": false,
+      "stickyStaff": true,
+      "stickyTime": true,
+      "overlapOpening": "PASS",
+      "errors": [],
+      "writes": []
+    }
+  ]
+}
+{
+  "phase": "after",
+  "output": "/private/tmp/chasum-r1-evidence",
+  "results": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "laptop",
+      "width": 1366,
+      "height": 768,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "tablet",
+      "width": 834,
+      "height": 1112,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "iphone",
+      "width": 390,
+      "height": 844,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    }
+  ]
+}
