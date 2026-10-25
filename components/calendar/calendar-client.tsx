@@ -189,6 +189,8 @@ export function CalendarClient({
   const [calendarSelection, setCalendarSelection] = useState(openBookOnLoad);
   const [forceQuickAddCustomer, setForceQuickAddCustomer] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [serviceFilter, setServiceFilter] = useState<string[] | null>(null);
+  const [staffFilter, setStaffFilter] = useState("");
   const [isNarrow, setIsNarrow] = useState(false);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
@@ -536,6 +538,12 @@ export function CalendarClient({
     );
   }
 
+  // Presentation filters never alter the booking catalog, eligibility or workspace scope.
+  const visibleAppointments = appointments.filter(a =>
+    (serviceFilter === null || serviceFilter.includes(a.service_id)) &&
+    (!staffFilter || a.staff_id === staffFilter));
+  const visibleStaff = staffFilter ? staff.filter(member => member.id === staffFilter) : staff;
+
   const calendarBody = (
     <div className="space-y-4">
       <CalendarToolbar
@@ -573,29 +581,50 @@ export function CalendarClient({
           });
         }}
         canDuplicate={Boolean(selectedAppointment)}
+        onBlockTime={() => setBlockTimeOpen(true)}
+        onOpenReception={showReceptionPanel && !panelOpen ? () => setPanelOpen(true) : undefined}
+        filtersActive={serviceFilter !== null || Boolean(staffFilter)}
+        filters={<div className="space-y-4">
+          <label className="block text-xs font-semibold">Staff
+            <select className="mt-2 min-h-11 w-full rounded-lg border border-border bg-card px-2 text-sm" value={staffFilter} onChange={event => setStaffFilter(event.target.value)}>
+              <option value="">All staff</option>
+              {staff.filter(member => member.is_active).map(member => <option key={member.id} value={member.id}>{member.name}</option>)}
+            </select>
+          </label>
+          <fieldset className="space-y-1"><legend className="mb-2 text-xs font-semibold">Services</legend>
+            {services.filter(service => service.is_active).map(service => <label key={service.id} className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" className="size-4 accent-primary" checked={serviceFilter === null || serviceFilter.includes(service.id)} onChange={() => setServiceFilter(current => {
+                const ids = current ?? services.filter(item => item.is_active).map(item => item.id);
+                return ids.includes(service.id) ? ids.filter(id => id !== service.id) : [...ids, service.id];
+              })} />{service.name}
+            </label>)}
+          </fieldset>
+          <Button variant="outline" className="w-full" onClick={() => { setServiceFilter(null); setStaffFilter(""); }}>Reset filters</Button>
+          <ColorLegend colorMode={colorMode} services={services} staff={staff} />
+        </div>}
       />
 
-      <ColorLegend colorMode={colorMode} services={services} staff={staff} />
+      {(serviceFilter !== null || staffFilter) && <p role="status" className="text-xs text-muted-foreground">Calendar filtered · {visibleAppointments.length} appointments shown. Reset filters to see the full schedule.</p>}
 
       {effectiveView === "day" && (
         isNarrow ? (
           <div className="space-y-3">
-            <Button variant="outline" onClick={() => openNew()} className="min-h-11 w-full">
-              Add appointment on {format(date, "MMMM d, yyyy")}
-            </Button>
             <DayAgendaList
               timezone={operationalTimezone}
               date={date}
-              appointments={appointments}
+              appointments={visibleAppointments}
               onSelectAppointment={openDrawer}
             />
+            <Button variant="outline" onClick={() => openNew()} className="min-h-11 w-full">
+              Add appointment on {format(date, "MMMM d, yyyy")}
+            </Button>
           </div>
         ) : (
           <DayControlCenter
             timezone={operationalTimezone}
             date={date}
-            appointments={appointments}
-            staff={staff}
+            appointments={visibleAppointments}
+            staff={visibleStaff}
             overlays={dayOverlays}
             onSelectAppointment={openDrawer}
             onSelectSlot={openNew}
@@ -610,7 +639,7 @@ export function CalendarClient({
         <WeekView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           onSelectAppointment={openDrawer}
           onSelectSlot={openNew}
           onReschedule={handleReschedule}
@@ -623,7 +652,7 @@ export function CalendarClient({
         <MonthView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           onSelectAppointment={openDrawer}
           onCreateAppointment={(day) => openNew(undefined, undefined, {
             date: formatCalendarDateParam(day),
@@ -639,7 +668,7 @@ export function CalendarClient({
         <AgendaView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           onSelectAppointment={openDrawer}
         />
       )}
@@ -647,7 +676,7 @@ export function CalendarClient({
         <TimelineView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           onSelectAppointment={openDrawer}
         />
       )}
@@ -655,7 +684,7 @@ export function CalendarClient({
         <ResourceView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           staff={staff}
           locations={locations}
           mode={effectiveView === "resource" ? "resource" : "employees"}
@@ -666,7 +695,7 @@ export function CalendarClient({
         <ResourceView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           staff={staff}
           locations={locations}
           mode="locations"
@@ -705,6 +734,7 @@ export function CalendarClient({
             insights={insights}
             waitlist={waitlist}
             open={panelOpen}
+            showClosedTrigger={false}
             onOpenChange={setPanelOpen}
             onBooked={refresh}
             onOpenFullDialog={(draft, appointmentId) => {
@@ -724,20 +754,6 @@ export function CalendarClient({
           />
         )}
       </div>
-
-      {showReceptionPanel && !panelOpen && (
-        <div className="lg:hidden">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            aria-label="Open reception panel"
-            onClick={() => setPanelOpen(true)}
-          >
-            Open reception panel
-          </Button>
-        </div>
-      )}
 
       {showReceptionPanel && <QuickActionsFab />}
 

@@ -18,7 +18,7 @@ vi.mock("@/components/booking-sheet", () => ({ BookingSheet: function Sheet(prop
 } }));
 vi.mock("@/components/reception/quick-appointment", () => ({ QuickAppointmentForm: (props: { scope: LocationScope }) => { mocks.quick(props); return null; } }));
 vi.mock("@/components/day-view/morning-brief", () => ({ MorningBrief: () => null }));
-vi.mock("@/components/calendar/calendar-toolbar", () => ({ CalendarToolbar: () => null }));
+vi.mock("@/components/calendar/calendar-toolbar", () => ({ CalendarToolbar: ({ onOpenReception }: { onOpenReception?: () => void }) => onOpenReception ? <button aria-label="Open reception panel" onClick={onOpenReception}>Reception tools</button> : null }));
 vi.mock("@/components/calendar/calendar-views", () => ({ MonthView: () => null, WeekView: () => null }));
 vi.mock("@/components/calendar/calendar-views-extended", () => ({ AgendaView: () => null, ResourceView: () => null, TimelineView: () => null }));
 vi.mock("@/components/day-view/day-control-center", () => ({ DayControlCenter: () => null, DayAgendaList: () => null }));

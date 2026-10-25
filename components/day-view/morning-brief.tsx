@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   CalendarCheck,
   Clock,
+  ChevronRight,
   DollarSign,
   ListOrdered,
   Sparkles,
@@ -71,10 +72,19 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
       : `${brief.chase.revenueDeltaPct > 0 ? "+" : ""}${brief.chase.revenueDeltaPct}%`;
 
   return (
-    <section
-      aria-label="Morning brief"
-      className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-gradient-to-br from-card via-card to-muted/30 p-3 shadow-sm sm:p-4"
-    >
+    <details className="group rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+      <summary className="ds-focus-ring flex min-h-14 cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-2 rounded-[var(--radius-lg)] px-4 py-3 text-xs [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center gap-2 font-semibold"><ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />Morning brief</span>
+        <span className="text-muted-foreground">{brief.todayAppointments} appointments today</span>
+        {brief.pendingConfirmations > 0 && <span className="rounded-md bg-warning/10 px-2 py-1 font-medium text-foreground">{brief.pendingConfirmations} pending confirmation</span>}
+        {brief.noShows > 0 && <span className="text-destructive">{brief.noShows} no-shows</span>}
+        {brief.waitlistCount > 0 && <span>{brief.waitlistCount} waiting</span>}
+        {(brief.outstandingPayments == null || brief.todayRevenue?.state !== "EXACT") && <span className="rounded-md bg-warning/10 px-2 py-1 font-medium text-foreground">Payment state: {brief.todayRevenue?.state === "HELD" ? "held — requires review" : "unverified"}</span>}
+        {brief.outstandingPayments != null && brief.outstandingPayments > 0 && <span className="rounded-md bg-warning/10 px-2 py-1 font-medium text-foreground">{brief.outstandingPayments} outstanding</span>}
+        {brief.chase.overdueCustomers != null && brief.chase.overdueCustomers > 0 && <span className="rounded-md bg-warning/10 px-2 py-1 font-medium text-foreground">{brief.chase.overdueCustomers} overdue</span>}
+        <span className="ml-auto inline-flex items-center gap-1.5 text-spark"><Sparkles className="size-3.5" aria-hidden />Summer activity</span>
+      </summary>
+      <section aria-label="Morning brief" className="space-y-3 border-t border-border p-4">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <p className="ds-label">Control Center</p>
@@ -182,6 +192,7 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </details>
   );
 }

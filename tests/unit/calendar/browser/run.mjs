@@ -60,7 +60,7 @@ try {
     const errors = []; page.on('pageerror', e => errors.push(e.message));
     const open = async query => {
       await page.goto(origin + '/tests/unit/calendar/browser/index.html' + query);
-      await expect(page.getByRole('button', {name: width < 640 ? 'New' : 'New appointment', exact: true})).toBeVisible();
+      await expect(page.getByRole('button', {name: 'New appointment', exact: true})).toBeVisible();
     };
     const close = async () => { await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toHaveCount(0); };
     await open('');
@@ -128,7 +128,7 @@ try {
     await expect(page.locator('#bs-service')).toHaveCount(0);
     await expect(page.getByText('Test Customer',{exact:true}).first()).toBeVisible();
     await open('');
-    const openReception=page.getByRole('button',{name:'Open reception panel',exact:true}).filter({visible:true});
+    const openReception=page.getByRole('button',{name:'Open reception panel',exact:true}).filter({visible:true}).first();
     await openReception.click();
     await page.locator('#qa_customer').selectOption('cust');
     await expect(page.locator('#qa_service')).toHaveValue('svc');

@@ -1,0 +1,38 @@
+{
+  "phase": "after",
+  "output": "/private/tmp/chasum-reception-stage1-evidence",
+  "results": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "laptop",
+      "width": 1366,
+      "height": 768,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "tablet",
+      "width": 834,
+      "height": 1112,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "iphone",
+      "width": 390,
+      "height": 844,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    }
+  ]
+}

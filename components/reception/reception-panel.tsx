@@ -55,6 +55,8 @@ type ReceptionPanelProps = {
   insights: DashboardInsight[];
   waitlist?: WaitlistEntry[];
   open: boolean;
+  /** Calendar can provide its own persistent, accessible toolbar trigger. */
+  showClosedTrigger?: boolean;
   onOpenChange: (open: boolean) => void;
   onBooked: () => void;
   onOpenFullDialog: (
@@ -78,6 +80,7 @@ export function ReceptionPanel({
   insights,
   waitlist = [],
   open,
+  showClosedTrigger = true,
   onOpenChange,
   onBooked,
   onOpenFullDialog,
@@ -156,7 +159,7 @@ export function ReceptionPanel({
 
   return (
     <>
-      {!open && (
+      {!open && showClosedTrigger && (
         <div className="hidden shrink-0 lg:block">
           <Button
             type="button"

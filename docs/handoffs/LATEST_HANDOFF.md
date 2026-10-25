@@ -1,5 +1,11 @@
 # Chasum — Latest Development Handoff
 
+## Reception Stage 1 candidate — October 25, 2026
+
+The Product Owner authorized implementation and one Draft PR from main `80968d24dc1d87407205e54ccc949433ed39e8eb`, with all four approved designs available. `codex/reception-stage1-calendar-first` contains the bounded Reception presentation changes and [local evidence](../validation/reception-stage1/README.md). Existing CAL01/N03, Location scope, canonical Booking Sheet and financial/tenant boundaries remain protected.
+
+Claude's audit of PR #171 at `facddb9f143fde86d033183ea6dee2cdf2196bf1` required R1 short-card payment/notes visibility. The bounded correction and [dense local evidence](../validation/reception-stage1/r1/README.md) are ready for manually dispatched independent delta review. Preserve all 23 original screenshots. Do not merge, deploy, promote, change Vercel/Supabase configuration, resume R8 credential work or resume GVM deposits. Historical financial/Production observations below were not refreshed by this UI task.
+
 **Updated:** 2026-10-13 (America/Toronto), K-1–K-7 independent acceptance closeout; fresh GitHub baseline, no new runtime/database/financial observation.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
