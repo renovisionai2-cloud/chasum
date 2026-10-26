@@ -55,6 +55,8 @@ type ReceptionPanelProps = {
   insights: DashboardInsight[];
   waitlist?: WaitlistEntry[];
   open: boolean;
+  /** Calendar can provide its own persistent, accessible toolbar trigger. */
+  showClosedTrigger?: boolean;
   onOpenChange: (open: boolean) => void;
   onBooked: () => void;
   onOpenFullDialog: (
@@ -78,6 +80,7 @@ export function ReceptionPanel({
   insights,
   waitlist = [],
   open,
+  showClosedTrigger = true,
   onOpenChange,
   onBooked,
   onOpenFullDialog,
@@ -86,6 +89,21 @@ export function ReceptionPanel({
   walkInSignal = 0,
   createCustomerSignal = 0,
 }: ReceptionPanelProps) {
+  const [hasOpened, setHasOpened] = useState(open);
+  const panelSlotRef = useRef<HTMLDivElement>(null);
+  const wasOpenRef = useRef(open);
+  useLayoutEffect(() => {
+    const justClosed = wasOpenRef.current && !open;
+    wasOpenRef.current = open;
+    if (!justClosed) return;
+    // Return keyboard focus only when it was inside the now-hidden panel.
+    if (document.activeElement === document.body || panelSlotRef.current?.contains(document.activeElement)) {
+      const opener = Array.from(document.querySelectorAll<HTMLButtonElement>(
+        'button[aria-label="Open reception panel"]',
+      )).find((button) => button.getClientRects().length > 0);
+      opener?.focus();
+    }
+  }, [open]);
   const [selected, setSelected] = useState<Customer | null>(null);
   const [extraCustomers, setExtraCustomers] = useState<Customer[]>([]);
   const [slotDefaults, setSlotDefaults] = useState<{
@@ -136,210 +154,219 @@ export function ReceptionPanel({
     return [...map.values()];
   })();
 
-  if (!open) {
-    return (
-      <div className="hidden shrink-0 lg:block">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="sticky top-4 transition-shadow hover:shadow-sm"
-          onClick={() => onOpenChange(true)}
-          aria-label="Open reception panel"
-        >
-          <PanelRightOpen className="h-4 w-4" />
-          Panel
-        </Button>
-      </div>
-    );
-  }
+  // Mount on first use, then retain the actual form until this workspace unmounts.
+  if (open && !hasOpened) setHasOpened(true);
 
   return (
-    <div
-      data-testid="reception-flex-slot"
-      data-occupies-flex={layout.occupiesFlexSpace ? "true" : "false"}
-      className={cn(
-        layout.mode === "overlay" &&
-          "pointer-events-none fixed top-16 right-0 bottom-0 z-30",
-        layout.mode === "side-by-side" && "shrink-0",
-        layout.mode === "stacked" && "w-full",
+    <>
+      {!open && showClosedTrigger && (
+        <div className="hidden shrink-0 lg:block">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="sticky top-4 transition-shadow hover:shadow-sm"
+            onClick={() => onOpenChange(true)}
+            aria-label="Open reception panel"
+          >
+            <PanelRightOpen className="h-4 w-4" />
+            Panel
+          </Button>
+        </div>
       )}
-      style={
-        layout.mode === "overlay" ? { width: layout.panelWidthPx } : undefined
-      }
-    >
-      <aside
-        data-testid="reception-panel"
-        data-layout-mode={layout.mode}
-        data-panel-width={String(layout.panelWidthPx)}
-        className={cn(
-          "relative flex flex-col gap-5 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm sm:p-5",
-          layout.mode === "overlay" &&
-            "pointer-events-auto h-full max-h-none overflow-y-auto rounded-none border-y-0 border-r-0 shadow-lg",
-          layout.mode === "side-by-side" &&
-            (confirmedAppointmentId
-              ? "lg:sticky lg:top-4 lg:h-fit lg:max-h-none"
-              : "lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto"),
-          layout.mode === "stacked" && "w-full",
-        )}
-        style={
-          layout.mode === "stacked"
-            ? { maxWidth: `calc(100vw - ${PANEL_VIEWPORT_GUTTER_PX}px)` }
-            : {
-                width: layout.panelWidthPx,
-                maxWidth: `calc(100vw - ${PANEL_VIEWPORT_GUTTER_PX}px)`,
-              }
-        }
-      >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-2 bg-card">
-          <div>
-            <h2 className="text-base font-semibold tracking-tight">Reception</h2>
-            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
-                /
-              </kbd>{" "}
-              search ·{" "}
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
-                N
-              </kbd>{" "}
-              new ·{" "}
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
-                B
-              </kbd>{" "}
-              book ·{" "}
-              <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
-                W
-              </kbd>{" "}
-              walk-in
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 shrink-0 p-0 transition-colors"
-            onClick={() => onOpenChange(false)}
-            aria-label="Close reception panel"
-          >
-            <PanelRightClose className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <CustomerSearch
-          selectedId={selected?.id}
-          autoFocus
-          focusSignal={searchFocusSignal}
-          seedCustomers={allCustomers}
-          onSelect={(c) => {
-            pushRecentCustomer(c);
-            setSelected(c);
-            setExtraCustomers((prev) =>
-              prev.some((x) => x.id === c.id) ? prev : [...prev, c],
-            );
-            window.setTimeout(() => {
-              formAnchorRef.current?.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest",
-              });
-            }, 50);
+      {hasOpened && (
+        <div
+          ref={panelSlotRef}
+          hidden={!open}
+          inert={!open}
+          aria-hidden={!open}
+          data-testid="reception-flex-slot"
+          data-occupies-flex={open && layout.occupiesFlexSpace ? "true" : "false"}
+          className={cn(
+            layout.mode === "overlay" &&
+              "pointer-events-none fixed top-16 right-0 bottom-0 z-30",
+            layout.mode === "side-by-side" && "shrink-0",
+            layout.mode === "stacked" && "w-full",
+          )}
+          style={{
+            display: open ? undefined : "none",
+            ...(layout.mode === "overlay" ? { width: layout.panelWidthPx } : {}),
           }}
-        />
-
-        {confirmedAppointmentId ? null : (
-          <CustomerPreview customer={selected} />
-        )}
-
-        <div ref={formAnchorRef} className="scroll-mt-4">
-          <QuickAppointmentForm
-            key={`${selected?.id ?? "none"}-${slotDefaults.start ?? "blank"}-${walkInMode ? "wi" : "std"}-${walkInSignal}-${bookFocusSignal}`}
-            customers={allCustomers}
-            services={services}
-            staff={staff}
-            locations={locations}
-            taxRates={taxRates}
-            currency={currency}
-            preselectedCustomerId={selected?.id}
-            defaultSlotIso={slotDefaults.start}
-            defaultServiceId={slotDefaults.serviceId}
-            defaultStaffId={slotDefaults.staffId}
-            scope={scope}
-            walkInMode={walkInMode}
-            focusSignal={apptFocusSignal}
-            openCreateSignal={createCustomerSignal}
-            onClearCustomer={() => setSelected(null)}
-            onSuccess={onBooked}
-            onCustomerCreated={(c) => {
-              setExtraCustomers((prev) => [...prev, c]);
-              setSelected(c);
-              window.setTimeout(() => {
-                formAnchorRef.current?.scrollIntoView({
-                  behavior: "smooth",
-                  block: "nearest",
-                });
-              }, 80);
-            }}
-            onDraftChange={(draft) => {
-              draftRef.current = draft;
-            }}
-            onAppointmentConfirmed={(id) => {
-              setConfirmedAppointmentId(id);
-              draftRef.current = null;
-            }}
-            onViewAppointment={(id) => {
-              onOpenFullDialog(null, id);
-            }}
-            onStartNewDraft={() => {
-              setConfirmedAppointmentId(null);
-            }}
-          />
-        </div>
-
-        {confirmedAppointmentId ? null : (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
-            onClick={() => onOpenFullDialog(draftRef.current)}
+        >
+          <aside
+            data-testid="reception-panel"
+            data-layout-mode={layout.mode}
+            data-panel-width={String(layout.panelWidthPx)}
+            className={cn(
+              "relative flex flex-col gap-5 rounded-[var(--radius-lg)] border border-border bg-card p-4 shadow-sm sm:p-5",
+              layout.mode === "overlay" &&
+                "pointer-events-auto h-full max-h-none overflow-y-auto rounded-none border-y-0 border-r-0 shadow-lg",
+              layout.mode === "side-by-side" &&
+                (confirmedAppointmentId
+                  ? "lg:sticky lg:top-4 lg:h-fit lg:max-h-none"
+                  : "lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto"),
+              layout.mode === "stacked" && "w-full",
+            )}
+            style={
+              layout.mode === "stacked"
+                ? { maxWidth: `calc(100vw - ${PANEL_VIEWPORT_GUTTER_PX}px)` }
+                : {
+                    width: layout.panelWidthPx,
+                    maxWidth: `calc(100vw - ${PANEL_VIEWPORT_GUTTER_PX}px)`,
+                  }
+            }
           >
-            Open Booking Sheet
-          </Button>
-        )}
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-2 bg-card">
+              <div>
+                <h2 className="text-base font-semibold tracking-tight">Reception</h2>
+                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                  <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+                    /
+                  </kbd>{" "}
+                  search ·{" "}
+                  <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+                    N
+                  </kbd>{" "}
+                  new ·{" "}
+                  <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+                    B
+                  </kbd>{" "}
+                  book ·{" "}
+                  <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">
+                    W
+                  </kbd>{" "}
+                  walk-in
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 shrink-0 p-0 transition-colors"
+                onClick={() => onOpenChange(false)}
+                aria-label="Close reception panel"
+              >
+                <PanelRightClose className="h-4 w-4" />
+              </Button>
+            </div>
 
-        {confirmedAppointmentId ? null : (
-          <div className="border-t border-border/60 pt-3">
-            <button
-              type="button"
-              className="flex w-full items-center justify-between rounded-[var(--radius-md)] px-1 py-1.5 text-left text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-expanded={toolsOpen}
-              onClick={() => setToolsOpen((v) => !v)}
-            >
-              More tools
-              <span className="tabular-nums">{toolsOpen ? "Hide" : "Show"}</span>
-            </button>
-            {toolsOpen ? (
-              <div className="mt-3 space-y-4">
-                <NextSlotCard
-                  onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
-                    setSlotDefaults({
-                      start: slot.start,
-                      serviceId: slot.serviceId,
-                      staffId: slot.staffId,
-                    });
+            <CustomerSearch
+              selectedId={selected?.id}
+              autoFocus={open}
+              focusSignal={open ? searchFocusSignal : 0}
+              seedCustomers={allCustomers}
+              onSelect={(c) => {
+                pushRecentCustomer(c);
+                setSelected(c);
+                setExtraCustomers((prev) =>
+                  prev.some((x) => x.id === c.id) ? prev : [...prev, c],
+                );
+                window.setTimeout(() => {
+                  formAnchorRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                  });
+                }, 50);
+              }}
+            />
+
+            {confirmedAppointmentId ? null : (
+              <CustomerPreview customer={selected} />
+            )}
+
+            <div ref={formAnchorRef} className="scroll-mt-4">
+              <QuickAppointmentForm
+                key={`${selected?.id ?? "none"}-${slotDefaults.start ?? "blank"}-${walkInMode ? "wi" : "std"}-${walkInSignal}-${bookFocusSignal}`}
+                customers={allCustomers}
+                services={services}
+                staff={staff}
+                locations={locations}
+                taxRates={taxRates}
+                currency={currency}
+                preselectedCustomerId={selected?.id}
+                defaultSlotIso={slotDefaults.start}
+                defaultServiceId={slotDefaults.serviceId}
+                defaultStaffId={slotDefaults.staffId}
+                scope={scope}
+                walkInMode={walkInMode}
+                focusSignal={apptFocusSignal}
+                openCreateSignal={createCustomerSignal}
+                onClearCustomer={() => setSelected(null)}
+                onSuccess={onBooked}
+                onCustomerCreated={(c) => {
+                  setExtraCustomers((prev) => [...prev, c]);
+                  setSelected(c);
+                  window.setTimeout(() => {
                     formAnchorRef.current?.scrollIntoView({
                       behavior: "smooth",
                       block: "nearest",
                     });
-                  }}
-                />
-                <TodayNotes />
-                <AiSuggestionsCard insights={insights} />
-                <ReceptionWaitlistPanel entries={waitlist} />
+                  }, 80);
+                }}
+                onDraftChange={(draft) => {
+                  draftRef.current = draft;
+                }}
+                onAppointmentConfirmed={(id) => {
+                  setConfirmedAppointmentId(id);
+                  draftRef.current = null;
+                }}
+                onViewAppointment={(id) => {
+                  onOpenFullDialog(null, id);
+                }}
+                onStartNewDraft={() => {
+                  setConfirmedAppointmentId(null);
+                }}
+              />
+            </div>
+
+            {confirmedAppointmentId ? null : (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="w-full text-xs text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => onOpenFullDialog(draftRef.current)}
+              >
+                Open Booking Sheet
+              </Button>
+            )}
+
+            {confirmedAppointmentId ? null : (
+              <div className="border-t border-border/60 pt-3">
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-[var(--radius-md)] px-1 py-1.5 text-left text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-expanded={toolsOpen}
+                  onClick={() => setToolsOpen((v) => !v)}
+                >
+                  More tools
+                  <span className="tabular-nums">{toolsOpen ? "Hide" : "Show"}</span>
+                </button>
+                {toolsOpen ? (
+                  <div className="mt-3 space-y-4">
+                    <NextSlotCard
+                      onBookSlot={(slot: NonNullable<NextAvailableSlot>) => {
+                        setSlotDefaults({
+                          start: slot.start,
+                          serviceId: slot.serviceId,
+                          staffId: slot.staffId,
+                        });
+                        formAnchorRef.current?.scrollIntoView({
+                          behavior: "smooth",
+                          block: "nearest",
+                        });
+                      }}
+                    />
+                    <TodayNotes />
+                    <AiSuggestionsCard insights={insights} />
+                    <ReceptionWaitlistPanel entries={waitlist} />
+                  </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
-        )}
-      </aside>
-    </div>
+            )}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

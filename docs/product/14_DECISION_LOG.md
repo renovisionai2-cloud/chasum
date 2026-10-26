@@ -9,6 +9,7 @@ Record of significant product and architecture decisions.
 
 ---
 
+| 2026-10-26 | Temporary Production-compatible Reception Morning Brief: operational summaries retained, legacy financial amounts/counts and derived recommendations withheld, neutral payment-verification warning | Explicit PO authorization resolves the isolation preflight Class F presentation dependency without importing canonical financial readers/writers; local candidate only; canonical financial model remains the intended model | Approved temporary compatibility; independent delta review pending — [evidence](../validation/reception-production-isolated/README.md) |
 | 2026-09-14 | [Bible §7](../company/CHASUM_BIBLE.md#7-ai-philosophy): Summer is the canonical AI Business Manager / intelligence layer | Shared authoritative operating truth; legacy agent names do not override direction or create disconnected chatbot products | ✅ Active — PO locked direction |
 | 2026-07 | Multi-tenant via `businesses` table + RLS | Supabase-native; simple owner model | ✅ Active |
 | 2026-07 | Public booking via SECURITY DEFINER RPCs | Prevent PII leakage; single validation path | ✅ Active |

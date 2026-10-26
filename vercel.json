@@ -8,5 +8,10 @@
       "path": "/api/cron/cleanup-import-artifacts",
       "schedule": "0 * * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  }
 }

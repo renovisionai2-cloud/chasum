@@ -3,16 +3,13 @@
 import type { MorningBriefData } from "@/lib/actions/morning-brief";
 import { cn } from "@/lib/utils";
 import {
-  AlertTriangle,
   CalendarCheck,
   Clock,
-  DollarSign,
+  ChevronRight,
   ListOrdered,
   Sparkles,
-  TrendingUp,
   UserMinus,
   Users,
-  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -51,7 +48,7 @@ function Metric({
         <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
-        <p className="truncate text-sm font-semibold tabular-nums leading-tight">
+        <p className="break-words text-sm font-semibold tabular-nums leading-tight">
           {value}
         </p>
         {hint ? (
@@ -63,16 +60,21 @@ function Metric({
 }
 
 export function MorningBrief({ brief }: { brief: MorningBriefData }) {
-  const revenueDelta =
-    brief.chase.revenueDeltaPct == null
-      ? null
-      : `${brief.chase.revenueDeltaPct > 0 ? "+" : ""}${brief.chase.revenueDeltaPct}%`;
-
+  // Temporary Production compatibility: legacy financial values and recommendation
+  // strings have no verified provenance. Keep the server contract/calculations intact;
+  // this presentation deliberately consumes only nonfinancial operational fields.
   return (
-    <section
-      aria-label="Morning brief"
-      className="space-y-3 rounded-[var(--radius-lg)] border border-border bg-gradient-to-br from-card via-card to-muted/30 p-3 shadow-sm sm:p-4"
-    >
+    <details className="group rounded-[var(--radius-lg)] border border-border bg-card shadow-sm">
+      <summary className="ds-focus-ring flex min-h-14 cursor-pointer list-none flex-wrap items-center gap-x-4 gap-y-2 rounded-[var(--radius-lg)] px-4 py-3 text-xs [&::-webkit-details-marker]:hidden">
+        <span className="flex items-center gap-2 font-semibold"><ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />Morning brief</span>
+        <span className="text-muted-foreground">{brief.todayAppointments} appointments today</span>
+        {brief.pendingConfirmations > 0 && <span className="rounded-md bg-warning/10 px-2 py-1 font-medium text-foreground">{brief.pendingConfirmations} pending confirmation</span>}
+        {brief.noShows > 0 && <span className="text-destructive">{brief.noShows} no-shows</span>}
+        {brief.waitlistCount > 0 && <span>{brief.waitlistCount} waiting</span>}
+        <span className="rounded-md bg-warning/10 px-2 py-1 font-medium text-foreground">Payment information not verified</span>
+        <span className="ml-auto inline-flex items-center gap-1.5 text-spark"><Sparkles className="size-3.5" aria-hidden />Summer activity</span>
+      </summary>
+      <section aria-label="Morning brief" className="space-y-3 border-t border-border p-4">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <p className="ds-label">Control Center</p>
@@ -85,18 +87,14 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-7">
+      <p className="text-xs text-muted-foreground">Payment information not verified. Financial amounts and payment recommendations are unavailable in this view.</p>
+
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-6">
         <Metric
           label="Appointments"
           value={String(brief.todayAppointments)}
           icon={CalendarCheck}
           tone="default"
-        />
-        <Metric
-          label="Revenue"
-          value={`$${brief.todayRevenue.toFixed(0)}`}
-          icon={DollarSign}
-          tone="success"
         />
         <Metric
           label="Staff working"
@@ -122,11 +120,10 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
           tone={brief.noShows > 0 ? "danger" : "default"}
         />
         <Metric
-          label="Outstanding"
-          value={String(brief.outstandingPayments)}
-          hint="Payments due"
-          icon={Wallet}
-          tone={brief.outstandingPayments > 0 ? "warning" : "default"}
+          label="Pending confirmations"
+          value={String(brief.pendingConfirmations)}
+          icon={CalendarCheck}
+          tone={brief.pendingConfirmations > 0 ? "warning" : "default"}
         />
       </div>
 
@@ -153,32 +150,22 @@ export function MorningBrief({ brief }: { brief: MorningBriefData }) {
 
         <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-border bg-background/70 px-3 py-2.5">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
-            <TrendingUp className="size-4" aria-hidden />
+            <CalendarCheck className="size-4" aria-hidden />
           </span>
           <div className="min-w-0">
             <p className="text-xs font-semibold">
               Chase insights
-              {revenueDelta ? (
-                <span className="ml-2 font-medium text-success">
-                  Revenue {revenueDelta}
-                </span>
-              ) : null}
             </p>
             <p className="mt-0.5 text-sm text-foreground">
-              {brief.chase.recommendation}
+              Review today’s appointments and availability.
             </p>
             <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
-              <span>{brief.chase.availableSlots} open slots</span>
-              {brief.chase.overdueCustomers > 0 ? (
-                <span className="inline-flex items-center gap-1 text-amber-700 dark:text-amber-300">
-                  <AlertTriangle className="size-3" aria-hidden />
-                  {brief.chase.overdueCustomers} overdue
-                </span>
-              ) : null}
+              <span>{brief.availableSlots} open slots</span>
             </p>
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </details>
   );
 }

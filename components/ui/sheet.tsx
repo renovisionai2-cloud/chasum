@@ -61,6 +61,7 @@ export function Sheet({
   widthStorageKey = BOOKING_SHEET_WIDTH_KEY,
 }: SheetProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
   const titleId = useId();
   const descriptionId = useId();
   const [widthPx, setWidthPx] = useState(BOOKING_SHEET_STANDARD_PX);
@@ -97,10 +98,14 @@ export function Sheet({
   );
 
   useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
     if (!open) return;
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     };
 
     const handleTab = (e: KeyboardEvent) => {
@@ -140,7 +145,7 @@ export function Sheet({
       document.removeEventListener("keydown", handleTab);
       document.body.style.overflow = "";
     };
-  }, [open, onClose]);
+  }, [open]);
 
   useEffect(() => {
     if (!resizable || !isDesktop) return;

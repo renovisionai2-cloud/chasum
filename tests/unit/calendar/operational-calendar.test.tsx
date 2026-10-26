@@ -17,9 +17,21 @@ const appt={id:'test-appointment',start_time:'2026-09-11T16:30:00Z',end_time:'20
 const staff=[{id:'staff',name:'Test Staff',is_active:true,color:'#123456'}] as StaffWithServices[];
 afterEach(()=>{cleanup();vi.useRealTimers();vi.restoreAllMocks();});
 describe('operational Reception under the process browser TZ',()=>{
+ it('retains the Unassigned column when a visible appointment needs it',()=>{
+  const unassigned={...appt,staff_id:null,staff:null};
+  const props={date:day,timezone:zone,staff,onSelectAppointment:vi.fn(),onSelectSlot:vi.fn()};
+  const {container,rerender}=render(<DayControlCenter {...props} appointments={[]}/>);
+  expect(container.querySelector('[data-staff-column="__unassigned__"]')).toBeNull();
+  rerender(<DayControlCenter {...props} appointments={[unassigned]}/>);
+  const column=container.querySelector('[data-staff-column="__unassigned__"]');
+  expect(column).not.toBeNull();
+  expect(column?.querySelector('button[aria-label*="Test Customer"]')).not.toBeNull();
+  rerender(<DayControlCenter {...props} appointments={[{...unassigned,status:'cancelled'}]}/>);
+  expect(container.querySelector('[data-staff-column="__unassigned__"]')).toBeNull();
+ });
  it('positions the same immutable instant at 12:30, regardless of browser TZ',()=>{
   const {container}=render(<DayControlCenter date={day} timezone={zone} appointments={[appt]} staff={staff} onSelectAppointment={vi.fn()} onSelectSlot={vi.fn()}/>);
-  const card=screen.getByRole('button',{name:'Test Customer, Test Service, 12:30 PM, confirmed'});
+  const card=screen.getByRole('button',{name:/Test Customer, Test Service, 12:30 PM to 1:00 PM, 30 minutes, confirmed/});
   expect(parseFloat(card.style.top)).toBeCloseTo(330/900*100);
   expect(appt.start_time).toBe('2026-09-11T16:30:00Z');
   expect(container.querySelectorAll('[data-staff-column="staff"] button')).toHaveLength(16); // 15 hour slots + appointment

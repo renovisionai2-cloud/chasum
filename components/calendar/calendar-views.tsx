@@ -299,6 +299,7 @@ type MonthViewProps = {
   appointments: AppointmentWithRelations[];
   onSelectAppointment: (appointment: AppointmentWithRelations) => void;
   onSelectDay: (date: Date) => void;
+  onCreateAppointment?: (date: Date) => void;
   colorMode?: CalendarColorMode;
 };
 
@@ -308,6 +309,7 @@ export function MonthView({
   appointments,
   onSelectAppointment,
   onSelectDay,
+  onCreateAppointment,
   colorMode = "service",
 }: MonthViewProps) {
   const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -362,7 +364,7 @@ export function MonthView({
               <div
                 key={day.toISOString()}
                 className={cn(
-                  "flex min-h-[112px] flex-col border-b border-r border-border p-1.5 sm:min-h-[120px] sm:p-2",
+                  "group/day flex min-h-[112px] flex-col border-b border-r border-border p-1.5 sm:min-h-[120px] sm:p-2",
                   !isCurrentMonth && "bg-muted/20 text-muted-foreground",
                   isToday && "bg-accent/30",
                 )}
@@ -429,6 +431,17 @@ export function MonthView({
                     </button>
                   ) : null}
                 </div>
+                {isCurrentMonth && onCreateAppointment ? (
+                  <button
+                    type="button"
+                    className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center self-end rounded-md text-sm text-primary hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [@media(hover:hover)_and_(pointer:fine)]:opacity-0 group-hover/day:opacity-100! group-focus-within/day:opacity-100! focus-visible:opacity-100! [@media(pointer:coarse)]:min-h-11 [@media(pointer:coarse)]:w-full"
+                    aria-label={`Add appointment on ${format(day, "MMMM d, yyyy")}`}
+                    title="Add appointment"
+                    onClick={() => onCreateAppointment(day)}
+                  >
+                    <span aria-hidden="true">+</span>
+                  </button>
+                ) : null}
               </div>
             );
           })}

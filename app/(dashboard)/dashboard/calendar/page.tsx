@@ -1,4 +1,6 @@
 import { ReceptionWorkspace } from "@/components/reception/reception-workspace";
+import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getAppointments, getDashboardStats } from "@/lib/actions/appointments";
@@ -120,11 +122,13 @@ export default async function CalendarPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader
         title="Reception"
-        description="Day View Control Center — multi-employee floor, Morning Brief, and quick actions."
-      />
+        className="flex-row items-center"
+      >
+        <Link href="/dashboard/ai-workforce/summer" className="ds-focus-ring inline-flex min-h-11 items-center gap-2 rounded-xl bg-spark/10 px-3 text-sm font-semibold text-spark"><Sparkles className="size-4" aria-hidden /><span>Summer</span></Link>
+      </PageHeader>
       <ReceptionWorkspace
         key={`${timezone}:${dateValue}:${view}`}
         brief={brief}

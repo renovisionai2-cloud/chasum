@@ -1,0 +1,92 @@
+{
+  "observedAt": "2026-10-26T21:07:39.485Z",
+  "github": [
+    {
+      "url": "branches/main",
+      "sha": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+      "protected": true
+    },
+    {
+      "url": "pulls/171",
+      "number": 171,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "sha": "7eca5899abc1d44d65205f144dc7e32307008f79",
+      "branch": "codex/reception-stage1-calendar-first"
+    },
+    {
+      "url": "pulls/172",
+      "number": 172,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "sha": "b440f053fbb521ab414bea6e937071f1a9e3e7ed",
+      "branch": "codex/gvm-n06-policy-b-status-only"
+    },
+    {
+      "url": "pulls/164",
+      "number": 164,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "sha": "e76839182e5255102fe15e1bd9b0085d2b382057",
+      "branch": "codex/slice2b-d1-lifecycle-sql-pg17"
+    },
+    {
+      "url": "rulesets/23730556",
+      "enforcement": "active",
+      "rules": [
+        {
+          "type": "pull_request",
+          "parameters": {
+            "required_approving_review_count": 0,
+            "dismiss_stale_reviews_on_push": false,
+            "required_reviewers": [],
+            "require_code_owner_review": false,
+            "require_last_push_approval": false,
+            "required_review_thread_resolution": true,
+            "require_extra_approval_for_unattributed_changes": true,
+            "allowed_merge_methods": [
+              "merge",
+              "squash",
+              "rebase"
+            ]
+          }
+        },
+        {
+          "type": "required_status_checks",
+          "parameters": {
+            "strict_required_status_checks_policy": true,
+            "do_not_enforce_on_create": false,
+            "required_status_checks": [
+              {
+                "context": "Vercel",
+                "integration_id": 8329
+              },
+              {
+                "context": "competitive-product-gate",
+                "integration_id": 15368
+              },
+              {
+                "context": "quality",
+                "integration_id": 15368
+              }
+            ]
+          }
+        },
+        {
+          "type": "non_fast_forward"
+        },
+        {
+          "type": "deletion"
+        }
+      ]
+    }
+  ],
+  "productionAlias": {
+    "alias": "chasum.vercel.app",
+    "deploymentId": "dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF",
+    "projectId": "prj_nUq0i5faNZTNYfQHSsLukYTW8ugm"
+  }
+}

@@ -1,0 +1,23 @@
+.card {
+  overflow: hidden;
+}
+
+/* Keep the actual time geometry at rest. Full text is also available through
+   the existing details action on touch; hover/focus discloses dense cards. */
+.card:not([data-interacting]):hover,
+.card:not([data-interacting]):focus-visible {
+  z-index: 25;
+  height: auto !important;
+  min-height: max(5rem, var(--card-time-height)) !important;
+  padding-bottom: 0.875rem;
+}
+
+.service {
+  display: none;
+}
+
+.card:not([data-interacting]):hover .service,
+.card:not([data-interacting]):focus-visible .service {
+  display: block;
+  margin-top: 0.25rem;
+}

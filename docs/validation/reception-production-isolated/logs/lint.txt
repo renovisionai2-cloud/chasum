@@ -1,0 +1,56 @@
+Command: npx --no-install eslint 'app/(dashboard)/dashboard/calendar/page.tsx' 'components/booking-sheet/appointment-section.tsx' 'components/booking-sheet/booking-sheet.tsx' 'components/calendar/calendar-client.tsx' 'components/calendar/calendar-toolbar.tsx' 'components/calendar/calendar-views.tsx' 'components/day-view/appointment-card.tsx' 'components/day-view/day-control-center.tsx' 'components/day-view/morning-brief.tsx' 'components/reception/color-legend.tsx' 'components/reception/reception-panel.tsx' 'components/reception/reception-workspace.tsx' 'components/ui/sheet.tsx' 'scripts/assert-release-sha.mjs' 'scripts/release-guard.mjs' 'scripts/verify-production-build-info.mjs' 'scripts/verify-reception-isolation.mjs' 'scripts/verify-release-control-config.mjs' 'tests/release-control/assert-release-sha.test.mjs' 'tests/release-control/verify-production-build-info.test.mjs' 'tests/unit/booking/m1b-scope-transport.test.tsx' 'tests/unit/calendar/appointment-card-indicators.test.tsx' 'tests/unit/calendar/cal01-fixtures.ts' 'tests/unit/calendar/calendar-booking-selection.test.tsx' 'tests/unit/calendar/isolated-browser/dense.mjs' 'tests/unit/calendar/isolated-browser/entry.tsx' 'tests/unit/calendar/isolated-browser/run.mjs' 'tests/unit/calendar/operational-calendar.test.tsx' 'tests/unit/calendar/reception-origin.test.ts' 'tests/unit/calendar/reception-production-compatibility.test.tsx' 'tests/unit/ui/sheet-focus-stability.test.tsx'
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/booking-sheet/booking-sheet.tsx
+  447:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/booking-sheet/booking-sheet.tsx:447:7
+  445 |     if (explicitCalendarSelection && !locationId) return;
+  446 |     if (!staffId) {
+> 447 |       setStaffEligibilityNote(null);
+      |       ^^^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  448 |       return;
+  449 |     }
+  450 |     if (eligibleStaff.some((m) => m.id === staffId)) {                     react-hooks/set-state-in-effect
+  738:31  warning  '_next' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  786:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/booking-sheet/booking-sheet.tsx:786:5
+  784 |   useEffect(() => {
+  785 |     if (isEditing) return;
+> 786 |     setPaymentDraft(defaultBookingPaymentDraft(depositCentsForSubmit));
+      |     ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  787 |   }, [serviceId, packageId, depositCentsForSubmit, isEditing]);
+  788 |
+  789 |   function scrollToAvailability() {  react-hooks/set-state-in-effect
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/ui/sheet.tsx
+  80:36  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/ui/sheet.tsx:80:36
+  78 |       const raw = window.localStorage.getItem(widthStorageKey);
+  79 |       const parsed = raw ? Number(raw) : NaN;
+> 80 |       if (Number.isFinite(parsed)) setWidthPx(clampWidth(parsed));
+     |                                    ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  81 |     } catch {
+  82 |       /* ignore */
+  83 |     }  react-hooks/set-state-in-effect
+
+✖ 4 problems (3 errors, 1 warning)

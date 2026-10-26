@@ -1,0 +1,39 @@
+5:06:15 PM [vite] (client) Re-optimizing dependencies because vite config has changed
+{
+  "phase": "after",
+  "output": "/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/docs/validation/reception-production-isolated/screenshots",
+  "results": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "laptop",
+      "width": 1366,
+      "height": 768,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "tablet",
+      "width": 834,
+      "height": 1112,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    },
+    {
+      "name": "iphone",
+      "width": 390,
+      "height": 844,
+      "errors": [],
+      "writes": [],
+      "bodyOverflow": false
+    }
+  ]
+}

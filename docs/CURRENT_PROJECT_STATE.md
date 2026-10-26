@@ -1,5 +1,17 @@
 # Chasum — Current Project State
 
+## Local Reception isolation supplement — 2026-10-26
+
+This supplement governs only `codex/reception-production-isolated-release`; historical entries below are preserved. This branch is a LOCAL candidate, not current main or a deployed release.
+
+Production was freshly verified at application `664fbc734c4103d78484c6b3828849a6605a562f`, tree `a45bcb6356c70ec108721f539e68eb67e47c99cb`, canonical deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`. Remote main remains `80968d24dc1d87407205e54ccc949433ed39e8eb`. Original Reception PR #171 remains unchanged at `7eca5899abc1d44d65205f144dc7e32307008f79`.
+
+Darshan approved a temporary Morning Brief presentation variant: preserve Production operational calculations, withhold legacy financial amounts/counts and financial-derived Chase copy, and display “Payment information not verified” collapsed and expanded. No canonical financial reader or data-plane change is imported. Calendar-first design, essential CAL01 and the accepted Notes focus correction are composed locally. Current Issue #136 release protections are preserved exactly, with the candidate policy still deny-all.
+
+Local validation: 182 unit/component files, 1,766 tests passed; 10 release-control tests passed; typecheck and build passed; four local Chromium widths passed with no page errors, attempted writes or horizontal page overflow. Changed-file lint has the same three errors and one warning reproduced from exact Production source; no rules were disabled. See [isolation evidence](validation/reception-production-isolated/README.md) for the boundary proof, commands, screenshots and limitations.
+
+Next gate is Darshan's manually dispatched independent compatibility/delta review. No publication, hosted acceptance, integration, release registration or deployment is authorized. PR #171, #172 and #164 are unchanged. GVM CAD $50 deposit collection remains HELD. This UI candidate does not confer financial acceptance or Production readiness.
+
 **READ FIRST.** Sole current program board; no separate `CURRENT_STATE.md`.  
 **Snapshot date:** 2026-09-29. **Updated by:** Chasum development team for Issue #121 Production acceptance closeout (merge 2026-09-30 UTC / 2026-09-29 Toronto). M1A, M1B and #121 are closed; the broader GVM technician mobile-correction program remains open.
 **Repository:** `renovisionai2-cloud/chasum`. Values below are dated observations; freshly query remote main/runtime before consequential work.

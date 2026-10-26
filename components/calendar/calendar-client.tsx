@@ -66,10 +66,10 @@ import {
   parseCalendarDateParam,
 } from "@/lib/calendar/date-param";
 import { calendarDateInTimezone } from "@/lib/business/datetime";
-import { operationalSlot } from "@/lib/calendar/operational-time";
 import { formatBusinessDate, formatBusinessTime, getBusinessTimezone } from "@/lib/locale";
 import { parseISO } from "@/lib/calendar/utils";
 import {
+  format,
   endOfDay,
   endOfMonth,
   endOfWeek,
@@ -183,9 +183,14 @@ export function CalendarClient({
     useState<AppointmentWithRelations | null>(urlAppointment);
   const [defaultSlot, setDefaultSlot] = useState<Date | undefined>();
   const [defaultStaffId, setDefaultStaffId] = useState<string | undefined>();
-  const [bookingDraft, setBookingDraft] = useState<BookingDraft | null>(null);
+  const [bookingDraft, setBookingDraft] = useState<BookingDraft | null>(
+    openBookOnLoad ? { date: formatCalendarDateParam(date) } : null,
+  );
+  const [calendarSelection, setCalendarSelection] = useState(openBookOnLoad);
   const [forceQuickAddCustomer, setForceQuickAddCustomer] = useState(false);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [serviceFilter, setServiceFilter] = useState<string[] | null>(null);
+  const [staffFilter, setStaffFilter] = useState("");
   const [isNarrow, setIsNarrow] = useState(false);
   const [blockTimeOpen, setBlockTimeOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
@@ -214,8 +219,10 @@ export function CalendarClient({
       if (!detail?.action) return;
       switch (detail.action) {
         case "new-customer":
+          setCalendarSelection(false);
+          setBookingDraft({ date: formatCalendarDateParam(date) });
           setSelectedAppointment(null);
-          setDefaultSlot(operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined);
+          setDefaultSlot(undefined);
           setDefaultStaffId(undefined);
           setForceQuickAddCustomer(true);
           setDrawerOpen(false);
@@ -263,20 +270,24 @@ export function CalendarClient({
   const hasSetup = bookingReadiness.state === "ready";
   const effectiveView = view;
 
-  function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null) {
+  function openNew(slot?: Date, staffId?: string, draft?: BookingDraft | null, fromCalendar = !draft) {
     setSelectedAppointment(null);
-    setBookingDraft(draft ?? null);
+    setCalendarSelection(fromCalendar);
+    setBookingDraft(draft ?? {
+      date: slot ? calendarDateInTimezone(slot.toISOString(), operationalTimezone) : formatCalendarDateParam(date),
+      locationId: selectedLocationId,
+    });
     setDefaultSlot(
       draft?.startIso
         ? parseISO(draft.startIso)
-        : slot ?? operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined,
+        : slot,
     );
     setDefaultStaffId(
       draft?.staffId !== undefined && draft?.staffId !== null
         ? draft.staffId
         : staffId === "__unassigned__"
           ? ""
-          : staffId,
+          : staffId ?? (fromCalendar ? "" : undefined),
     );
     setForceQuickAddCustomer(false);
     setDrawerOpen(false);
@@ -284,9 +295,10 @@ export function CalendarClient({
   }
 
   function openNewCustomer() {
+    setCalendarSelection(false);
     setSelectedAppointment(null);
-    setBookingDraft(null);
-    setDefaultSlot(operationalSlot(date, 12 * 60, operationalTimezone) ?? undefined);
+    setBookingDraft({ date: formatCalendarDateParam(date) });
+    setDefaultSlot(undefined);
     setDefaultStaffId(undefined);
     setForceQuickAddCustomer(true);
     setDrawerOpen(false);
@@ -300,6 +312,7 @@ export function CalendarClient({
   }
 
   function openEdit(appointment: AppointmentWithRelations) {
+    setCalendarSelection(false);
     setSelectedAppointment(appointment);
     setBookingDraft(null);
     setDefaultSlot(undefined);
@@ -525,6 +538,12 @@ export function CalendarClient({
     );
   }
 
+  // Presentation filters never alter the booking catalog, eligibility or workspace scope.
+  const visibleAppointments = appointments.filter(a =>
+    (serviceFilter === null || serviceFilter.includes(a.service_id)) &&
+    (!staffFilter || a.staff_id === staffFilter));
+  const visibleStaff = staffFilter ? staff.filter(member => member.id === staffFilter) : staff;
+
   const calendarBody = (
     <div className="space-y-4">
       <CalendarToolbar
@@ -562,24 +581,50 @@ export function CalendarClient({
           });
         }}
         canDuplicate={Boolean(selectedAppointment)}
+        onBlockTime={() => setBlockTimeOpen(true)}
+        onOpenReception={showReceptionPanel && !panelOpen ? () => setPanelOpen(true) : undefined}
+        filtersActive={serviceFilter !== null || Boolean(staffFilter)}
+        filters={<div className="space-y-4">
+          <label className="block text-xs font-semibold">Staff
+            <select className="mt-2 min-h-11 w-full rounded-lg border border-border bg-card px-2 text-sm" value={staffFilter} onChange={event => setStaffFilter(event.target.value)}>
+              <option value="">All staff</option>
+              {staff.filter(member => member.is_active).map(member => <option key={member.id} value={member.id}>{member.name}</option>)}
+            </select>
+          </label>
+          <fieldset className="space-y-1"><legend className="mb-2 text-xs font-semibold">Services</legend>
+            {services.filter(service => service.is_active).map(service => <label key={service.id} className="flex min-h-11 cursor-pointer items-center gap-2 text-sm">
+              <input type="checkbox" className="size-4 accent-primary" checked={serviceFilter === null || serviceFilter.includes(service.id)} onChange={() => setServiceFilter(current => {
+                const ids = current ?? services.filter(item => item.is_active).map(item => item.id);
+                return ids.includes(service.id) ? ids.filter(id => id !== service.id) : [...ids, service.id];
+              })} />{service.name}
+            </label>)}
+          </fieldset>
+          <Button variant="outline" className="w-full" onClick={() => { setServiceFilter(null); setStaffFilter(""); }}>Reset filters</Button>
+          <ColorLegend colorMode={colorMode} services={services} staff={staff} />
+        </div>}
       />
 
-      <ColorLegend colorMode={colorMode} services={services} staff={staff} />
+      {(serviceFilter !== null || staffFilter) && <p role="status" className="text-xs text-muted-foreground">Calendar filtered · {visibleAppointments.length} appointments shown. Reset filters to see the full schedule.</p>}
 
       {effectiveView === "day" && (
         isNarrow ? (
-          <DayAgendaList
-            timezone={operationalTimezone}
-            date={date}
-            appointments={appointments}
-            onSelectAppointment={openDrawer}
-          />
+          <div className="space-y-3">
+            <DayAgendaList
+              timezone={operationalTimezone}
+              date={date}
+              appointments={visibleAppointments}
+              onSelectAppointment={openDrawer}
+            />
+            <Button variant="outline" onClick={() => openNew()} className="min-h-11 w-full">
+              Add appointment on {format(date, "MMMM d, yyyy")}
+            </Button>
+          </div>
         ) : (
           <DayControlCenter
             timezone={operationalTimezone}
             date={date}
-            appointments={appointments}
-            staff={staff}
+            appointments={visibleAppointments}
+            staff={visibleStaff}
             overlays={dayOverlays}
             onSelectAppointment={openDrawer}
             onSelectSlot={openNew}
@@ -594,8 +639,8 @@ export function CalendarClient({
         <WeekView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
+          appointments={visibleAppointments}
+          onSelectAppointment={openDrawer}
           onSelectSlot={openNew}
           onReschedule={handleReschedule}
           onResize={handleResize}
@@ -607,8 +652,12 @@ export function CalendarClient({
         <MonthView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
+          appointments={visibleAppointments}
+          onSelectAppointment={openDrawer}
+          onCreateAppointment={(day) => openNew(undefined, undefined, {
+            date: formatCalendarDateParam(day),
+            locationId: selectedLocationId,
+          }, true)}
           onSelectDay={(day) => {
             router.push(`/dashboard/calendar?view=day&date=${formatCalendarDateParam(day)}`);
           }}
@@ -619,38 +668,38 @@ export function CalendarClient({
         <AgendaView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
+          appointments={visibleAppointments}
+          onSelectAppointment={openDrawer}
         />
       )}
       {effectiveView === "timeline" && (
         <TimelineView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
-          onSelectAppointment={openEdit}
+          appointments={visibleAppointments}
+          onSelectAppointment={openDrawer}
         />
       )}
       {(effectiveView === "employees" || effectiveView === "resource") && (
         <ResourceView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           staff={staff}
           locations={locations}
           mode={effectiveView === "resource" ? "resource" : "employees"}
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
         />
       )}
       {effectiveView === "locations" && (
         <ResourceView
           timezone={operationalTimezone}
           date={date}
-          appointments={appointments}
+          appointments={visibleAppointments}
           staff={staff}
           locations={locations}
           mode="locations"
-          onSelectAppointment={openEdit}
+          onSelectAppointment={openDrawer}
         />
       )}
     </div>
@@ -685,6 +734,7 @@ export function CalendarClient({
             insights={insights}
             waitlist={waitlist}
             open={panelOpen}
+            showClosedTrigger={false}
             onOpenChange={setPanelOpen}
             onBooked={refresh}
             onOpenFullDialog={(draft, appointmentId) => {
@@ -695,7 +745,7 @@ export function CalendarClient({
                   return;
                 }
               }
-              openNew(undefined, undefined, draft);
+              openNew(undefined, undefined, draft, false);
             }}
             searchFocusSignal={searchFocusSignal}
             bookFocusSignal={bookFocusSignal}
@@ -704,19 +754,6 @@ export function CalendarClient({
           />
         )}
       </div>
-
-      {showReceptionPanel && !panelOpen && (
-        <div className="lg:hidden">
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => setPanelOpen(true)}
-          >
-            Open reception panel
-          </Button>
-        </div>
-      )}
 
       {showReceptionPanel && <QuickActionsFab />}
 
@@ -752,7 +789,7 @@ export function CalendarClient({
       <BookingSheet
         key={
           selectedAppointment?.id ??
-          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${selectedLocationId ?? "all"}-${forceQuickAddCustomer ? "qc" : ""}`
+          `new-${defaultSlot?.toISOString() ?? "blank"}-${defaultStaffId ?? ""}-${bookingDraft?.serviceId ?? ""}-${bookingDraft?.startIso ?? ""}-${bookingDraft?.date ?? ""}-${calendarSelection}-${selectedLocationId ?? "all"}-${forceQuickAddCustomer ? "qc" : ""}`
         }
         open={dialogOpen}
         onClose={() => {
@@ -765,6 +802,7 @@ export function CalendarClient({
         staff={staff}
         customers={customers}
         locations={locations}
+        calendarSelection={calendarSelection}
         defaultDate={defaultSlot}
         defaultStaffId={defaultStaffId}
         defaultCustomerId={bookingDraft?.customerId ?? undefined}
