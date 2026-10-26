@@ -91,6 +91,8 @@ export type CancelIntent = {
 
 export type UpdateBookingIntent = BookingIntent & {
   appointmentId: string;
+  /** Constructed by the quick-status server action; never inferred from requestedStatus. */
+  operation?: "status-only";
 };
 
 export type PreviewSlotsInput = {
@@ -206,6 +208,8 @@ export type MutationResult<T = { appointmentId: string }> = {
   conflicts?: BookingConflictReport[];
   error?: string;
   events?: BookingDomainEvent[];
+  /** The row was saved, but follow-up processing could not be confirmed. */
+  warning?: string;
 };
 
 export type SlotCandidate = {

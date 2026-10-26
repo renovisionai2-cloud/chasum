@@ -14,6 +14,7 @@ import type {
   UpdateBookingIntent,
 } from "@/lib/booking-engine/types";
 import { createClient } from "@/lib/supabase/server";
+import { resolveAppointmentStatusWorkflow, type AppointmentStatus } from "@/lib/types/booking";
 
 const TERMINAL_ERROR = "Cancelled appointments are terminal.";
 const NOTES_ONLY_ERROR = "Cancelled appointments can only update notes.";
@@ -113,9 +114,134 @@ function cancelledOperationalFieldsChanged(
   );
 }
 
+const STATUS_ONLY_KEYS = new Set([
+  "operation", "channel", "appointmentId", "businessId", "requestedStatus",
+  "locationId", "serviceId", "staffId", "customerId", "requestedStart",
+  "requestedEnd", "notes", "roomId", "durationMinutes", "excludeAppointmentId",
+]);
+const STATUS_CHANGED_ERROR = "Appointment changed or access is no longer available. Reload before trying again.";
+
+/** N06: session/RLS writer inside the canonical engine, never a scheduling bypass flag. */
+async function updateStatusOnly(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  intent: UpdateBookingIntent,
+  existing: Record<string, unknown>,
+  beforeState: Record<string, unknown>,
+): Promise<MutationResult<{ appointmentId: string }>> {
+  if (existing.booking_operation_id != null) {
+    return { phase: "rollback", error: "This appointment requires the protected booking lifecycle workflow. Its status was not changed." };
+  }
+  if (
+    intent.channel !== "staff" ||
+    Object.keys(intent).some((key) => !STATUS_ONLY_KEYS.has(key)) ||
+    (intent.excludeAppointmentId !== undefined && intent.excludeAppointmentId !== intent.appointmentId) ||
+    typeof intent.requestedStart !== "string" || !Number.isFinite(Date.parse(intent.requestedStart)) ||
+    (intent.requestedEnd !== undefined &&
+      (typeof intent.requestedEnd !== "string" || !Number.isFinite(Date.parse(intent.requestedEnd)))) ||
+    (intent.durationMinutes !== undefined &&
+      (typeof intent.durationMinutes !== "number" || !Number.isFinite(intent.durationMinutes) || intent.durationMinutes <= 0)) ||
+    (intent.customerId !== undefined && !sameRef(intent.customerId, existing.customer_id)) ||
+    !sameRef(intent.serviceId, existing.service_id) ||
+    !sameRef(intent.staffId, existing.staff_id) ||
+    !sameRef(intent.locationId, existing.location_id) ||
+    (intent.roomId !== undefined && !sameRef(intent.roomId, existing.room_id)) ||
+    durationMinutesChanged(intent, existing) ||
+    scheduledRangeChanged({
+      existingStart: existing.start_time,
+      requestedStart: intent.requestedStart,
+      existingEnd: existing.end_time,
+      requestedEnd: intent.requestedEnd ?? (typeof existing.end_time === "string" ? existing.end_time : ""),
+    }) ||
+    (intent.notes !== undefined && normalizeNotes(intent.notes) !== normalizeNotes(existing.notes))
+  ) {
+    return { phase: "rollback", error: "Status-only actions cannot change appointment details. Save those edits separately." };
+  }
+
+  const target = intent.requestedStatus;
+  const validStatuses = resolveAppointmentStatusWorkflow(null);
+  if (!target || ![...validStatuses, "pending"].includes(target)) {
+    return { phase: "rollback", error: "Choose a valid appointment status." };
+  }
+  if (existing.status === "cancelled") return { phase: "rollback", error: TERMINAL_ERROR };
+  if (target === "cancelled") return { phase: "rollback", error: USE_CANCEL_ERROR };
+  // A retry acknowledges current state; it must not replay events, audit or writes.
+  if (target === existing.status) {
+    return { phase: "success", data: { appointmentId: intent.appointmentId }, events: [] };
+  }
+
+  const { data: business, error: businessError } = await supabase
+    .from("businesses").select("appointment_status_workflow").eq("id", intent.businessId).maybeSingle();
+  if (businessError || !business) return { phase: "rollback", error: "Appointment workflow could not be verified." };
+  const workflow = resolveAppointmentStatusWorkflow(business.appointment_status_workflow);
+  const currentIndex = workflow.indexOf(existing.status as AppointmentStatus);
+  if (
+    existing.status === "completed" || existing.status === "no_show" ||
+    (!(existing.status === "pending" && target === "confirmed") &&
+      (!workflow.includes(target) || currentIndex < 0 ||
+        (target !== "no_show" && workflow.indexOf(target) <= currentIndex)))
+  ) {
+    return { phase: "rollback", error: "This status change requires an explicit workflow correction." };
+  }
+  const start = Date.parse(String(existing.start_time));
+  const end = Date.parse(String(existing.end_time));
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start ||
+      typeof existing.updated_at !== "string" || !Number.isFinite(Date.parse(existing.updated_at))) {
+    return { phase: "rollback", error: "Appointment state could not be verified. Reload before trying again." };
+  }
+  // Policy B: at the scheduled start or later; the planned end is not a completion gate.
+  if (target === "completed" && start > Date.now()) {
+    return { phase: "rollback", error: "Appointments cannot be completed before their scheduled start." };
+  }
+
+  let saved;
+  try {
+    let query = supabase.from("appointments").update({ status: target })
+      .eq("id", intent.appointmentId).eq("business_id", intent.businessId);
+    // Compare the observed row, not just ID: a concurrent cancellation, edit or
+    // payment/cache update must cause a refresh rather than a stale success.
+    for (const column of ["status", "updated_at", "start_time", "end_time", "staff_id", "location_id", "service_id", "customer_id", "room_id", "notes", "booking_operation_id"]) {
+      if (column === "booking_operation_id" && !(column in existing)) continue; // pre-#158 schema
+      query = existing[column] == null ? query.is(column, null) : query.eq(column, existing[column]);
+    }
+    saved = await query.select("id, status").maybeSingle();
+  } catch {
+    return { phase: "conflict", error: "Appointment status could not be confirmed. Reload before trying again." };
+  }
+  if (saved.error) {
+    return { phase: "conflict", error: "Appointment status could not be confirmed. Reload before trying again." };
+  }
+  if (!saved.data || saved.data.id !== intent.appointmentId || saved.data.status !== target) {
+    return { phase: "conflict", error: STATUS_CHANGED_ERROR };
+  }
+
+  const event = createBookingEvent({
+    type: target === "completed" ? "appointment.completed" : target === "no_show" ? "appointment.no_show" : "appointment.updated",
+    businessId: intent.businessId,
+    appointmentId: intent.appointmentId,
+    channel: intent.channel,
+    payload: { beforeState },
+  });
+  let warning: string | undefined;
+  const followUpWarning = "Appointment status saved, but follow-up processing could not be confirmed. Reload to review it.";
+  try { await emitBookingEvent(event); } catch { warning = followUpWarning; }
+  try {
+    await logAppointmentChange({
+      businessId: intent.businessId,
+      appointmentId: intent.appointmentId,
+      action: "update",
+      beforeState,
+      afterState: { start_time: existing.start_time, end_time: existing.end_time, status: target },
+    });
+  } catch { warning = followUpWarning; }
+  return { phase: "success", data: { appointmentId: intent.appointmentId }, events: [event], ...(warning ? { warning } : {}) };
+}
+
 export async function updateBooking(
   intent: UpdateBookingIntent,
 ): Promise<MutationResult<{ appointmentId: string }>> {
+  if (intent.operation !== undefined && intent.operation !== "status-only") {
+    return { phase: "rollback", error: "Unsupported appointment operation." };
+  }
   const supabase = await createClient();
   const { data: existing } = await supabase
     .from("appointments")
@@ -136,6 +262,10 @@ export async function updateBooking(
     status: existing.status,
     notes: existing.notes,
   };
+
+  if (intent.operation === "status-only") {
+    return updateStatusOnly(supabase, intent, existing, beforeState);
+  }
 
   if (existing.status === "cancelled") {
     if (intent.requestedStatus && intent.requestedStatus !== "cancelled") {
