@@ -1,5 +1,11 @@
 # Chasum — Current Project State
 
+## Local Issue #135 backport — 2026-10-26
+
+Darshan authorized the accepted PR #150 create-submit guard on the existing isolated Reception branch, as one new direct child of audited `ab972feb946e264f2a669841efc2ab78ece35cec`. Original Reception and isolated-parent independent audits are CLOSED per the PO brief. Only BookingSheet application code changes; CAL01 validation runs before the synchronous claim. Morning Brief, shared Sheet, backend/financial paths and release controls remain unchanged.
+
+Focused validation: 45 guard/CAL01/Notes tests plus 180 negative-control tests PASS; typecheck/build/release controls PASS; bounded desktop/tablet browser submission tests PASS. Changed-file lint retains the parent's two BookingSheet errors and one warning, with no new diagnostics. No publication or deployment is authorized. Next gate: Darshan manually dispatches the new immutable SHA for independent Claude delta review; later integration requires a TRUE MERGE COMMIT preserving that SHA. See [backport evidence](validation/reception-production-isolated/issue135/README.md).
+
 ## Local Reception isolation supplement — 2026-10-26
 
 This supplement governs only `codex/reception-production-isolated-release`; historical entries below are preserved. This branch is a LOCAL candidate, not current main or a deployed release.

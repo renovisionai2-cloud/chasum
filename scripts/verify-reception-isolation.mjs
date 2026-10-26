@@ -22,11 +22,11 @@ for(const [ref,paths] of [[approved,[...exactDesign,...exactIntegration]],[main,
  for(const path of paths) assert.equal(git('hash-object',path),git('rev-parse',`${ref}:${path}`),`Unexpected divergence: ${path}`);
 }
 const appAllowed=[...exactDesign,...exactIntegration,'components/day-view/morning-brief.tsx','components/booking-sheet/booking-sheet.tsx'];
-const testAllowed=['tests/unit/booking/m1b-scope-transport.test.tsx','tests/unit/calendar/operational-calendar.test.tsx',
+const testAllowed=['tests/unit/booking/booking-sheet-payment-submit.test.tsx','tests/unit/booking/m1b-scope-transport.test.tsx','tests/unit/calendar/operational-calendar.test.tsx',
  'tests/unit/calendar/cal01-fixtures.ts','tests/unit/calendar/calendar-booking-selection.test.tsx',
  'tests/unit/calendar/reception-origin.test.ts','tests/unit/calendar/appointment-card-indicators.test.tsx',
  'tests/unit/calendar/reception-production-compatibility.test.tsx','tests/unit/ui/sheet-focus-stability.test.tsx',
- ...['entry.tsx','index.html','run.mjs','dense.mjs'].map(p=>'tests/unit/calendar/isolated-browser/'+p)];
+ ...['entry.tsx','index.html','run.mjs','dense.mjs','submit.mjs'].map(p=>'tests/unit/calendar/isolated-browser/'+p)];
 const docs=['docs/CURRENT_PROJECT_STATE.md','docs/handoffs/LATEST_HANDOFF.md','docs/product/14_DECISION_LOG.md'];
 const allowed=new Set([...appAllowed,...controls,...testAllowed,...docs,'scripts/verify-reception-isolation.mjs']);
 const paths=[...new Set([...git('diff','--name-only',production).split('\n'),...git('ls-files','--others','--exclude-standard').split('\n')])].filter(Boolean);

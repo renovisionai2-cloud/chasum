@@ -1,0 +1,18 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/booking/booking-sheet-payment-submit.test.tsx tests/unit/calendar/calendar-booking-selection.test.tsx tests/unit/ui/sheet-focus-stability.test.tsx
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:65953) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:65955) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:65954) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  3 passed (3)
+      Tests  45 passed (45)
+   Start at  17:42:48
+   Duration  5.12s (transform 621ms, setup 367ms, import 2.48s, tests 5.00s, environment 1.35s)

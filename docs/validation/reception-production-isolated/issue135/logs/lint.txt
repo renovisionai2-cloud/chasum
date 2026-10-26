@@ -1,0 +1,37 @@
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/booking-sheet/booking-sheet.tsx
+  457:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/booking-sheet/booking-sheet.tsx:457:7
+  455 |     if (explicitCalendarSelection && !locationId) return;
+  456 |     if (!staffId) {
+> 457 |       setStaffEligibilityNote(null);
+      |       ^^^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  458 |       return;
+  459 |     }
+  460 |     if (eligibleStaff.some((m) => m.id === staffId)) {                     react-hooks/set-state-in-effect
+  748:31  warning  '_next' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  796:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/components/booking-sheet/booking-sheet.tsx:796:5
+  794 |   useEffect(() => {
+  795 |     if (isEditing) return;
+> 796 |     setPaymentDraft(defaultBookingPaymentDraft(depositCentsForSubmit));
+      |     ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  797 |   }, [serviceId, packageId, depositCentsForSubmit, isEditing]);
+  798 |
+  799 |   function scrollToAvailability() {  react-hooks/set-state-in-effect
+
+✖ 3 problems (2 errors, 1 warning)

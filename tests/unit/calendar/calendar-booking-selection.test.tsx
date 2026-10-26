@@ -140,6 +140,35 @@ describe("Calendar explicitly selected booking context", () => {
     expect(screen.getByLabelText("Service")).toHaveValue("svc");
     expect(document.querySelector('[name="staff_id"]')).toHaveValue("staff");
   });
+  it("does not claim the guard for ineligible Calendar submissions, then blocks valid duplicates", async () => {
+    let available!: (value: { slots: { start: string; end: string }[]; alternativeStaff: []; alternativeDays: [] }) => void;
+    let finish!: (value: { appointmentId: string; success: string; payment: { status: "failed"; transactionId: null; canRetry: true } }) => void;
+    mocks.preview.mockReturnValue(new Promise(resolve => { available = resolve; }));
+    mocks.create.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+    renderSheet({ draft: { customerId: "cust", staffId: "staff", date: "2026-10-10", startIso: "2026-10-10T16:30:00.000Z" } });
+    const submit = screen.getByRole("button", { name: "Confirm appointment" });
+    const form = submit.closest("form")!;
+    fireEvent.submit(form); // No explicit service yet: must not claim the guard.
+    expect(mocks.create).not.toHaveBeenCalled();
+    await userEvent.selectOptions(screen.getByLabelText("Service"), "svc");
+    await waitFor(() => expect(mocks.preview).toHaveBeenCalled());
+    fireEvent.submit(form); // Availability unresolved: still must not claim it.
+    expect(mocks.create).not.toHaveBeenCalled();
+    await act(async () => available({ slots: [{ start: "2026-10-10T16:30:00.000Z", end: "2026-10-10T17:00:00.000Z" }], alternativeStaff: [], alternativeDays: [] }));
+    await waitFor(() => expect(submit).toBeEnabled());
+    act(() => { fireEvent.submit(form); form.requestSubmit(); });
+    expect(mocks.create).toHaveBeenCalledOnce();
+    const fd = mocks.create.mock.calls[0][1] as FormData;
+    expect(document.querySelector('[name="date"]')).toHaveValue("2026-10-10");
+    expect(Object.fromEntries(["start_time", "staff_id", "location_id", "service_id"].map(key => [key, fd.get(key)]))).toEqual({
+      start_time: "2026-10-10T16:30:00.000Z", staff_id: "staff", location_id: "loc", service_id: "svc",
+    });
+    await act(async () => finish({ appointmentId: "synthetic-created", success: "Appointment confirmed — payment needs attention.", payment: { status: "failed", transactionId: null, canRetry: true } }));
+    await act(async () => { fireEvent.submit(form); form.requestSubmit(); });
+    expect(mocks.create).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "Appointment booked" })).toBeDisabled();
+  });
+
   it("does not enable confirmation while clicked-time availability is unresolved or rejected", async () => {
     let resolve!: (value: { slots: []; alternativeStaff: []; alternativeDays: [] }) => void;
     mocks.preview.mockReturnValue(new Promise(r => { resolve = r; }));

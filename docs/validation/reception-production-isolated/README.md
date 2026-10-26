@@ -1,5 +1,7 @@
 # Reception Production-compatible isolated local candidate
 
+> Historical isolated-parent evidence: application/test hashes and results below belong to `ab972feb946e264f2a669841efc2ab78ece35cec`. The authorized direct-child Issue #135 guard correction and its new evidence are recorded in [issue135/README.md](issue135/README.md). The parent and its original screenshots remain preserved.
+
 ## Scope and identity
 
 Authorized by Darshan on 2026-10-26 for local implementation/testing only. Branch: `codex/reception-production-isolated-release`. The enclosing commit is the immutable local candidate; use `git rev-parse HEAD HEAD^{tree}` for its identity. No push, PR mutation, hosted deployment, data change, provider action or automatic agent dispatch is authorized.

@@ -80,8 +80,12 @@ const correction = requestedPhase.startsWith('r1');
 const phase = correction ? 'after' : requestedPhase;
 const results = [];
 try {
+  if (requestedPhase === 'issue135') {
+    const { runSubmitValidation } = await import('./submit.mjs');
+    results.push(...await runSubmitValidation({browser,origin,output}));
+  }
   if (correction) await runDenseValidation({browser,origin,output,before:requestedPhase === 'r1-before'});
-  for (const [name,width,height] of requestedPhase === 'r1-before' ? [] : [['desktop',1440,900],['laptop',1366,768],['tablet',834,1112],['iphone',390,844]]) {
+  for (const [name,width,height] of ['r1-before','issue135'].includes(requestedPhase) ? [] : [['desktop',1440,900],['laptop',1366,768],['tablet',834,1112],['iphone',390,844]]) {
     const context=await browser.newContext({viewport:{width,height},timezoneId:'America/Los_Angeles',hasTouch:width<1024,isMobile:width<1024});
     const writes=[], errors=[];
     await context.exposeFunction('__recordWriteAttempt',name=>writes.push(name));

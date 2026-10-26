@@ -1,0 +1,40 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/booking/appointment-payment-outcome.test.ts tests/unit/booking/create-booking-persistence.test.ts tests/unit/booking/book-public-appointment-financial-integrity.test.ts tests/unit/booking/cancelled-booking-sheet-terminal.test.tsx tests/unit/booking/m1b-server-guard.test.ts tests/unit/booking/m1b-foreign-location.test.ts tests/unit/booking/eligible-staff.test.ts tests/unit/commerce/booking-financials.test.ts tests/unit/commerce/booking-pricing.test.ts tests/unit/commerce/receipt-reliability.test.ts tests/unit/auth/permissions-and-validation.test.ts tests/unit/api/appointment-tenant-integrity.test.ts tests/unit/communications/delivery-preference-gates.test.ts tests/unit/calendar/reception-production-compatibility.test.tsx
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:63847) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63852) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63848) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63845) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63849) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63851) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63850) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63846) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63853) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63855) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63860) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63858) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63859) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:63861) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  14 passed (14)
+      Tests  180 passed (180)
+   Start at  17:41:31
+   Duration  2.18s (transform 967ms, setup 1.82s, import 7.36s, tests 723ms, environment 5.32s)
