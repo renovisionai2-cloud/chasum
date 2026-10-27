@@ -1,5 +1,13 @@
 # Chasum — Current Project State
 
+## Local Preview build footer correction — 2026-10-27
+
+Darshan authorized one local direct-child correction of `feda74b59f283ed4715d2b77b048d7367e87a286` on the existing isolated Reception branch. Only `components/system/preview-build-badge.tsx` changes in application source: verified non-Production identity in a compact normal-flow footer, a keyboard-accessible Build details link, and no fabricated fallback identity. Dashboard mounting, build-info endpoint, account UI, Calendar/Booking/Notes/Morning Brief, backend and release controls are unchanged. The verifier pins the exact corrected badge blob.
+
+Focused validation: 126 unit/component/navigation tests and 20 responsive Chromium cases PASS, plus 10 release-control tests. Typecheck, changed-file lint, build and exact isolation checks PASS. The new tests preserve all prior assertions; 88 accepted evidence files remain byte-identical. Local screenshots/metrics cover 390/834/1366/1440px and navigation boundaries in both themes. No physical-device acceptance for this new footer is claimed. The inherited drawer/bottom-navigation collision still obscures Sign out independently and remains a separate account-access defect; M1C/#128 was not integrated. Repository-wide lint is not claimed green.
+
+Prior Reception/isolation/#135/date-retention audits and Darshan's supplied physical-iPhone acceptance of feda74b5 remain CLOSED. Fresh read-only GitHub metadata confirms PR #173 Draft/open/unmerged at published feda74b5; main is still `80968d24dc1d87407205e54ccc949433ed39e8eb`. The new local commit is unpublished. Next gate: Darshan manually dispatches independent Claude delta audit against feda74b5, followed by separate PO publication authorization. Main conflicts/missing Quality, true-merge integration, exact-SHA registration and Production approval remain separate gates. No remote mutation or automatic dispatch. GVM CAD $50 deposit collection remains HELD. See [new footer evidence](validation/reception-production-isolated/preview-badge/README.md). Historical entries below remain dated records.
+
 ## Local Reception #173 date-retention correction — 2026-10-26
 
 Darshan authorized one local direct-child correction of `2d9b78fff3abb18f675c049d1ac0f2e49d6751ad`. CalendarClient now serializes the selected civil date on view changes and the requested date on date changes; the unused client range helper is removed. CalendarPage/query ranges/workspace key and all other application files remain unchanged. Earlier Reception/isolation/#135 audits remain accepted and closed.

@@ -1,0 +1,18 @@
+✔ accepts approved main ancestor using fetched-main policy (211.17525ms)
+✔ rejects unapproved revoked expired and exactly-expiring candidates (560.826542ms)
+✔ latest fetched policy overrides candidate-local approval (268.637166ms)
+✔ requires main ancestry existing commit complete history and origin (308.555ms)
+✔ rejects missing malformed and invalid policy schemas (682.041166ms)
+✔ policy rejects duplicate SHAs unknown fields wrong types statuses and times (0.300917ms)
+✔ CLI rejects floating short malformed and extra arguments (342.868875ms)
+✔ accepts exact canonical Production identity (0.837209ms)
+✔ rejects wrong SHA env ref production flag short SHA and unexpected fields (0.443417ms)
+✔ CLI reads supplied JSON only and fails closed on malformed input (61.719ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2419.497583

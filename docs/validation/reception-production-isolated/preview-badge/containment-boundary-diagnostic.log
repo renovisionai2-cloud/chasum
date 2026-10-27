@@ -1,0 +1,58 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/dashboard/preview-build-badge-containment.test.tsx -t at 768px
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:37282) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx (20 tests | 2 failed | 18 skipped) 11421ms
+   × contains the footer and application controls at 768px × 900px (light) 11043ms
+   × contains the footer and application controls at 768px × 900px (dark) 277ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 768px × 900px (light)
+AssertionError: {"position":"static","zIndex":"auto","height":53,"marginBottom":"24px","bottom":863,"navTop":851,"scrollY":0,"scrollHeight":915,"afterContent":true,"overflow":0,"linkHeight":44,"linkFocused":true,"linkHit":true,"focusVisible":true,"focusShadow":"rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(241, 245, 249) 0px 0px 0px 2px, rgb(37, 99, 235) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px","textContrast":9.451924418631656,"linkContrast":16.921013965262773,"navVisible":true,"navOverlap":true,"obscuredNavLabels":[]}: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:189:106
+    187|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    188|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+    189|       expect(metrics.navVisible).toBe(width < 1024); expect(metrics.na…
+       |                                                                                                          ^
+    190|       expect(metrics.obscuredNavLabels).toEqual([]);
+    191|       await capture("footer-focused");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 768px × 900px (dark)
+AssertionError: {"position":"static","zIndex":"auto","height":53,"marginBottom":"24px","bottom":863,"navTop":851,"scrollY":0,"scrollHeight":915,"afterContent":true,"overflow":0,"linkHeight":44,"linkFocused":true,"linkHit":true,"focusVisible":true,"focusShadow":"rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(8, 19, 36) 0px 0px 0px 2px, rgb(59, 130, 246) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px","textContrast":7.254709960333394,"linkContrast":17.20355679457858,"navVisible":true,"navOverlap":true,"obscuredNavLabels":[]}: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:189:106
+    187|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    188|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+    189|       expect(metrics.navVisible).toBe(width < 1024); expect(metrics.na…
+       |                                                                                                          ^
+    190|       expect(metrics.obscuredNavLabels).toEqual([]);
+    191|       await capture("footer-focused");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 skipped (20)
+   Start at  11:18:59
+   Duration  11.86s (transform 52ms, setup 107ms, import 266ms, tests 11.42s, environment 0ms)

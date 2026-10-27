@@ -1,0 +1,64 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/dashboard/preview-build-badge-containment.test.tsx
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:34579) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+stdout | tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 768px × 900px (dark)
+11:14:39 AM [vite] (client) hmr update /app/globals.css
+
+stdout | tests/unit/dashboard/preview-build-badge-containment.test.tsx
+11:14:16 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx (20 tests | 2 failed) 38674ms
+   × contains the footer and application controls at 768px × 900px (light) 296ms
+   × contains the footer and application controls at 768px × 900px (dark) 12736ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 768px × 900px (light)
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:187:81
+    185|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    186|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+    187|       expect(metrics.navVisible).toBe(width < 1024); expect(metrics.na…
+       |                                                                                 ^
+    188|       expect(metrics.obscuredNavLabels).toEqual([]);
+    189|       await capture("footer-focused");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 768px × 900px (dark)
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:187:81
+    185|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    186|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+    187|       expect(metrics.navVisible).toBe(width < 1024); expect(metrics.na…
+       |                                                                                 ^
+    188|       expect(metrics.obscuredNavLabels).toEqual([]);
+    189|       await capture("footer-focused");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 18 passed (20)
+   Start at  11:14:16
+   Duration  39.14s (transform 52ms, setup 112ms, import 286ms, tests 38.67s, environment 0ms)

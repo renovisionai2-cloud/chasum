@@ -24,8 +24,12 @@ const dateRetentionBlob='5e07c8f4551775d44c3ea2966d7bb4fab0b2c076';
 for(const [ref,paths] of [[approved,[...exactDesign,...exactIntegration]],[main,controls]]) {
  for(const path of paths) assert.equal(git('hash-object',path),path===dateRetentionPath ? dateRetentionBlob : git('rev-parse',`${ref}:${path}`),`Unexpected divergence: ${path}`);
 }
-const appAllowed=[...exactDesign,...exactIntegration,'components/day-view/morning-brief.tsx','components/booking-sheet/booking-sheet.tsx'];
-const testAllowed=['tests/unit/booking/booking-sheet-payment-submit.test.tsx','tests/unit/booking/m1b-scope-transport.test.tsx','tests/unit/calendar/operational-calendar.test.tsx',
+// PO-authorized normal-flow diagnostic footer: exact file pin, no path wildcard.
+const previewBadgePath='components/system/preview-build-badge.tsx';
+const previewBadgeBlob='13213b0bf8873c3fe87b2a9ea13e4884a1d78031';
+assert.equal(git('hash-object',previewBadgePath),previewBadgeBlob,'Unexpected divergence: Preview build badge');
+const appAllowed=[previewBadgePath,...exactDesign,...exactIntegration,'components/day-view/morning-brief.tsx','components/booking-sheet/booking-sheet.tsx'];
+const testAllowed=['tests/unit/system/preview-build-badge.test.tsx','tests/unit/dashboard/preview-build-badge-containment.test.tsx','tests/unit/booking/booking-sheet-payment-submit.test.tsx','tests/unit/booking/m1b-scope-transport.test.tsx','tests/unit/calendar/operational-calendar.test.tsx',
  'tests/unit/calendar/calendar-date-retention.test.tsx','tests/unit/calendar/cal01-fixtures.ts','tests/unit/calendar/calendar-booking-selection.test.tsx',
  'tests/unit/calendar/reception-origin.test.ts','tests/unit/calendar/appointment-card-indicators.test.tsx',
  'tests/unit/calendar/reception-production-compatibility.test.tsx','tests/unit/ui/sheet-focus-stability.test.tsx',
@@ -39,4 +43,4 @@ assert.equal(git('diff',production,'--',...protectedPaths),'','Production behavi
 const brief=readFileSync('components/day-view/morning-brief.tsx','utf8');
 assert(!/financial-aggregate|financialAmountText|brief\.(todayRevenue|outstandingPayments|chase)/.test(brief));
 assert.equal(JSON.parse(readFileSync('release/candidates.json','utf8')).candidates.length,0,'Release policy must remain deny-all');
-console.log(JSON.stringify({production,approved,main,exactDesignFiles:exactDesign.length-1,dateRetentionBlob,exactIntegrationFiles:exactIntegration.length,exactCurrentControlFiles:controls.length,protectedPathsUnchanged:protectedPaths,changedFiles:paths.sort()},null,2));
+console.log(JSON.stringify({production,approved,main,exactDesignFiles:exactDesign.length-1,dateRetentionBlob,previewBadgeBlob,exactIntegrationFiles:exactIntegration.length,exactCurrentControlFiles:controls.length,protectedPathsUnchanged:protectedPaths,changedFiles:paths.sort()},null,2));
