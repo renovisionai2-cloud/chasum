@@ -1,5 +1,13 @@
 # Chasum — Latest Development Handoff
 
+## Local Reception #173 date-retention correction — 2026-10-26
+
+Darshan authorized one local direct-child correction of `2d9b78fff3abb18f675c049d1ac0f2e49d6751ad`. CalendarClient now serializes the selected civil date on view changes and the requested date on date changes; the unused client range helper is removed. CalendarPage/query ranges/workspace key and all other application files remain unchanged. Earlier Reception/isolation/#135 audits remain accepted and closed.
+
+New remount-aware regression coverage passes 22 cases under Toronto, UTC and Los Angeles; the final focused suite passes 224 tests across 16 files. Four local Chromium widths pass 140 navigation transitions with no domain mutation attempts, external requests, page errors or page overflow. Typecheck, changed-file lint, build, 10 release-control tests and strict isolation verification pass. Inherited BookingSheet/shared Sheet lint remains 3 errors / 1 warning. Existing component-local filters still reset across view-key remounts; they survive Sheet open/close, and Location scope survives view changes. Cross-view filter persistence is not claimed.
+
+PR #173 remains Draft at the OLDER `2d9b78ff` candidate; the new local commit is not published or release-registered. Main remains `80968d24dc1d87407205e54ccc949433ed39e8eb`; no Production/Preview/data/config action. Next gate: Product Owner/Program Lead reconciliation followed by separately authorized, manually dispatched Claude focused delta audit. No automatic dispatch. Hosted/device acceptance, main conflicts/missing Quality, true-merge integration, exact-SHA registration and Production remain separate gates. See [correction evidence](../validation/reception-production-isolated/date-retention/README.md). Historical entries below are preserved as dated evidence.
+
 ## Local Issue #135 backport — 2026-10-26
 
 Darshan authorized the accepted PR #150 create-submit guard on the existing isolated Reception branch, as one new direct child of audited `ab972feb946e264f2a669841efc2ab78ece35cec`. Original Reception and isolated-parent independent audits are CLOSED per the PO brief. Only BookingSheet application code changes; CAL01 validation runs before the synchronous claim. Morning Brief, shared Sheet, backend/financial paths and release controls remain unchanged.

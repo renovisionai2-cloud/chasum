@@ -1,0 +1,33 @@
+desktop: date-retention fixture loading
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+ExpectError: expect(received).toBeCloseTo(expected, precision)
+
+Expected: 152
+Received: 142
+
+Expected precision:    0
+Expected difference: < 0.5
+Received difference:   10
+    at captureRawStack (/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/node_modules/playwright-core/lib/coreBundle.js:3172:17)
+    at callMatcherAsStep (/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/node_modules/playwright/lib/matchers/expect.js:12877:57)
+    at Object.toBeCloseTo (/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/node_modules/playwright/lib/matchers/expect.js:12867:23)
+    at runDateRetentionValidation (/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/tests/unit/calendar/isolated-browser/date-retention.mjs:96:31)
+    at async file:///Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/tests/unit/calendar/isolated-browser/run.mjs:85:21 {
+  matcherResult: {
+    message: 'expect(received).toBeCloseTo(expected, precision)\n' +
+      '\n' +
+      'Expected: 152\n' +
+      'Received: 142\n' +
+      '\n' +
+      'Expected precision:    0\n' +
+      'Expected difference: < 0.5\n' +
+      'Received difference:   10',
+    pass: false,
+    name: 'toBeCloseTo'
+  }
+}
+
+Node.js v26.7.0

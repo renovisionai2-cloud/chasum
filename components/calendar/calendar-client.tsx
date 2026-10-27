@@ -68,15 +68,7 @@ import {
 import { calendarDateInTimezone } from "@/lib/business/datetime";
 import { formatBusinessDate, formatBusinessTime, getBusinessTimezone } from "@/lib/locale";
 import { parseISO } from "@/lib/calendar/utils";
-import {
-  format,
-  endOfDay,
-  endOfMonth,
-  endOfWeek,
-  startOfDay,
-  startOfMonth,
-  startOfWeek,
-} from "date-fns";
+import { format } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -118,30 +110,6 @@ type CalendarClientProps = {
   appointmentIntervalMinutes?: number;
   scope: LocationScope;
 };
-
-function getRange(view: CalendarView, date: Date) {
-  switch (view) {
-    case "day":
-    case "timeline":
-    case "employees":
-    case "locations":
-    case "resource":
-      return { start: startOfDay(date), end: endOfDay(date) };
-    case "week":
-    case "agenda":
-      return {
-        start: startOfWeek(date, { weekStartsOn: 0 }),
-        end: endOfWeek(date, { weekStartsOn: 0 }),
-      };
-    case "month":
-      return {
-        start: startOfMonth(date),
-        end: endOfMonth(date),
-      };
-    default:
-      return { start: startOfDay(date), end: endOfDay(date) };
-  }
-}
 
 export function CalendarClient({
   appointments: serverAppointments,
@@ -469,18 +437,16 @@ export function CalendarClient({
 
   function handleViewChange(newView: CalendarView) {
     setView(newView);
-    const range = getRange(newView, date);
     router.replace(
-      `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(range.start)}`,
+      `/dashboard/calendar?view=${newView}&date=${formatCalendarDateParam(date)}`,
       { scroll: false },
     );
   }
 
   function handleDateChange(newDate: Date) {
     setDate(newDate);
-    const range = getRange(view, newDate);
     router.replace(
-      `/dashboard/calendar?view=${view}&date=${formatCalendarDateParam(range.start)}`,
+      `/dashboard/calendar?view=${view}&date=${formatCalendarDateParam(newDate)}`,
       { scroll: false },
     );
   }

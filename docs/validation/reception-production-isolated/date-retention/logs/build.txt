@@ -1,0 +1,112 @@
+
+> chasum@0.2.0 build
+> next build
+
+▲ Next.js 16.3.6 (Turbopack)
+✓ Running next.config.ts took 41ms
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead.
+
+  To migrate automatically, run:
+  npx @next/codemod@canary middleware-to-proxy .
+
+  Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+  Creating an optimized production build ...
+✓ Compiled successfully in 13.4s
+  Running TypeScript ...
+  Finished TypeScript in 1256ms ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/37) ...
+  Generating static pages using 9 workers (9/37)
+  Generating static pages using 9 workers (18/37)
+  Generating static pages using 9 workers (27/37)
+✓ Generating static pages using 9 workers (37/37) in 224ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /access-denied
+├ ƒ /api/build-info
+├ ƒ /api/calendar/feed/[token]
+├ ƒ /api/cron/cleanup-import-artifacts
+├ ƒ /api/cron/process-jobs
+├ ƒ /api/health
+├ ƒ /api/integrations/google/callback
+├ ƒ /api/integrations/outlook/callback
+├ ƒ /api/integrations/zapier
+├ ƒ /api/v1/appointments
+├ ƒ /api/v1/appointments/[id]
+├ ƒ /api/v1/customers
+├ ƒ /api/v1/services
+├ ƒ /api/v1/staff
+├ ƒ /api/webhooks/resend
+├ ƒ /api/webhooks/stripe
+├ ƒ /api/webhooks/twilio
+├ ○ /apple-icon.png
+├ ○ /apply
+├ ƒ /auth/callback
+├ ƒ /auth/confirm
+├ ƒ /book/[slug]
+├ ○ /contact
+├ ƒ /dashboard
+├ ƒ /dashboard/ai-workforce
+├ ƒ /dashboard/ai-workforce/[slug]
+├ ƒ /dashboard/ai-workforce/chase
+├ ƒ /dashboard/ai-workforce/command
+├ ƒ /dashboard/ai-workforce/summer
+├ ƒ /dashboard/appointments
+├ ƒ /dashboard/automation
+├ ƒ /dashboard/business
+├ ƒ /dashboard/business/import
+├ ƒ /dashboard/calendar
+├ ƒ /dashboard/clients
+├ ƒ /dashboard/clients/[id]
+├ ƒ /dashboard/developer
+├ ƒ /dashboard/employees
+├ ƒ /dashboard/employees/[id]
+├ ƒ /dashboard/hq
+├ ƒ /dashboard/hq/private-alpha
+├ ƒ /dashboard/integrations
+├ ƒ /dashboard/notifications
+├ ƒ /dashboard/payments
+├ ƒ /dashboard/reports
+├ ƒ /dashboard/services
+├ ƒ /dashboard/settings
+├ ƒ /dashboard/settings/billing
+├ ƒ /dashboard/staff
+├ ƒ /dashboard/staff/[id]
+├ ƒ /dashboard/workforce/chase
+├ ƒ /forgot-password
+├ ○ /icon.png
+├ ○ /industries
+├ ƒ /login
+├ ○ /meet-summer
+├ ƒ /onboarding/business
+├ ƒ /owner
+├ ƒ /owner/businesses
+├ ƒ /owner/health
+├ ƒ /owner/revenue
+├ ƒ /owner/security
+├ ƒ /owner/settings
+├ ƒ /owner/subscriptions
+├ ƒ /owner/support
+├ ƒ /owner/trials
+├ ○ /platform
+├ ƒ /portal/[token]
+├ ○ /pricing
+├ ○ /privacy
+├ ○ /private-alpha
+├ ○ /product-tour
+├ ƒ /reset-password
+├ ○ /roadmap
+├ ○ /security
+├ ƒ /signup
+├ ○ /status
+└ ○ /terms
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
