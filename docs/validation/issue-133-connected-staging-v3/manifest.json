@@ -1,0 +1,1292 @@
+{
+  "format_version": 1,
+  "status": "PREPARED_ONLY_NOT_RUN",
+  "authoring_head": "72be50fd93bd3f4dca4be97cfc01c72d01fc7f49",
+  "authoring_tree": "63128196547ab52acebec5f0321a1e30e32922a4",
+  "project_ref": "wnfahklzaxirftyskctd",
+  "run_id": "HV133-158-20261009-C03-9b8c5783",
+  "evidence_parent": "/Users/darshan/chasum-evidence/issue133-connected-staging",
+  "package_files": [
+    "PLAN.md",
+    "fixture.json",
+    "hosted_validation.py",
+    "manifest.json",
+    "tests/test_hosted_validation.py"
+  ],
+  "manifest_identity": "Envelope: SHA-256 of CHASUM-CONNECTED-STAGING-v1 + LF + canonical JSON of every manifest field except aggregate_sha256; raw manifest SHA and bytes reported externally to avoid self-reference.",
+  "source_pins": {
+    "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+    "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+    "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+    "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql": "01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b",
+    "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql": "ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56",
+    "supabase/migrations/20260920230358_tenant_identity_gate.sql": "75a0ab5578493df310db955b282543f5bba20291356056237fe1e727b8b2af62",
+    "supabase/migrations/008_phase5_multi_location.sql": "82398d6cc29c8a0678555b979f54481f1ab4c159ce197ccb7ad70b0589fd09b2",
+    "supabase/migrations/005_phase4_scheduling_engine.sql": "82527e50d6274b16ac0cab42c26a975a7949356c02e5748b24b42cfd6bc7d081"
+  },
+  "hosted_migrations": [
+    {
+      "version": "20261005032107",
+      "name": "issue_134_payment_attempt_foundation",
+      "local_path": "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql",
+      "sha256": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+      "bytes": 15667
+    },
+    {
+      "version": "20261005170446",
+      "name": "issue_134_r1a_manual_payment_kernel",
+      "local_path": "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql",
+      "sha256": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+      "bytes": 16151
+    },
+    {
+      "version": "20261007170242",
+      "name": "issue_134_appointment_financial_attribution",
+      "local_path": "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql",
+      "sha256": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+      "bytes": 6529
+    },
+    {
+      "version": "20261009035548",
+      "name": "issue_134_durable_booking_operation",
+      "local_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "sha256": "01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b",
+      "bytes": 83565
+    },
+    {
+      "version": "20261009133204",
+      "name": "issue_133_payment_projection_observability",
+      "local_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "sha256": "ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56",
+      "bytes": 48612
+    }
+  ],
+  "functions": [
+    {
+      "name": "tenant_identity_key",
+      "signature": "public.tenant_identity_key(text,text)",
+      "parameters": [
+        {
+          "name": "p_value",
+          "type": "text"
+        },
+        {
+          "name": "p_kind",
+          "type": "text"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog",
+      "body_sha256": "ddaf47d9930c656f491a19850ef3816d8620f0fd666b3c7046fa5da8db2c92a4",
+      "source_path": "supabase/migrations/20260920230358_tenant_identity_gate.sql",
+      "service_execute": null
+    },
+    {
+      "name": "decide_business_identity",
+      "signature": "public.decide_business_identity(uuid,text,text,text,text,text,text,text,text,text,text)",
+      "parameters": [
+        {
+          "name": "p_actor_user_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_intent",
+          "type": "text"
+        },
+        {
+          "name": "p_name",
+          "type": "text"
+        },
+        {
+          "name": "p_legal_name",
+          "type": "text"
+        },
+        {
+          "name": "p_email",
+          "type": "text"
+        },
+        {
+          "name": "p_phone",
+          "type": "text"
+        },
+        {
+          "name": "p_website",
+          "type": "text"
+        },
+        {
+          "name": "p_city",
+          "type": "text"
+        },
+        {
+          "name": "p_region",
+          "type": "text"
+        },
+        {
+          "name": "p_country",
+          "type": "text"
+        },
+        {
+          "name": "p_requested_slug",
+          "type": "text"
+        }
+      ],
+      "security_definer": true,
+      "search_path": "search_path=pg_catalog, public, pg_temp",
+      "body_sha256": "353f71546564b32b1ba02252cd0527325e5ae18617cc0afd7195223ef7ed5c1c",
+      "source_path": "supabase/migrations/20260920230358_tenant_identity_gate.sql",
+      "service_execute": true
+    },
+    {
+      "name": "guard_commerce_payment_attempt",
+      "signature": "public.guard_commerce_payment_attempt()",
+      "parameters": [],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "2de880afde790a0fe06b92a6904c123dc946e2e99fe0c896c48631f074f7ff9f",
+      "source_path": "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "guard_commerce_attempt_ledger_link",
+      "signature": "public.guard_commerce_attempt_ledger_link()",
+      "parameters": [],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "20d443ae21823633aa97d9560b37a1816127e814da25d23e96412eb375b90e79",
+      "source_path": "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "reject_commerce_attempt_history_mutation",
+      "signature": "public.reject_commerce_attempt_history_mutation()",
+      "parameters": [],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "ae6fd13c82cf5537502dcd57470cac2dc184a6f3a6c10aaeb3801118f6f178ac",
+      "source_path": "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "admit_payment_attempt_v1",
+      "signature": "public.admit_payment_attempt_v1(uuid,uuid,text,text,uuid,uuid,uuid,text,integer,text,text,text)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_key",
+          "type": "uuid"
+        },
+        {
+          "name": "p_request_fingerprint",
+          "type": "text"
+        },
+        {
+          "name": "p_source",
+          "type": "text"
+        },
+        {
+          "name": "p_customer_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_appointment_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_payment_kind",
+          "type": "text"
+        },
+        {
+          "name": "p_amount_cents",
+          "type": "integer"
+        },
+        {
+          "name": "p_currency",
+          "type": "text"
+        },
+        {
+          "name": "p_method",
+          "type": "text"
+        },
+        {
+          "name": "p_provider_route",
+          "type": "text"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "110485eb1eb2a86fd2eec72507fdf8beb7304aae92251ddef598162d05dd5847",
+      "source_path": "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql",
+      "service_execute": true
+    },
+    {
+      "name": "commit_manual_payment_attempt_v1",
+      "signature": "public.commit_manual_payment_attempt_v1(uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "cbd0500b6fb38de1f6442b4b012c80f85771060f50358d10f5fee67141def9ae",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "guard_legacy_commerce_transaction_appointment_attribution_v1",
+      "signature": "public.guard_legacy_commerce_transaction_appointment_attribution_v1()",
+      "parameters": [],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "3bfb91b068cc9422af4c17df1ed45a37119fe948be33a611e1d61cdf9aa2c2d2",
+      "source_path": "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql",
+      "service_execute": false
+    },
+    {
+      "name": "guard_commerce_booking_operation_v1",
+      "signature": "public.guard_commerce_booking_operation_v1()",
+      "parameters": [],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "ce780df5484b2cbb449c02311d72ded7502d06bd23b90c4ecd45b108f86b0fab",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "guard_appointment_booking_operation_link_v1",
+      "signature": "public.guard_appointment_booking_operation_link_v1()",
+      "parameters": [],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "251c47a74bd93e00beac802fd85d968929da257754bfcb260131412e50734f0f",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "bootstrap_booking_operation_v1",
+      "signature": "public.bootstrap_booking_operation_v1(uuid,uuid,uuid,uuid,text,text,text,text,text,uuid,uuid,text,text,text,uuid,uuid,uuid,timestamptz,timestamptz,text,integer,uuid,uuid[],uuid,text,integer,integer,integer,text,text,text,boolean,text,integer,text,text,text)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_operation_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_key",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_source",
+          "type": "text"
+        },
+        {
+          "name": "p_booking_fingerprint",
+          "type": "text"
+        },
+        {
+          "name": "p_payment_fingerprint",
+          "type": "text"
+        },
+        {
+          "name": "p_customer_input_fingerprint",
+          "type": "text"
+        },
+        {
+          "name": "p_customer_origin",
+          "type": "text"
+        },
+        {
+          "name": "p_existing_customer_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_inline_customer_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_inline_name",
+          "type": "text"
+        },
+        {
+          "name": "p_inline_email",
+          "type": "text"
+        },
+        {
+          "name": "p_inline_phone",
+          "type": "text"
+        },
+        {
+          "name": "p_location_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_service_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_staff_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_requested_start",
+          "type": "timestamptz"
+        },
+        {
+          "name": "p_requested_end",
+          "type": "timestamptz"
+        },
+        {
+          "name": "p_requested_status",
+          "type": "text"
+        },
+        {
+          "name": "p_duration_minutes",
+          "type": "integer"
+        },
+        {
+          "name": "p_room_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_resource_ids",
+          "type": "uuid[]"
+        },
+        {
+          "name": "p_package_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_package_name",
+          "type": "text"
+        },
+        {
+          "name": "p_subtotal_cents",
+          "type": "integer"
+        },
+        {
+          "name": "p_tax_cents",
+          "type": "integer"
+        },
+        {
+          "name": "p_deposit_required_cents",
+          "type": "integer"
+        },
+        {
+          "name": "p_payment_mode",
+          "type": "text"
+        },
+        {
+          "name": "p_appointment_notes",
+          "type": "text"
+        },
+        {
+          "name": "p_payment_note",
+          "type": "text"
+        },
+        {
+          "name": "p_receipt_requested",
+          "type": "boolean"
+        },
+        {
+          "name": "p_payment_kind",
+          "type": "text"
+        },
+        {
+          "name": "p_payment_amount_cents",
+          "type": "integer"
+        },
+        {
+          "name": "p_currency",
+          "type": "text"
+        },
+        {
+          "name": "p_method",
+          "type": "text"
+        },
+        {
+          "name": "p_provider_route",
+          "type": "text"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "3f297f676ba29bd6e67cbec0ee58b97d80adc03513876cf46fc988b1dc5fead8",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "persist_booking_operation_appointment_v1",
+      "signature": "public.persist_booking_operation_appointment_v1(uuid,uuid,uuid,uuid,uuid,uuid,uuid,timestamptz,timestamptz,text,integer,text,uuid,uuid[],uuid,text,integer,integer,integer)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_operation_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_customer_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_location_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_service_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_staff_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_requested_start",
+          "type": "timestamptz"
+        },
+        {
+          "name": "p_requested_end",
+          "type": "timestamptz"
+        },
+        {
+          "name": "p_requested_status",
+          "type": "text"
+        },
+        {
+          "name": "p_duration_minutes",
+          "type": "integer"
+        },
+        {
+          "name": "p_appointment_notes",
+          "type": "text"
+        },
+        {
+          "name": "p_room_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_resource_ids",
+          "type": "uuid[]"
+        },
+        {
+          "name": "p_package_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_package_name",
+          "type": "text"
+        },
+        {
+          "name": "p_subtotal_cents",
+          "type": "integer"
+        },
+        {
+          "name": "p_tax_cents",
+          "type": "integer"
+        },
+        {
+          "name": "p_deposit_required_cents",
+          "type": "integer"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "e3ecb256e1ea1242e2d36d9cb4851d91f86562f2b6f97ff66ea56859fa47d87c",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "bind_booking_operation_appointment_v1",
+      "signature": "public.bind_booking_operation_appointment_v1(uuid,uuid,uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_operation_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_appointment_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "1bc4dad24f5fc1d2ea8eb9351f97bac87e240b294817f3cad11deebb5fa2a9ae",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "close_booking_operation_v1",
+      "signature": "public.close_booking_operation_v1(uuid,uuid,uuid,text,uuid,uuid,boolean)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_operation_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_reason",
+          "type": "text"
+        },
+        {
+          "name": "p_expected_current_customer_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_replacement_customer_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_cancel",
+          "type": "boolean"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "e63a016790bae05a9ecf7ed4661301dc78aff8d1f583ff5a6f439c29c15843bb",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "commit_booking_operation_manual_payment_v1",
+      "signature": "public.commit_booking_operation_manual_payment_v1(uuid,uuid,uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_operation_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "d6ad32ce0652a388dd221d912e837387251c355ccee232b2a73279018e5fd9c5",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "read_booking_operations_v1",
+      "signature": "public.read_booking_operations_v1(uuid,uuid,text,uuid,integer,timestamptz,uuid,integer)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_mode",
+          "type": "text"
+        },
+        {
+          "name": "p_operation_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_cursor_attention_rank",
+          "type": "integer"
+        },
+        {
+          "name": "p_cursor_created_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "p_cursor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_limit",
+          "type": "integer"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "58af64f8e0c8861f39f0693dc17d8d6bb52afb4f91914cd894897ccbf64596ee",
+      "source_path": "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql",
+      "service_execute": true
+    },
+    {
+      "name": "set_payment_projection_admission_v1",
+      "signature": "public.set_payment_projection_admission_v1(uuid,boolean)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_enabled",
+          "type": "boolean"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "c1dda4ac8045ff79026478480ff8310439ab824f05838d61af169c89eb747ee6",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "payment_projection_history_valid_v1",
+      "signature": "public.payment_projection_history_valid_v1(uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "7ee9dbd2da6dc24b8a9295884923066530dea94ab34133dfc0074b9bfce14bfe",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "payment_appointment_truth_v1",
+      "signature": "public.payment_appointment_truth_v1(uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "455e6f32f9aff69b004fe8a3cf15d8308bcbd8389c138dc001ae831726976078",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "project_payment_obligation_v1",
+      "signature": "public.project_payment_obligation_v1(uuid,uuid,text)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_kind",
+          "type": "text"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "39fd4476417cec611ea6e97a045afbf04ae6c15d87e31388d1f624437e65faa6",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "project_payment_appointment_cache_v1",
+      "signature": "public.project_payment_appointment_cache_v1(uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "2483db3415257c6f9054d63019185158afd054fa6c9581f2cec5a7b402ffc6ae",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "project_payment_invoice_settlement_v1",
+      "signature": "public.project_payment_invoice_settlement_v1(uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "7f156900127f8bc56bf904604df953231d4f1851f6a27057a8f1037be3ef275f",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "project_payment_customer_payment_events_v1",
+      "signature": "public.project_payment_customer_payment_events_v1(uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "b465d7d4a9ac9a79297331aeed00fbcafa29f3d794332292c2452b7cd6005166",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "project_payment_receipt_v1",
+      "signature": "public.project_payment_receipt_v1(uuid,uuid)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "40502d740ee4a7bcf833ca59f68b129ea6cc45733fc164aa50ec3469dbeb309a",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    },
+    {
+      "name": "read_payment_observability_v1",
+      "signature": "public.read_payment_observability_v1(uuid,uuid,text,uuid,text,integer)",
+      "parameters": [
+        {
+          "name": "p_business_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_actor_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_mode",
+          "type": "text"
+        },
+        {
+          "name": "p_attempt_id",
+          "type": "uuid"
+        },
+        {
+          "name": "p_cursor",
+          "type": "text"
+        },
+        {
+          "name": "p_limit",
+          "type": "integer"
+        }
+      ],
+      "security_definer": false,
+      "search_path": "search_path=pg_catalog, pg_temp",
+      "body_sha256": "dc22c1e45be132f2f1c6b892d992daf3083e1981f1e068160e281856aa634b1e",
+      "source_path": "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql",
+      "service_execute": true
+    }
+  ],
+  "required_writes": {
+    "businesses": {
+      "UPDATE": [
+        "currency",
+        "timezone",
+        "email_notifications_enabled",
+        "sms_notifications_enabled",
+        "owner_notifications_enabled",
+        "staff_notifications_enabled",
+        "marketing_email_enabled",
+        "online_booking_enabled",
+        "public_booking_mode",
+        "notification_email"
+      ]
+    },
+    "locations": {
+      "UPDATE": [
+        "timezone",
+        "phone"
+      ]
+    },
+    "customers": {
+      "INSERT": [
+        "id",
+        "business_id",
+        "name",
+        "email",
+        "phone"
+      ]
+    },
+    "services": {
+      "INSERT": [
+        "id",
+        "business_id",
+        "location_id",
+        "name",
+        "duration_minutes",
+        "price",
+        "tax_rate_bps",
+        "deposit_cents",
+        "deposit_required",
+        "is_active",
+        "online_booking",
+        "booking_visibility",
+        "commercial_settings_reviewed"
+      ]
+    },
+    "staff": {
+      "INSERT": [
+        "id",
+        "business_id",
+        "location_id",
+        "default_location_id",
+        "name",
+        "email",
+        "phone",
+        "user_id",
+        "is_active",
+        "employment_status",
+        "accept_online_bookings",
+        "accept_new_clients",
+        "accept_walk_ins"
+      ]
+    },
+    "service_locations": {
+      "INSERT": [
+        "service_id",
+        "location_id",
+        "is_primary"
+      ]
+    },
+    "staff_locations": {
+      "INSERT": [
+        "staff_id",
+        "location_id",
+        "is_primary"
+      ]
+    },
+    "staff_services": {
+      "INSERT": [
+        "staff_id",
+        "service_id"
+      ]
+    },
+    "appointments": {
+      "INSERT": [
+        "business_id",
+        "location_id",
+        "service_id",
+        "staff_id",
+        "customer_id",
+        "start_time",
+        "end_time",
+        "status",
+        "notes",
+        "room_id",
+        "price_cents",
+        "tax_cents",
+        "deposit_cents",
+        "amount_paid_cents",
+        "payment_status",
+        "booking_operation_id"
+      ],
+      "UPDATE": [
+        "amount_paid_cents",
+        "amount_refunded_cents",
+        "payment_status"
+      ]
+    },
+    "commerce_booking_operations": {
+      "INSERT": [
+        "id",
+        "business_id",
+        "actor_id",
+        "source",
+        "booking_fingerprint",
+        "customer_input_fingerprint",
+        "customer_origin",
+        "customer_id",
+        "inline_name",
+        "inline_email",
+        "inline_phone_digits",
+        "location_id",
+        "service_id",
+        "staff_id",
+        "requested_start",
+        "requested_end",
+        "requested_status",
+        "duration_minutes",
+        "room_id",
+        "resource_ids",
+        "package_id",
+        "package_name",
+        "subtotal_cents",
+        "tax_cents",
+        "deposit_required_cents",
+        "payment_mode",
+        "appointment_notes",
+        "payment_note",
+        "receipt_requested"
+      ],
+      "UPDATE": [
+        "lifecycle_state",
+        "close_reason",
+        "updated_at"
+      ]
+    },
+    "commerce_payment_attempts": {
+      "INSERT": [
+        "business_id",
+        "attempt_key",
+        "request_fingerprint",
+        "source",
+        "customer_id",
+        "appointment_id",
+        "actor_id",
+        "payment_kind",
+        "amount_cents",
+        "currency",
+        "method",
+        "provider_route",
+        "booking_operation_id",
+        "execution_state",
+        "recovery_disposition",
+        "resolved_at"
+      ],
+      "UPDATE": [
+        "appointment_id",
+        "execution_state",
+        "recovery_disposition",
+        "failure_class",
+        "failure_code",
+        "updated_at",
+        "resolved_at"
+      ]
+    },
+    "commerce_payment_attempt_events": {
+      "INSERT": [
+        "business_id",
+        "attempt_id",
+        "event_type",
+        "money_state",
+        "id",
+        "failure_class",
+        "failure_code",
+        "projection_kind",
+        "reconciliation_state"
+      ]
+    },
+    "commerce_transactions": {
+      "INSERT": [
+        "business_id",
+        "customer_id",
+        "appointment_id",
+        "invoice_id",
+        "kind",
+        "status",
+        "method",
+        "amount_cents",
+        "currency",
+        "provider",
+        "provider_reference",
+        "provider_payment_intent_id",
+        "description",
+        "metadata",
+        "created_by",
+        "payment_attempt_id"
+      ],
+      "UPDATE": [
+        "invoice_id"
+      ]
+    },
+    "commerce_payment_reconciliation": {
+      "INSERT": [
+        "business_id",
+        "attempt_id",
+        "projection_kind",
+        "state",
+        "completed_at"
+      ],
+      "UPDATE": [
+        "state",
+        "failure_code",
+        "updated_at",
+        "completed_at"
+      ]
+    },
+    "commerce_projection_admission": {
+      "INSERT": [
+        "business_id"
+      ],
+      "UPDATE": [
+        "enabled",
+        "admit_attempts_created_after",
+        "updated_at"
+      ]
+    },
+    "commerce_invoice_sequences": {
+      "INSERT": [
+        "business_id"
+      ],
+      "UPDATE": [
+        "next_number",
+        "updated_at"
+      ]
+    },
+    "commerce_receipt_sequences": {
+      "INSERT": [
+        "business_id"
+      ],
+      "UPDATE": [
+        "next_number",
+        "updated_at"
+      ]
+    },
+    "commerce_invoices": {
+      "INSERT": [
+        "business_id",
+        "customer_id",
+        "appointment_id",
+        "invoice_number",
+        "currency",
+        "subtotal_cents",
+        "tax_cents",
+        "total_cents",
+        "balance_cents"
+      ],
+      "UPDATE": [
+        "amount_paid_cents",
+        "amount_refunded_cents",
+        "balance_cents",
+        "status",
+        "paid_at",
+        "updated_at"
+      ]
+    },
+    "commerce_invoice_lines": {
+      "INSERT": [
+        "business_id",
+        "invoice_id",
+        "description",
+        "quantity",
+        "unit_amount_cents",
+        "tax_cents",
+        "total_cents"
+      ]
+    },
+    "customer_payment_events": {
+      "INSERT": [
+        "business_id",
+        "customer_id",
+        "appointment_id",
+        "transaction_id",
+        "amount_cents",
+        "currency",
+        "status",
+        "method",
+        "provider",
+        "occurred_at"
+      ]
+    },
+    "commerce_receipts": {
+      "INSERT": [
+        "business_id",
+        "customer_id",
+        "transaction_id",
+        "receipt_number",
+        "amount_cents",
+        "currency",
+        "method",
+        "body_text",
+        "email_status"
+      ]
+    },
+    "appointment_resources": {
+      "INSERT": [
+        "appointment_id",
+        "resource_id"
+      ]
+    }
+  },
+  "members": {
+    "PLAN.md": {
+      "bytes": 21767,
+      "sha256": "4b8f142ddab22df7feb5dbbdb4bbf4644080ce93fa14029723fd69c84a28e617"
+    },
+    "fixture.json": {
+      "bytes": 1380,
+      "sha256": "6c434e0e15dc75f7468f591022cc355f7395870e32db62fc2f8ee616ffbf8ce1"
+    },
+    "hosted_validation.py": {
+      "bytes": 52622,
+      "sha256": "b11ab0e612220c0fd28fe1cc72dfbb6181c0cdf1f039b25f73f9570161a6daef"
+    },
+    "tests/test_hosted_validation.py": {
+      "bytes": 25121,
+      "sha256": "a922f45febd3de8915b403d5f086dbe871d647a5cd678779d2baeefb0038271b"
+    }
+  },
+  "predecessor": {
+    "aggregate_sha256": "75b839ffa18696663a817ab8e390202db66812a5e5ee348c4b149b8a9b169539",
+    "run_id": "HV133-158-20261009-C02-5776d6c8",
+    "result": "STOP_ZERO_WRITES",
+    "reason_code": "PROJECT_IDENTITY_HTTP_403",
+    "evidence_sha256": "19a833b4bf73b1eec798dcade86e26b69407a3cd97db711e50b3f79714921fd6",
+    "evidence_path": "/Users/darshan/chasum-evidence/issue133-connected-staging/HV133-158-20261009-C02-5776d6c8/evidence.jsonl",
+    "evidence_bytes": 40103,
+    "package_path": "docs/validation/issue-133-connected-staging-v2",
+    "candidate_commit": "b74316e8d6dd89c4c4ff0032f71158148e6324b5",
+    "package_members": {
+      "PLAN.md": {
+        "bytes": 18185,
+        "sha256": "fc1f435effc1277fc94b2db465cb6b3c52fcefd0687a6e021a66a1875a5ecd65"
+      },
+      "fixture.json": {
+        "bytes": 1380,
+        "sha256": "ed6bb86f23cdf60a526acc4fd1964eeda1e653e6ec53e1d68cecab041cf843b8"
+      },
+      "hosted_validation.py": {
+        "bytes": 50743,
+        "sha256": "1f867689f2fa1d45da2c9f7a6da19c3e5bb12078453835b36783516c9ffb30b4"
+      },
+      "manifest.json": {
+        "bytes": 34126,
+        "sha256": "eeb34541502221da240b099b0eee3d49548675d9636ce868fa7cc0f3d10a588a"
+      },
+      "tests/test_hosted_validation.py": {
+        "bytes": 34064,
+        "sha256": "a3c358b037163d7ae1307fd5df3cf1ecdb62c4483247a681f0aede111f73e868"
+      }
+    }
+  },
+  "authoring_parent": "cf1a03cc90f0ec207875fe585ecf9499ea3c46f5",
+  "predecessors": [
+    {
+      "aggregate_sha256": "2a212324eae2b610f7dda105931d78deef9bf02826507c1c4361d59a5d705090",
+      "run_id": "HV133-158-20261009-C01-72d9f02a",
+      "result": "STOP_ZERO_WRITES",
+      "evidence_sha256": "a16c19aed6778ea76789f6d35e263f140611148aae6074ccade548369b745ab8",
+      "package_path": "docs/validation/issue-133-connected-staging",
+      "candidate_commit": "75f511c13205040cd1d0ccb4272cbbb821c06232",
+      "evidence_path": "/Users/darshan/chasum-evidence/issue133-connected-staging/HV133-158-20261009-C01-72d9f02a/evidence.jsonl",
+      "evidence_bytes": 39827,
+      "package_members": {
+        "PLAN.md": {
+          "bytes": 15349,
+          "sha256": "f91b0235031b032018b3e1900db80d69f0add9e260592cf934463e3912e7c358"
+        },
+        "fixture.json": {
+          "bytes": 1380,
+          "sha256": "01b81a50b983f0a2da7618d78c57768e8138c89418164de8f5530edd90f4f6f6"
+        },
+        "hosted_validation.py": {
+          "bytes": 48092,
+          "sha256": "6e0a45557cd2f78f082ee4c828aa71b66f92f6db42ee9597e7c2656c5c458856"
+        },
+        "manifest.json": {
+          "bytes": 33837,
+          "sha256": "28f85ae8f3d16938ae6ae2d706ceecb55e8a89f668d80b03eff88a1dcace6afd"
+        },
+        "tests/test_hosted_validation.py": {
+          "bytes": 26218,
+          "sha256": "18f784e61953d3e0cea41b7ad77b6fd12283644123b4b8313539ea4bc4df7878"
+        }
+      }
+    },
+    {
+      "aggregate_sha256": "75b839ffa18696663a817ab8e390202db66812a5e5ee348c4b149b8a9b169539",
+      "run_id": "HV133-158-20261009-C02-5776d6c8",
+      "result": "STOP_ZERO_WRITES",
+      "reason_code": "PROJECT_IDENTITY_HTTP_403",
+      "evidence_sha256": "19a833b4bf73b1eec798dcade86e26b69407a3cd97db711e50b3f79714921fd6",
+      "evidence_path": "/Users/darshan/chasum-evidence/issue133-connected-staging/HV133-158-20261009-C02-5776d6c8/evidence.jsonl",
+      "evidence_bytes": 40103,
+      "package_path": "docs/validation/issue-133-connected-staging-v2",
+      "candidate_commit": "b74316e8d6dd89c4c4ff0032f71158148e6324b5",
+      "package_members": {
+        "PLAN.md": {
+          "bytes": 18185,
+          "sha256": "fc1f435effc1277fc94b2db465cb6b3c52fcefd0687a6e021a66a1875a5ecd65"
+        },
+        "fixture.json": {
+          "bytes": 1380,
+          "sha256": "ed6bb86f23cdf60a526acc4fd1964eeda1e653e6ec53e1d68cecab041cf843b8"
+        },
+        "hosted_validation.py": {
+          "bytes": 50743,
+          "sha256": "1f867689f2fa1d45da2c9f7a6da19c3e5bb12078453835b36783516c9ffb30b4"
+        },
+        "manifest.json": {
+          "bytes": 34126,
+          "sha256": "eeb34541502221da240b099b0eee3d49548675d9636ce868fa7cc0f3d10a588a"
+        },
+        "tests/test_hosted_validation.py": {
+          "bytes": 34064,
+          "sha256": "a3c358b037163d7ae1307fd5df3cf1ecdb62c4483247a681f0aede111f73e868"
+        }
+      }
+    }
+  ],
+  "aggregate_sha256": "3653c35027a98ff86e647e737252dbd97353da959ad075be2c91c367919002e9"
+}

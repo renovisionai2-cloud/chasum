@@ -1,0 +1,334 @@
+{
+  "classification": "STAGING_APPLICATION_EXECUTED_POSTCHECKS_PASS_PENDING_INDEPENDENT_REVIEW",
+  "provenance": "Coordinator normalized selected transcription of actual native Supabase get_project / execute_sql / apply_migration responses in this conversation. Not raw transport bytes. Common before/after fields were individually present and matched in both returned results; no reviewer database execution claimed. Complete native responses remain in the conversation.",
+  "approval": "Darshan explicitly replied approved to the exact Staging-only application gate immediately preceding this execution.",
+  "target": {
+    "id": "wnfahklzaxirftyskctd",
+    "ref": "wnfahklzaxirftyskctd",
+    "name": "Chasum Staging",
+    "region": "ca-central-1",
+    "status": "ACTIVE_HEALTHY",
+    "postgres_version": "17.6"
+  },
+  "source": {
+    "head": "2d95cd2158b931310a8de754baaa2c9cfbe4407d",
+    "branch": "codex/issue-134-appointment-financial-attribution",
+    "main": "31115e6a51b71fc097c279d205065d80e0be3573",
+    "package_audit": "6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba",
+    "migration_path": "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql",
+    "migration_sha256": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+    "bytes": 6529,
+    "lines": 186
+  },
+  "preflight": {
+    "catalogue_observed_at": "2026-10-07T16:59:15.93525+00:00",
+    "data_observed_at": "2026-10-07T17:00:58.463234+00:00",
+    "read_only": true,
+    "budgets": {
+      "lock_timeout": "5s",
+      "statement_timeout": "30s"
+    },
+    "effective_role": "postgres",
+    "session_user": "postgres",
+    "schema_columns_exact": true,
+    "old_fk_exact": true,
+    "accepted_guard_exact": true,
+    "accepted_guard_trigger_exact": true,
+    "candidate_state": "PRE_APPLY_ABSENT",
+    "candidate_history_count": 0,
+    "history_row_count": 12,
+    "history_all_sha256": "865a9ec00fa6fa67d5321e0e9946423ff76111737a7522068574742ce3e18dd9",
+    "other_target_lock_count": 0,
+    "foundation_exact": true,
+    "r1a_exact": true
+  },
+  "immediate_gate": {
+    "observed_at": "2026-10-07T17:01:41.868174+00:00",
+    "read_only": true,
+    "other_target_lock_count": 0,
+    "candidate_history_count": 0,
+    "candidate_guard": null,
+    "source_hash_rechecked": true
+  },
+  "application": {
+    "tool": "Supabase.apply_migration",
+    "calls": 1,
+    "project_id": "wnfahklzaxirftyskctd",
+    "name": "issue_134_appointment_financial_attribution",
+    "exact_response": {
+      "success": true
+    },
+    "hosted_version": "20261007170242",
+    "no_retry": true,
+    "payload_sha256": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524"
+  },
+  "postcheck": {
+    "catalogue_observed_at": "2026-10-07T17:04:22.45344+00:00",
+    "data_observed_at": "2026-10-07T17:06:15.236808+00:00",
+    "read_only": true,
+    "candidate_state": "POST_APPLY_EXACT",
+    "history_candidate_exact": true,
+    "candidate_history": [
+      {
+        "name": "issue_134_appointment_financial_attribution",
+        "version": "20261007170242",
+        "statement_bytes": 6529,
+        "statement_count": 1,
+        "statement_sha256": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524"
+      }
+    ],
+    "history_row_count": 13,
+    "history_all_sha256": "c1714d4abf5af29f9d79acc0142e4dd26e645e56894dff4ce08f6e89beee7386",
+    "history_prior_sha256": "865a9ec00fa6fa67d5321e0e9946423ff76111737a7522068574742ce3e18dd9",
+    "foundation_exact": true,
+    "r1a_exact": true,
+    "old_fk_exact": true,
+    "schema_columns_exact": true,
+    "accepted_guard_exact": true,
+    "accepted_guard_trigger_exact": true,
+    "other_target_lock_count": 0,
+    "unique_constraint": {
+      "name": "appointments_id_business_customer_financial_key",
+      "columns": [
+        "id",
+        "business_id",
+        "customer_id"
+      ],
+      "validated": true,
+      "deferrable": false,
+      "backing_index_unique": true,
+      "backing_index_valid": true,
+      "backing_index_ready": true
+    },
+    "foreign_key": {
+      "name": "commerce_transactions_appt_business_customer_financial_fk",
+      "columns": [
+        "appointment_id",
+        "business_id",
+        "customer_id"
+      ],
+      "references": [
+        "id",
+        "business_id",
+        "customer_id"
+      ],
+      "validated": true,
+      "deferrable": false,
+      "confmatchtype": "s",
+      "confupdtype": "r",
+      "confdeltype": "a"
+    },
+    "new_function": {
+      "name": "guard_legacy_commerce_transaction_appointment_attribution_v1()",
+      "body_sha256": "3bfb91b068cc9422af4c17df1ed45a37119fe948be33a611e1d61cdf9aa2c2d2",
+      "security_invoker": true,
+      "proconfig": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres}",
+      "execute": {
+        "PUBLIC": false,
+        "anon": false,
+        "authenticated": false,
+        "service_role": false
+      }
+    },
+    "new_trigger": {
+      "name": "commerce_transactions_legacy_appointment_attribution_guard",
+      "tgenabled": "O",
+      "tgtype": 27,
+      "internal": false,
+      "relation": "commerce_transactions",
+      "function": "guard_legacy_commerce_transaction_appointment_attribution_v1()"
+    },
+    "guard_order": [
+      "commerce_transactions_attempt_guard",
+      "commerce_transactions_legacy_appointment_attribution_guard"
+    ],
+    "indexes_valid_ready_before": 15,
+    "indexes_valid_ready_after": 16,
+    "appointments_index_bytes_before": 114688,
+    "appointments_index_bytes_after": 131072,
+    "appointments_total_bytes_before": 163840,
+    "appointments_total_bytes_after": 180224,
+    "new_index_bytes": 16384
+  },
+  "common_before_after_security_observations": {
+    "relation_owner": "postgres",
+    "relation_rls": true,
+    "relation_force_rls": false,
+    "relation_acls": {
+      "appointments": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "commerce_transactions": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "commerce_payment_attempts": "{postgres=arwdDxtm/postgres,service_role=ar/postgres}",
+      "commerce_payment_attempt_events": "{postgres=arwdDxtm/postgres,service_role=ar/postgres}",
+      "commerce_payment_reconciliation": "{postgres=arwdDxtm/postgres,service_role=ar/postgres}"
+    },
+    "policies": {
+      "count": 2,
+      "sha256": "fb5a9c72056521253e293d408a2d7f106fe35f8c3c3731286e0a479cb651a9dc"
+    },
+    "accepted_functions": {
+      "body_sha256_by_signature": {
+        "admit_payment_attempt_v1(uuid,uuid,text,text,uuid,uuid,uuid,text,integer,text,text,text)": "110485eb1eb2a86fd2eec72507fdf8beb7304aae92251ddef598162d05dd5847",
+        "commit_manual_payment_attempt_v1(uuid,uuid)": "e6acc9a31613b2f039305cf5169871e9b433839b4077b83d0858246194f46b15",
+        "guard_commerce_attempt_ledger_link()": "20d443ae21823633aa97d9560b37a1816127e814da25d23e96412eb375b90e79",
+        "guard_commerce_payment_attempt()": "2de880afde790a0fe06b92a6904c123dc946e2e99fe0c896c48631f074f7ff9f",
+        "reject_commerce_attempt_history_mutation()": "ae6fd13c82cf5537502dcd57470cac2dc184a6f3a6c10aaeb3801118f6f178ac"
+      },
+      "all_owner": "postgres",
+      "all_prosecdef": false,
+      "all_proconfig": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "all_acl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    "prior_target_triggers": {
+      "count": 2,
+      "sha256": "abc6ddaecbc96ea4e5e0f2969c9f156a9ec54d6af5fad4200b3e35b753063ce8"
+    },
+    "event_sequence": {
+      "acl": "{postgres=rwU/postgres,anon=rU/postgres,authenticated=rU/postgres,service_role=rU/postgres}",
+      "owner": "postgres",
+      "anon_usage": true,
+      "anon_select": true,
+      "anon_update": false,
+      "authenticated_usage": true,
+      "authenticated_select": true,
+      "authenticated_update": false,
+      "service_role_usage": true,
+      "service_role_select": true,
+      "service_role_update": false
+    }
+  },
+  "common_before_after_data_observations": {
+    "accepted_old_cohort_matches": true,
+    "accepted_old_cohort_fingerprints": 18,
+    "noncohort_matches": true,
+    "noncohort_fingerprints": 4,
+    "run02_financial_rows": 27,
+    "run02_financial_sha256": "42ed8dfff1dd81c807168b652f7d4bb5a736664f63b48fb261b9b8b94a0dd0de",
+    "run02_financial_matches": true,
+    "tuple_mismatch_count": 0,
+    "identity_mismatch_count": 0,
+    "duplicate_parent_triple_count": 0,
+    "appointment_linked_rows": 5,
+    "cohort": {
+      "public_rows": 90,
+      "parent_rows": 53,
+      "financial_rows": 37,
+      "attempts": 6,
+      "accepted_attempts": 4,
+      "requested_attempts": 2,
+      "events": 11,
+      "requested_events": 6,
+      "accepted_events": 4,
+      "conflict_events": 1,
+      "linked_ledgers": 4,
+      "ledger_total_cents": 18100,
+      "all_ledger_currency_cad": true,
+      "obligations": 16,
+      "pending_obligations": 15,
+      "not_required_obligations": 1,
+      "sequence": {
+        "last_value": "14",
+        "is_called": true
+      },
+      "counts_match_expected": true,
+      "identity_mismatch_count": 0,
+      "identity_mismatch_keys": [],
+      "c1_not_required_appointment_cache": true
+    },
+    "full_relevant_table_count_and_sha256": {
+      "staff": [
+        3,
+        "b3dffa3a8c30a57bcc08a1d7c77cf64fe0190d9bf164c011484a4b87b74fad5d"
+      ],
+      "events": [
+        11,
+        "044c7cfcccd236f9b79548b98bc3b7fffa25c28b557f75c99e87ccee38b4fdc4"
+      ],
+      "ledgers": [
+        6,
+        "08801c9c37b584cdd5c7c5b6f01a93825232516a85899690a817969250d88a77"
+      ],
+      "attempts": [
+        6,
+        "987688a21621100dd2cc59a2a6b5e26cad65a86651c7296ec0b2c0ac6fdf6310"
+      ],
+      "invoices": [
+        1,
+        "f4cde915bf471e96b0e6345470baf0f1650580970db38f3c3c10e48bc683bedb"
+      ],
+      "services": [
+        4,
+        "bd61ac643e29f4d8e1be66458b3db6859d44ef21f62e59fee5fd296e529b10c1"
+      ],
+      "customers": [
+        6,
+        "fd2c1b91607d25a1dd9cb6e861be78175d4a202cf92c94021b2d18f746a1c5c4"
+      ],
+      "locations": [
+        6,
+        "e4e5813e3d2a8daaab8e7b644dc01ba60d7071d62f5cb85c28d65833d01c9d20"
+      ],
+      "businesses": [
+        6,
+        "366c42bc5b206e53a5f1d462bdd2c0195653d77d0133e4fd9bd394174eded6fb"
+      ],
+      "obligations": [
+        16,
+        "1b840cdc6d0246e973308a096e53478a968b42ecfa170f7204dbcde7967718d5"
+      ],
+      "appointments": [
+        13,
+        "5644012d15a169322e6b0cfb9ccef07748ba75da2d20f7ff27ebdc1cb269a967"
+      ],
+      "business_hours": [
+        42,
+        "7ea75d047cde454043429319ec817910e7687346e07b34d9e0411ec1a0a7b8b3"
+      ],
+      "location_hours": [
+        42,
+        "be7bebde1ee5a8973a3ae822b2dd08476a09d74e7cc6b973cac8ce15c5e63b2f"
+      ],
+      "staff_services": [
+        4,
+        "fa4b6ba3e78a3f293ed6dfd82ad73d0ac6415fdf97a84bf9233e106571e9c395"
+      ],
+      "staff_locations": [
+        3,
+        "8af5eb80bdd1b19ae79d27a3b27b7b07701b8e1081dbbade9dc2be7af312e162"
+      ],
+      "location_settings": [
+        6,
+        "a1f5b51427ead483ca6bacf53d98a3ed72bdc92cc509dd7747d789fe9e638d9a"
+      ],
+      "service_locations": [
+        4,
+        "558a6d983c62e54ec9a4334deaabab78d94219043fd980fd729e43cacf5c03f2"
+      ],
+      "identity_decisions": [
+        2,
+        "4e84e3927b982565d004797e26c012c76f20aae3dbe068574b5f73e243f65964"
+      ],
+      "staff_working_hours": [
+        21,
+        "8275a6b59fb5078a3f32bad7bfce96619752ce59c56226f916de3c36b10c9070"
+      ],
+      "customer_payment_events": [
+        2,
+        "736828af0af568cfb3e366ae67c834ef758de140f1666d254684bfa476f216e1"
+      ]
+    }
+  },
+  "limits": [
+    "Separate read-only snapshots; not a globally frozen snapshot.",
+    "Scoped rows and security only, not a whole-database/provider audit.",
+    "No hosted DML, PostgREST, UI, payment or projection test.",
+    "No local proof rerun or accepted evidence/frozen package modification.",
+    "No Production/GVM action, historical USD repair, #135 release, #153 cutover, activation, obligation processing or merge.",
+    "GVM Operational Acceptance remains unearned."
+  ]
+}

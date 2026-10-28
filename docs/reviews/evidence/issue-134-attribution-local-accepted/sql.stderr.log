@@ -1,0 +1,193 @@
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=files:tests/postgres/issue-134-payment-attempt-foundation-fixture.sql,supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql,tests/postgres/issue-134-r1a-manual-kernel-fixture.sql,supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql,tests/postgres/issue-134-r1a-manual-kernel-contract.sql status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=file:supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=file:tests/postgres/issue-134-appointment-financial-attribution-contract.sql status=0 ===
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:388: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:396: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:403: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:428: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:434: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:553: NOTICE:  ROLE_ASSERTION session-user non-service
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:563: NOTICE:  EXPECTED_EXACT_FAILURE sqlstate=42501 mechanism=PAYMENT_ATTEMPT_SERVER_ONLY
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:573: NOTICE:  ROLE_ASSERTION service_role
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:583: NOTICE:  EXPECTED_EXACT_FAILURE sqlstate=23514 mechanism=PAYMENT_ATTEMPT_LEDGER_REQUEST_MISMATCH
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:593: NOTICE:  ROLE_ASSERTION restored session-user non-service
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:603: NOTICE:  EXPECTED_FAILURE sqlstate=23514 mechanism=PAYMENT_ATTEMPT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:611: NOTICE:  EXPECTED_FAILURE sqlstate=23503 mechanism=commerce_transactions_appt_business_customer_financial_fk
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:663: NOTICE:  EXPECTED_FAILURE sqlstate=23503 mechanism=commerce_transactions_appt_business_customer_financial_fk
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:675: NOTICE:  EXPECTED_FAILURE sqlstate=23503 mechanism=commerce_transactions_appt_business_customer_financial_fk
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:700: NOTICE:  EXPECTED_FAILURE sqlstate=42501 mechanism=row-level security
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:716: NOTICE:  EXPECTED_FAILURE sqlstate=23503 mechanism=commerce_transactions_appt_business_customer_financial_fk
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:727: NOTICE:  EXPECTED_INTEGRITY_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_ATTRIBUTION_IMMUTABLE
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:731: NOTICE:  EXPECTED_CANONICAL_DELETE_FAILURE sqlstate=42501 mechanism=PAYMENT_ATTEMPT_SERVER_ONLY
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:741: NOTICE:  EXPECTED_INTEGRITY_FAILURE sqlstate=23503 mechanism=appointments_customer_id_fkey
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:780: NOTICE:  EXPECTED_INTEGRITY_FAILURE sqlstate=23514 mechanism=PAYMENT_ATTEMPT_LEDGER_DELETE_FORBIDDEN
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/tests/postgres/issue-134-appointment-financial-attribution-contract.sql:815: NOTICE:  EXPECTED_INTEGRITY_FAILURE sqlstate=23514 mechanism=LEGACY_APPOINTMENT_LEDGER_DELETE_FORBIDDEN
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=concurrency:payment-first:commit status=0 ===
+
+=== phase=concurrency:payment-first:reassignment status=1 ===
+ERROR:  update or delete on table "appointments" violates foreign key constraint "commerce_transactions_appt_business_customer_financial_fk" on table "commerce_transactions"
+DETAIL:  Key (id, business_id, customer_id)=(13431000-0000-4000-8000-000000000004, 13431000-0000-4000-8000-000000000001, 13431000-0000-4000-8000-000000000002) is still referenced from table "commerce_transactions".
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=concurrency:payment-rollback:payment status=0 ===
+
+=== phase=concurrency:payment-rollback:reassignment status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=concurrency:reassignment-first:reassignment status=0 ===
+
+=== phase=concurrency:reassignment-first:payment status=1 ===
+ERROR:  insert or update on table "commerce_transactions" violates foreign key constraint "commerce_transactions_appt_business_customer_financial_fk"
+DETAIL:  Key (appointment_id, business_id, customer_id)=(13433000-0000-4000-8000-000000000004, 13433000-0000-4000-8000-000000000001, 13433000-0000-4000-8000-000000000002) is not present in table "appointments".
+CONTEXT:  SQL statement "insert into public.commerce_transactions(
+    business_id,
+    customer_id,
+    appointment_id,
+    invoice_id,
+    kind,
+    status,
+    method,
+    amount_cents,
+    currency,
+    provider,
+    provider_reference,
+    provider_payment_intent_id,
+    description,
+    metadata,
+    created_by,
+    payment_attempt_id
+  ) values (
+    attempt.business_id,
+    attempt.customer_id,
+    attempt.appointment_id,
+    null,
+    attempt.payment_kind,
+    'succeeded',
+    attempt.method,
+    attempt.amount_cents,
+    attempt.currency,
+    'manual',
+    'manual-attempt:' || attempt.id::text,
+    null,
+    'Manual payment attempt',
+    '{}'::jsonb,
+    attempt.actor_id,
+    attempt.id
+  )
+  returning *"
+PL/pgSQL function public.commit_manual_payment_attempt_v1(uuid,uuid) line 220 at SQL statement
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=concurrency:reassignment-rollback:reassignment status=0 ===
+
+=== phase=concurrency:reassignment-rollback:payment status=0 ===
+
+=== phase=sql:issue134_success status=0 ===
+
+=== phase=file:tests/postgres/issue-134-payment-attempt-foundation-fixture.sql status=0 ===
+
+=== phase=file:supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql status=0 ===
+
+=== phase=file:tests/postgres/issue-134-r1a-manual-kernel-fixture.sql status=0 ===
+
+=== phase=file:supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql status=0 ===
+
+=== phase=sql:issue134_timeout status=0 ===
+
+=== phase=sql:postgres status=0 ===
+
+=== phase=timeout:migration-apply status=3 ===
+psql:/Users/darshan/chasum-worktrees/issue-134-appointment-financial-attribution/supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql:133: ERROR:  canceling statement due to lock timeout
+LINE 4:     join public.appointments appointment_row
+                 ^
+QUERY:  exists (
+    select 1
+    from public.commerce_transactions transaction_row
+    join public.appointments appointment_row
+      on appointment_row.id = transaction_row.appointment_id
+    where transaction_row.appointment_id is not null
+      and row(transaction_row.business_id, transaction_row.customer_id)
+        is distinct from
+        row(appointment_row.business_id, appointment_row.customer_id)
+  )
+CONTEXT:  PL/pgSQL function inline_code_block line 112 at IF
+
+=== phase=timeout:lock-holder status=0 ===
+
+=== phase=sql:issue134_timeout status=0 ===
+
+=== phase=sql:issue134_timeout status=0 ===

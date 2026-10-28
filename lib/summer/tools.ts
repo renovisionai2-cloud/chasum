@@ -284,3 +284,9 @@ export function upcomingToCards(
     status: "upcoming",
   }));
 }
+
+/** Financial read only; no payment/refund execution or new financial formula. */
+export async function summerReadCustomerFinancialTruth(businessId: string, customerId: string) {
+  const { getSummerCommerceSnapshot } = await import("@/lib/commerce/customer-account");
+  return getSummerCommerceSnapshot(businessId, customerId);
+}

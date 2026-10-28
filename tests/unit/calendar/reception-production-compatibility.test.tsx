@@ -41,11 +41,11 @@ const operational = {
 };
 
 it.each([
-  [987654.32, 8765, 7654, 6543, "Collect 8765 outstanding deposits"],
-  [0, 0, null, 0, "Payments complete; revenue is up"],
-  [-321.45, 12, -75, 12, "Revenue declined: chase overdue customers"],
-] as const)("withholds legacy financial data even for zero/negative inputs (%s)",
-  (todayRevenue, outstandingPayments, revenueDeltaPct, overdueCustomers, recommendation) => {
+  ["EXACT", { state: "EXACT", cents: 98_765_432, currency: "cad" }, 8765, 7654, 6543, "Collect 8765 outstanding deposits"],
+  ["HELD", { state: "HELD", reason: "PENDING_RECONCILIATION" }, 0, null, 0, "Payments complete; revenue is up"],
+  ["UNKNOWN", { state: "UNKNOWN", reason: "COMPLETE_FINANCIAL_EVIDENCE_UNAVAILABLE" }, 12, -75, 12, "Revenue declined: chase overdue customers"],
+] as const)("withholds canonical financial data for the %s state",
+  (_state, todayRevenue, outstandingPayments, revenueDeltaPct, overdueCustomers, recommendation) => {
     const brief: MorningBriefData = { ...operational, todayRevenue, outstandingPayments,
       chase: { revenueDeltaPct, overdueCustomers, recommendation, availableSlots: 17 } };
     const { container } = render(<MorningBrief brief={brief} />);
@@ -57,7 +57,7 @@ it.each([
       expect(screen.getByText(copy)).toBeVisible();
     }
     // Inspect all mounted content, including content hidden by the disclosure.
-    expect(container.textContent).not.toMatch(/EXACT|HELD|UNKNOWN|[$%]|987654|8765|7654|6543|-321/);
+    expect(container.textContent).not.toMatch(/EXACT|HELD|UNKNOWN|PENDING_RECONCILIATION|COMPLETE_FINANCIAL_EVIDENCE_UNAVAILABLE|[$%]|987654|8765|7654|6543/);
     expect(container.textContent).not.toContain(recommendation);
     expect(container.textContent).not.toMatch(/Collected|Revenue|Outstanding|overdue/i);
     expect(screen.getByText("Review today’s appointments and availability.")).not.toBeVisible();

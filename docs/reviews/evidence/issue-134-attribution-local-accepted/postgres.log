@@ -1,0 +1,198 @@
+2026-10-07 10:07:16.148 EDT [79091] LOG:  starting PostgreSQL 17.11 (Homebrew) on aarch64-apple-darwin25.6.0, compiled by Apple clang version 21.0.0 (clang-2100.1.1.101), 64-bit
+2026-10-07 10:07:16.148 EDT [79091] LOG:  listening on IPv4 address "127.0.0.1", port 63655
+2026-10-07 10:07:16.150 EDT [79094] LOG:  database system was shut down at 2026-10-07 10:07:16 EDT
+2026-10-07 10:07:16.152 EDT [79091] LOG:  database system is ready to accept connections
+2026-10-07 10:07:18.144 EDT [79132] ERROR:  update or delete on table "appointments" violates foreign key constraint "commerce_transactions_appt_business_customer_financial_fk" on table "commerce_transactions"
+2026-10-07 10:07:18.144 EDT [79132] DETAIL:  Key (id, business_id, customer_id)=(13431000-0000-4000-8000-000000000004, 13431000-0000-4000-8000-000000000001, 13431000-0000-4000-8000-000000000002) is still referenced from table "commerce_transactions".
+2026-10-07 10:07:18.144 EDT [79132] STATEMENT:  set application_name = 'issue134_payment_first_update';
+	     update public.appointments
+	     set customer_id = '13431000-0000-4000-8000-000000000003'
+	     where id = '13431000-0000-4000-8000-000000000004'
+2026-10-07 10:07:21.292 EDT [79164] ERROR:  insert or update on table "commerce_transactions" violates foreign key constraint "commerce_transactions_appt_business_customer_financial_fk"
+2026-10-07 10:07:21.292 EDT [79164] DETAIL:  Key (appointment_id, business_id, customer_id)=(13433000-0000-4000-8000-000000000004, 13433000-0000-4000-8000-000000000001, 13433000-0000-4000-8000-000000000002) is not present in table "appointments".
+2026-10-07 10:07:21.292 EDT [79164] CONTEXT:  SQL statement "insert into public.commerce_transactions(
+	    business_id,
+	    customer_id,
+	    appointment_id,
+	    invoice_id,
+	    kind,
+	    status,
+	    method,
+	    amount_cents,
+	    currency,
+	    provider,
+	    provider_reference,
+	    provider_payment_intent_id,
+	    description,
+	    metadata,
+	    created_by,
+	    payment_attempt_id
+	  ) values (
+	    attempt.business_id,
+	    attempt.customer_id,
+	    attempt.appointment_id,
+	    null,
+	    attempt.payment_kind,
+	    'succeeded',
+	    attempt.method,
+	    attempt.amount_cents,
+	    attempt.currency,
+	    'manual',
+	    'manual-attempt:' || attempt.id::text,
+	    null,
+	    'Manual payment attempt',
+	    '{}'::jsonb,
+	    attempt.actor_id,
+	    attempt.id
+	  )
+	  returning *"
+	PL/pgSQL function public.commit_manual_payment_attempt_v1(uuid,uuid) line 220 at SQL statement
+2026-10-07 10:07:21.292 EDT [79164] STATEMENT:  set application_name = 'issue134_reassignment_first_payment';
+	     set role service_role;
+	     select outcome from public.commit_manual_payment_attempt_v1(
+	       '13433000-0000-4000-8000-000000000001', '72fd23af-05a3-40a2-a403-e1d64d7055de'
+	     )
+2026-10-07 10:07:28.085 EDT [79205] ERROR:  canceling statement due to lock timeout at character 86
+2026-10-07 10:07:28.085 EDT [79205] QUERY:  exists (
+	    select 1
+	    from public.commerce_transactions transaction_row
+	    join public.appointments appointment_row
+	      on appointment_row.id = transaction_row.appointment_id
+	    where transaction_row.appointment_id is not null
+	      and row(transaction_row.business_id, transaction_row.customer_id)
+	        is distinct from
+	        row(appointment_row.business_id, appointment_row.customer_id)
+	  )
+2026-10-07 10:07:28.085 EDT [79205] CONTEXT:  PL/pgSQL function inline_code_block line 112 at IF
+2026-10-07 10:07:28.085 EDT [79205] STATEMENT:  do $$
+	declare
+	  column_contract record;
+	begin
+	  if current_setting('lock_timeout')::interval <> interval '5 seconds'
+	     or current_setting('statement_timeout')::interval <> interval '30 seconds' then
+	    raise exception 'ISSUE_134_ATTRIBUTION_TIMEOUT_ASSERTION_FAILED'
+	      using errcode = '55000';
+	  end if;
+	
+	  for column_contract in
+	    select *
+	    from (values
+	      ('appointments', 'id', 'uuid', true),
+	      ('appointments', 'business_id', 'uuid', true),
+	      ('appointments', 'customer_id', 'uuid', true),
+	      ('commerce_transactions', 'appointment_id', 'uuid', false),
+	      ('commerce_transactions', 'business_id', 'uuid', true),
+	      ('commerce_transactions', 'customer_id', 'uuid', true),
+	      ('commerce_transactions', 'payment_attempt_id', 'uuid', false)
+	    ) expected(table_name, column_name, data_type, is_not_null)
+	  loop
+	    if not exists (
+	      select 1
+	      from pg_catalog.pg_attribute attribute_row
+	      join pg_catalog.pg_class relation
+	        on relation.oid = attribute_row.attrelid
+	      join pg_catalog.pg_namespace namespace
+	        on namespace.oid = relation.relnamespace
+	      join pg_catalog.pg_type type_row
+	        on type_row.oid = attribute_row.atttypid
+	      where namespace.nspname = 'public'
+	        and relation.relname = column_contract.table_name
+	        and relation.relkind in ('r', 'p')
+	        and attribute_row.attname = column_contract.column_name
+	        and not attribute_row.attisdropped
+	        and type_row.typname = column_contract.data_type
+	        and attribute_row.attnotnull = column_contract.is_not_null
+	    ) then
+	      raise exception 'ISSUE_134_ATTRIBUTION_SCHEMA_MISMATCH: %.%',
+	        column_contract.table_name,
+	        column_contract.column_name
+	        using errcode = '55000';
+	    end if;
+	  end loop;
+	
+	  if not exists (
+	    select 1
+	    from pg_catalog.pg_constraint constraint_row
+	    where constraint_row.conrelid = 'public.commerce_transactions'::regclass
+	      and constraint_row.contype = 'f'
+	      and constraint_row.confrelid = 'public.appointments'::regclass
+	      and constraint_row.conkey = array[
+	        (
+	          select attribute_row.attnum
+	          from pg_catalog.pg_attribute attribute_row
+	          where attribute_row.attrelid = 'public.commerce_transactions'::regclass
+	            and attribute_row.attname = 'appointment_id'
+	            and not attribute_row.attisdropped
+	        )
+	      ]::smallint[]
+	      and constraint_row.confkey = array[
+	        (
+	          select attribute_row.attnum
+	          from pg_catalog.pg_attribute attribute_row
+	          where attribute_row.attrelid = 'public.appointments'::regclass
+	            and attribute_row.attname = 'id'
+	            and not attribute_row.attisdropped
+	        )
+	      ]::smallint[]
+	      and constraint_row.confupdtype = 'a'
+	      and constraint_row.confdeltype = 'n'
+	      and constraint_row.confmatchtype = 's'
+	      and not constraint_row.condeferrable
+	      and constraint_row.convalidated
+	  ) then
+	    raise exception 'ISSUE_134_ATTRIBUTION_OLD_APPOINTMENT_FK_MISMATCH'
+	      using errcode = '55000';
+	  end if;
+	
+	  if not exists (
+	    select 1
+	    from pg_catalog.pg_trigger trigger_row
+	    where trigger_row.tgrelid = 'public.commerce_transactions'::regclass
+	      and trigger_row.tgname = 'commerce_transactions_attempt_guard'
+	      and not trigger_row.tgisinternal
+	      and trigger_row.tgenabled = 'O'
+	  ) then
+	    raise exception 'ISSUE_134_ATTRIBUTION_ACCEPTED_GUARD_MISMATCH'
+	      using errcode = '55000';
+	  end if;
+	
+	  if exists (
+	    select 1
+	    from pg_catalog.pg_constraint constraint_row
+	    where constraint_row.conname in (
+	      'appointments_id_business_customer_financial_key',
+	      'commerce_transactions_appt_business_customer_financial_fk'
+	    )
+	  ) or to_regprocedure(
+	    'public.guard_legacy_commerce_transaction_appointment_attribution_v1()'
+	  ) is not null or exists (
+	    select 1
+	    from pg_catalog.pg_trigger trigger_row
+	    where trigger_row.tgname =
+	      'commerce_transactions_legacy_appointment_attribution_guard'
+	  ) then
+	    raise exception 'ISSUE_134_ATTRIBUTION_OBJECT_COLLISION'
+	      using errcode = '42710';
+	  end if;
+	
+	  if exists (
+	    select 1
+	    from public.commerce_transactions transaction_row
+	    join public.appointments appointment_row
+	      on appointment_row.id = transaction_row.appointment_id
+	    where transaction_row.appointment_id is not null
+	      and row(transaction_row.business_id, transaction_row.customer_id)
+	        is distinct from
+	        row(appointment_row.business_id, appointment_row.customer_id)
+	  ) then
+	    raise exception 'ISSUE_134_ATTRIBUTION_EXISTING_TUPLE_MISMATCH'
+	      using errcode = '23514';
+	  end if;
+	end $$;
+2026-10-07 10:07:29.606 EDT [79091] LOG:  received fast shutdown request
+2026-10-07 10:07:29.606 EDT [79091] LOG:  aborting any active transactions
+2026-10-07 10:07:29.607 EDT [79091] LOG:  background worker "logical replication launcher" (PID 79097) exited with exit code 1
+2026-10-07 10:07:29.607 EDT [79092] LOG:  shutting down
+2026-10-07 10:07:29.607 EDT [79092] LOG:  checkpoint starting: shutdown immediate
+2026-10-07 10:07:29.682 EDT [79092] LOG:  checkpoint complete: wrote 2157 buffers (13.2%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.061 s, sync=0.013 s, total=0.075 s; sync files=708, longest=0.001 s, average=0.001 s; distance=11487 kB, estimate=11487 kB; lsn=0/2052568, redo lsn=0/2052568
+2026-10-07 10:07:29.685 EDT [79091] LOG:  database system is shut down

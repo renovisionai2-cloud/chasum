@@ -1,0 +1,71 @@
+{
+  "classification": "LIMITED_HOSTED_C01_PASS",
+  "continuation_id": "HV134-20261006-C01",
+  "provenance": "Coordinator native Supabase READ ONLY, 2026-10-06T18:00:10.778193Z with final containment through approximately 18:02 UTC; supplied completed-task evidence, not rerun during documentation closeout",
+  "target": "wnfahklzaxirftyskctd",
+  "evidence": {
+    "path": "docs/validation/issue-134-r1a-continuation/evidence/HV134-20261006-C01/evidence.jsonl",
+    "sha256": "b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94",
+    "lines": 38
+  },
+  "package": {
+    "aggregate_sha256": "3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc",
+    "member_pins_match": 5,
+    "immutable_source_pins_match": 9
+  },
+  "c1": {
+    "attempt_id": "d211130f-02a9-47c5-a14a-6f91e7c08480",
+    "ledger_id": "4c2dd317-f6e0-418a-bda1-ff13250ae712",
+    "state": "ACCEPTED",
+    "amount_cents": 100,
+    "appointment": null,
+    "saved_reply_outcomes": [
+      "RECORDED",
+      "REPLAY"
+    ]
+  },
+  "n1": {
+    "attempt_id": "f3dd7583-b63c-49d4-b9a8-dd30a0bc5aaa",
+    "state": "REQUESTED",
+    "amount_cents": 2500,
+    "ledger_count": 0,
+    "obligation_count": 0
+  },
+  "r1_state": "REQUESTED",
+  "counts": {
+    "public_rows": 90,
+    "original_parent_rows": 53,
+    "financial_rows": 37,
+    "attempts": 6,
+    "accepted_attempts": 4,
+    "requested_attempts": 2,
+    "events": 11,
+    "linked_ledgers": 4,
+    "ledger_total_cents": 18100,
+    "currency": "cad",
+    "obligations": 16,
+    "pending_obligations": 15,
+    "not_required_obligations": 1,
+    "auth_users": 2,
+    "auth_identities": 2
+  },
+  "sequence": {
+    "last_value": "14",
+    "is_called": true
+  },
+  "preservation": {
+    "old_cohort_snapshots_unchanged": 18,
+    "explicit_noncohort_baselines_unchanged": 4,
+    "tuple_mismatches": 0,
+    "unique_attempt_links": true,
+    "active_test_sessions": 0,
+    "both_applied_migration_hashes_unchanged": true,
+    "qualification": "Scoped preservation only; no whole-database unchanged assertion"
+  },
+  "limits": [
+    "NO_APPOINTMENT_BINDING_RACE_PROOF",
+    "ORIGINAL_F1_RECORDED_REPLAY_REPLIES_REMAIN_MISSING",
+    "NO_FULL_WORKFLOW_OR_ACTIVATION_PROOF",
+    "NO_GVM_OPERATIONAL_ACCEPTANCE"
+  ]
+}

@@ -521,7 +521,7 @@ export async function createGiftCard(
 export async function redeemGiftCard(
   _prev: ActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<import("@/lib/actions/commerce").CommerceActionState> {
   const business = await getOrCreateBusiness();
   const supabase = await createClient();
   const {
@@ -574,10 +574,16 @@ export async function redeemGiftCard(
     giftCardId: String(card.id),
   });
 
-  if (!result.ok) return { error: result.error ?? "Could not redeem gift card." };
+  const identity = { transactionId: result.transaction?.id, recorded: result.recorded, canRetry: result.canRetry, syncStatus: result.syncStatus };
+  if (!result.ok) return { ...identity, error: result.error ?? "Could not redeem gift card." };
 
-  revalidateBusiness();
+  try {
+    revalidateBusiness();
+  } catch {
+    return { ...identity, canRetry: false, syncStatus: "failed", error: "Payment recorded, but the screen could not refresh. Do not redeem again; reload to review it." };
+  }
   return {
+    ...identity,
     success: `Redeemed $${(amount / 100).toFixed(2)}. Remaining $${(((card.balance_cents as number) - amount) / 100).toFixed(2)}.`,
   };
 }

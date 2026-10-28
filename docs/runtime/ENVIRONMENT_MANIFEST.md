@@ -1,8 +1,157 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-09-29 Toronto / 2026-09-30 UTC for Issue #121 PR #125 Production acceptance. Earlier Preview/Staging, Issue #102 and GVM data records remain intact and historical.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-12 America/Toronto, fresh canonical Production build-info/alias and GitHub integration checks only. Staging records remain dated accepted evidence; no database query or mutation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## October 12 post-merge identity reconciliation
+
+Fresh direct read of [canonical Production build-info](https://chasum.vercel.app/api/build-info) returned `commit=664fbc734c4103d78484c6b3828849a6605a562f`, `commitShort=664fbc7`, `ref=main`, `env=production`, `production=true`. A separate Vercel lookup of canonical hostname `chasum.vercel.app` resolved to `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`, READY/production, matching Git metadata and the expected project. Serving identity is proven by the endpoint, not inferred from main or READY alone. No health, Auth, tenant, financial, provider or database operation was performed.
+
+Fresh GitHub main is `0bebe243e8fea17937171d74fd024c42ef9fe431`, tree `b01778c1ef31b9babd353279a563f0ebe2cce92c`, sole parent `31115e6a51b71fc097c279d205065d80e0be3573`. PR #159 squash-merged `2026-10-12T17:06:06Z`; its approved historical head `f8d1242bf1cb993c4d53d45a6882b38106c21016` has the identical tree. [Main Quality 38281971675](https://github.com/renovisionai2-cloud/chasum/actions/runs/38281971675) is SUCCESS. **Main/Production divergence is intentional and no longer behavior-equivalent**: the integrated financial work has not been released to Production.
+
+The October 12 recovery Preview `dpl_HQWg92uVfZpCXwCGWraZBvBcRjed` reached READY for `f8d1242`, target=null; its later genuine GitHub Vercel status was SUCCESS before merge. This is build/check evidence, not a new hosted financial/UI proof. No deployment was manually created or promoted by this closeout.
+
+Historical PRs #155/#156/#157 are closed unmerged with branches/evidence retained, following ancestry-to-approved-head plus squash-tree containment proof. Issue #133 remains open; Slice 2B is not authorized. #153 trusted-reader interface remains REQUIRED_BEFORE_PRODUCTION. Five dependency migrations and all retained Staging fixtures remain protected; no reapplication or history repair. Production release, responsive/operator/communications and applicable independent audit/GVM acceptance remain separately gated. October 11 manual specialist-dispatch governance is unchanged.
+
+The dated observation sections below retain their original scope. Their old “current/main/no new observation” statements are historical, superseded for present identity by this section only; they do not authorize new financial execution.
+
+## #133 Slice 2A — accepted retained Staging validation, 2026-10-11
+
+This records the completed evidence at validation commit `1028e5dd6b9f32eb98d1508b02cc9f7d8bedbbee`, not a new environment probe. Frozen application `cf1e3ae053110f9fc4823368f05dfd73606271f5`; target Staging `wnfahklzaxirftyskctd`. Run `HV133-SLICE2A-STAGING-R1-20261011T041448Z-130dbf2d`; final `SLICE2A_STAGING_VALIDATION_PASS_RETAINED_FIXTURE`, independently accepted as `SLICE2A_FINAL_STAGING_EVIDENCE_ACCEPTED_FOR_PO_MERGE_GATE` under the supplied PO/Program Lead gate.
+
+A1 EXACT CAD5000; A2–A4 HELD; hosted cross-Business refund witness, native response privacy, required SELECT/BYPASSRLS behavior and all six FK hints passed. Temporary 1,002-transaction SCALE proof: month EXACT100 cents, year UNKNOWN / INCOMPLETE_FINANCIAL_EVIDENCE with no partial subtotal. All temporary SCALE transactions/customer/Business/Auth owner/identity were removed. Retained A/B 36 public rows plus two Auth users/two identities were equal before/after; financial digest `9209f8437a6ca74f8635fce41387885c66002a1142c6bd17e2f938cdbd356f4a`.
+
+**DO_NOT_REUSE / DO_NOT_MUTATE_FINANCIAL_HISTORY / DO_NOT_DELETE_WITHOUT_PRODUCT_OWNER_GATE.** [Retained scope and identities](../validation/issue-133-slice2a-staging/RETAINED_FIXTURE.md); [result and limits](../validation/issue-133-slice2a-staging/RESULT.md); [machine evidence](../validation/issue-133-slice2a-staging/evidence.json). No current serving deployment, browser/UI or Production/GVM acceptance is inferred. No Staging database or financial contact occurred in the October 12 documentation closeout; only Production serving identity was freshly read. #153 visibility/FK/count dependencies remain REQUIRED_BEFORE_PRODUCTION; no permission or worker/provider activation is authorized.
+
+## #133/#158 C03 — accepted connected Staging observation
+
+**Observed interval:** `2026-10-10T02:48:09.368060+00:00`–`2026-10-10T02:48:29.572203+00:00` (2026-10-09 22:48:09–22:48:29 America/Toronto), from first/final local evidence `observed_at` metadata. **Actual target:** Chasum Staging only `wnfahklzaxirftyskctd`; same-Management-bearer identity returned exact ref / `ACTIVE_HEALTHY` before any mutation. This is a dated completed-run observation, not a fresh runtime query in this documentation closeout.
+
+Run `HV133-158-20261009-C03-9b8c5783`; exact package `0314e6d3694002e16e051a3789c1949035e76023`, tree `0b57a9aa88366b8cb9d397620e63483d883ac807`, aggregate `3653c35027a98ff86e647e737252dbd97353da959ad075be2c91c367919002e9`. Append-only evidence at `/Users/darshan/chasum-evidence/issue133-connected-staging/HV133-158-20261009-C03-9b8c5783/evidence.jsonl`: 216221 bytes / 83 records / SHA-256 `d703df6fe6d43759d7949bc8093d33eb5ce8ab8d629398f61bc4f5d17c56f747`. Final `phase=final`, `status=CONNECTED_BACKEND_PASS`, `hosted_validation_run=true`. Program Lead exact SHA/full hash-chain recomputation PASS; Claude verdict **CONNECTED_STAGING_C03_ACCEPTED_WITH_NONBLOCKING_LIMITATIONS**, with disclosed inability to independently hash because of its shell allowlist. [Exact result](../reviews/issue-133-connected-staging-c03-result.md); [audit](../reviews/issue-133-connected-staging-c03-review.md).
+
+Retained synthetic state: one accepted attempt / one CAD5000-cent manual E-Transfer deposit / one confirmed appointment (price10000/tax0/deposit5000/paid5000/refunded0/deposit_paid), one partial INV-0001 (total10000/paid5000/balance5000), one RCT-0001 (5000 CAD, not_sent, emailed_at NULL, invoice_id NULL by contract, exact transaction link), one CRM event, four COMPLETE obligations, six lifecycle/projection events, zero refunds. Canonical reader RECORDED / synchronization COMPLETE; replay kept rows/digest and identities unchanged, invoice/receipt sequence next 2/2. Both nonmember readers denied with SQLSTATE 42501.
+
+Final admission **enabled=false**, same watermark as enable; synthetic records and disabled admission retained. Sessions/other_members/other_admission/other_writers all zero; customer_provider_absent=true; all nine synthetic communication surface counts zero, receipt not_sent, confirmed owner never logged in. No communication/provider side effects observed. Business protection flags were separately confirmed by Program Lead post-run read, not directly echoed as evidence rows.
+
+Independent separate-principal Program Lead post-run READ ONLY reconciliation corroborated the synthetic state. Excluding C03: attempts6 / accepted4 / requested2 / obligations16 / pending15 / not_required1 / operations0 / admission0 / receipt_sequences0; all retained exact full-row digests unchanged, enumerated in the result. Empty retained admission/sequences exclude C03's own retained rows. The separate read's exact timestamp was not supplied; no timestamp is inferred from the run interval.
+
+**C03 consumed; never rerun/reuse.** C01/C02 remain consumed STOP_ZERO_WRITES. Accepted only for the exact connected backend deposit path; application remains unwired/default-off and broader UI/worker/#153/financial/Production/GVM gates remain open. No current application serving SHA, deployment identity, bank verification or whole-database preservation is inferred. Prior Production serving evidence below remains a dated observation; Production/GVM were not contacted by this closeout.
+
+## Issue #134 attribution — governed Staging application result
+
+**STAGING_SCHEMA_APPLICATION_ACCEPTED / APPLIED ONCE / POSTCHECKS PASS.** Darshan explicitly approved the final exact gate. Native application ran once without retry on `wnfahklzaxirftyskctd`; response `success:true`. Hosted history is `20261007170242 / issue_134_appointment_financial_attribution`, one 6,529-byte statement at SHA-256 `fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524`. Package audit remains `6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba`. Do not reapply.
+
+Read-only postchecks at `2026-10-07T17:04:22.453440Z` and `17:06:15.236808Z` returned `POST_APPLY_EXACT`. New constraints/index/function/ACL/trigger/order are exact; prior security/functions/triggers/history are preserved; all 18+4 accepted fingerprints and all 20 returned full relevant-table count/digests are unchanged; retained 90-row/CAD181 state is unchanged. Expected appointments index/total growth was exactly 16,384 bytes. [Result](../reviews/issue-134-staging-attribution-application-result.md); normalized selected native evidence SHA-256 `b272c73746f7730343badb5a3422914f91721356c65346e15d92126daedc6504`.
+
+This is schema-only Staging evidence, not hosted DML/PostgREST/UI/payment/projection/full-workflow acceptance. R1a remains unwired/default-off; #153/#133/#135, historical USD, worker/technician and Production/GVM holds remain. Claude independently accepted this scoped result as `STAGING_SCHEMA_APPLICATION_ACCEPTED`; the reviewer performed file/hash review of the normalized coordinator evidence, not database execution.
+
+**Historical preparation record:** final exact-byte application-plan review was READY_FOR_STAGING_APPLICATION_APPROVAL, [recorded here](../reviews/issue-134-staging-application-plan-review.md). Corrected catalogue query passed READ ONLY at `2026-10-07T16:43:34.622352Z`, after the unchanged data query passed at `16:29:22.098708Z`. Those preparation reads and older query-error chronology remain historical; they must not be read as current unapplied status.
+
+
+Claude independently classified retained local summary SHA-256 `cb0b975a9e67751207ee602c50b8f91b2c5dd400376153a37827d33e93562418` as `LOCAL_DATABASE_PROOF_ACCEPTED`. On a disposable synthetic PostgreSQL 17.11 fixture, all 11 attribution sections and four multi-session interleavings passed; source identities matched before/after and shutdown/owned-PGDATA removal were confirmed. Migration elapsed time was 23ms. The 5,020ms lock timeout occurred in the migration preflight read before `ADD CONSTRAINT`. This is local fixture proof, not hosted/full-workflow equivalence, and no rerun is required.
+
+Earlier coordinator native READ ONLY observations from 2026-10-07 14:11:29.973933Z–14:21:28.487580Z remain dated history. A separate 16:11:49.606823Z catalogue snapshot supplied to the initial reviewer was preliminary. Coordinator execution of the initial package then returned PostgreSQL `42725` in chunk 01's policy fingerprint, so no catalogue PASS exists. Chunk 02, unchanged at SHA-256 `0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411`, passed READ ONLY at 16:29:22.098708Z for all 18 old-cohort/four noncohort comparisons, Run02 aggregate, zero tuple mismatches and the exact retained 90-row shape. These actor-supplied results are bounded preparation evidence, not application acceptance.
+
+**Historical authoring-time package status:** the corrected [read-only application package](../validation/issue-134-attribution-staging-application/PLAN.md) was then PREPARED / NOT AUTHORIZED TO APPLY. That frozen status is superseded by the exact application result above; it is retained only as chronology.
+
+## HV134 C01 actual result — 2026-10-06 17:56–18:02 UTC
+
+**EXECUTED / LIMITED_HOSTED_C01_PASS / CLAUDE ACCEPTED.** Original append-only evidence is exactly38lines, SHA-256 `b452e9f8f850571989526b36bacbcf3868daff6e240b4d4ec1dac42a6e292a94`. Source aggregate remains `3469a233362a77d6a28e3cf45cd7e3d655720bd20ed4bae23411c093591bc6bc`; all5member pins and all9immutable source pins match. [Result, provenance and limits](../reviews/issue-134-hv134-c01-result.md).
+
+The completed run witnessed real direct/indirect blocked sessions. Both replies identify attempt `d211130f-02a9-47c5-a14a-6f91e7c08480` and transaction/ledger `4c2dd317-f6e0-418a-bda1-ff13250ae712`, exactly `RECORDED` + `REPLAY`. Separate durable reconciliation proved one accepted customer-only CAD1 cash effect. N1 then admitted request-only.
+
+Coordinator native READ ONLY at `2026-10-06T18:00:10.778193Z`, with final containment through approximately18:02UTC, corroborated90public rows:53original parents+37financial;6attempts/11events/4linked CAD ledgers totalling18100c/16obligations(15PENDING+1NOT_REQUIRED);sequence14/is_called=true. C1 is ACCEPTED; N1 and retained R1 are REQUESTED. All18old-cohort snapshots and four explicitly checked noncohort baselines were unchanged; this is scoped preservation, not a whole-database claim. The completed-task native record is [preserved here](../reviews/evidence/issue-134-c01-result-readonly.json); this documentation closeout made no fresh database read.
+
+Run02 remains STOPPED/PARTIAL with original F1 replies missing. No appointment-binding/reassignment or full booking/payment/invoice/receipt/CRM/communications proof; no activation, Production/GVM action, technician acceptance or GVM Operational Acceptance. R1a remains unwired/default-off. The retained cohort must be gated/excluded before workers activate. Do not rerun C01 or start another payment.
+
+## C01 preparation observations — 2026-10-06 15:22–15:27 UTC
+
+**Historical preparation snapshot, superseded for current C01 execution status.** Native READ ONLY reconciliation then reconfirmed80retained Run02 public rows,4attempts/8events/3CADledgers totaling18000c/12PENDING obligations,sequence11/is_called=true,2synthetic Auth users,0cohort jobs/send intents/active test sessions. Full preparation-time census/digests: [read-only record](../reviews/evidence/issue-134-c01-preparation-readonly.json). No financial call, Auth operation or runtime/schema/permission change occurred in that preparation step. Original Run02 observation below remains historical evidence. No Production observation.
+
+## HV134 RUN02 — 2026-10-06 14:36 UTC / 10:36 Toronto
+
+Approved run reached synthetic financial writes and stopped on concurrency witness failure. Native read-only checks at14:38–14:47 UTC: 2synthetic Auth users/identities; 2normal Businesses; 53parent rows +27financial rows=80public. Four attempts(3accepted/1requested),8events,3linked CAD manual ledgers totalling18000c,12PENDING obligations; sequence11/is_called=true. N1 not admitted. No active HV134 transaction, no tenant communication/document/mirror rows. Four existing noncohort baseline digests and all global communication count/latest diagnostics match preflight. Applied migrations unchanged. No Production observation or change.
+
+Source/evidence review independently adjudicated by Claude as partial record only; exact original worker response pair missing. Do not restart v2, delete financial evidence or accidentally activate workers over this cohort. No follow-on package ready; authoring dispatch blocked, not bypassed. [Report and retained identities](../reviews/issue-134-hv134-run02-stop.md).
+
+
+## HV134 run01 — 2026-10-06 02:26 UTC / 2026-10-05 22:26 Toronto
+
+Refreshed scoped token accepted: exact package/role probe passed, followed by database preflight HTTP400 / STOP_ZERO_WRITES. Original log confirms restricted `supabase_read_only_user` lacked `tenant_identity_key` EXECUTE. No Auth/fixture/payment operation occurred; native read-only counts show no synthetic accounts/Businesses or attempt/ledger adoption. No runtime/schema/ACL or Production change. Earlier saved-token401 is historical and does not describe this newly accepted token. The original stopped run/evidence remains preserved; v2 is prepared only and has not run. [Exact evidence and new gate](../reviews/issue-134-hv134-preflight-stop.md).
+
+A separate read-only native audit verified 52 individual table privileges plus needed authenticated appointment update/SET capability; missing=[]; no grants changed. Another pure-helper diagnostic confirmed SQL transaction READ ONLY and existing helper access, not a v2 HTTP/financial run. The P134 schema application below remains the accepted baseline. No GVM Operational Acceptance follows.
+
+## HV134 planning observations — 2026-10-05 (read-only; no financial test)
+
+The source/hash/adoption continuation remains P134-R1A-STAGING below. Native read-only metadata during plan preparation reconfirmed both accepted migration identities and zero attempts/events/obligations/linked-ledger rows. Actual `service_role` SELECT and UPDATE (including `appointments.customer_id`) exist; this corrects the earlier missing-lock-privilege inference, not the still-open binding race. No privileges or functions were changed.
+
+Execution access is separate: the native connector reads work; a read-only request with the saved local Management token returned HTTP401, while direct DB TCP had no route before any credential/SQL was sent. The reviewed validation package therefore uses fixed Staging Management HTTPS and requires a securely refreshed credential plus zero-write capability checks before fixture creation. No financial RPC/Auth creation/provider call was made. See [the exact execution gate](../reviews/issue-134-hosted-validation-plan.md). These observations do not update or re-probe Production serving identity.
+
+## P134-R1A-STAGING — 2026-10-05 13:04:46 Toronto / 17:04:46 UTC
+
+PO-approved exact application on Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native apply called once. [Execution](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999283170); [Claude S-A and qualifications](https://github.com/renovisionai2-cloud/chasum/pull/156#issuecomment-5999308262).
+
+| Observation | Verified result |
+| --- | --- |
+| Applied source | `20261005154345_issue_134_r1a_manual_payment_kernel.sql`, from `c24a2a3b5120da5b3802c815c4bda102be416cbd`; reviewed code `888bac0` unchanged |
+| Hosted history | `20261005170446 / issue_134_r1a_manual_payment_kernel` |
+| Stored SQL | 1 statement / 16,151 bytes / SHA-256 `4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7`, exact match |
+| Installed objects | Exactly the 2 approved invoker functions, expected signatures/results and source-matching bodies; fixed `pg_catalog, pg_temp` search path |
+| Function EXECUTE | owner/service_role only; PUBLIC/anon/authenticated denied |
+| Installation transaction | Both function catalogue rows + history row observed at xmin `4584` |
+| Actual prerequisites | Required service-role table/column/schema privileges present; no widening or missing column/collision |
+| Preservation | 12 table counts/digests unchanged; 11 old history rows unchanged; 3,319 public-schema catalogue entries and 267 old functions unchanged |
+| Adoption | Attempts 0 / events 0 / obligations 0 / linked ledger 0 |
+| Existing sequence | ACL unchanged; service_role USAGE/SELECT true, UPDATE false; last_value NULL; no sequence calls |
+| Independent review | Claude S-A; own source checks plus supplied ChatGPT live results, not reviewer hosted execution |
+| Application wiring | Unchanged, unwired/default-off; no flag/config/deployment action |
+| Production/GVM | Not contacted or changed |
+
+Foundation record below remains accepted and was not reapplied. Version mapping is explicit: never rename/edit/reapply or repair history to equalize timestamp labels. Applied file header retains immutable authoring-time status. Catalogue privilege checks are not hosted DML/PostgREST proof. #153/SEQ-ACL-1 and binding race remain open; test rollback/retention plan precedes any future hosted fixture authorization. No operational acceptance follows.
+
+## P134-STAGING — 2026-10-04 23:21 Toronto / 2026-10-05 03:21 UTC
+
+**Observed data plane:** Chasum Staging `wnfahklzaxirftyskctd`, PostgreSQL 17.6, ACTIVE_HEALTHY. Native migration tool applied exactly one PO-approved SQL payload. This is schema-only Staging evidence, not Production or runtime-writer acceptance. [Full execution record](https://github.com/renovisionai2-cloud/chasum/pull/155#issuecomment-5987566406).
+
+| Observation | Result |
+| --- | --- |
+| Reviewed source head / tree | `fc83ae4b14d3a806be942a82afb4e9ffefb44241` / `5cb58423d3a6ce0af8ff5e5c70cb7168e92513eb` |
+| Source migration | `20261004190341_issue_134_payment_attempt_foundation.sql` |
+| Hosted history identity | `20261005032107 / issue_134_payment_attempt_foundation` |
+| Stored statement identity | One statement, 15,667 bytes, SHA-256 `dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47` — exact match |
+| Atomic application evidence | 66 checked catalogue/history entries share xmin `4575` |
+| Catalogue checks | 54 constraints validated; 17 indexes valid/ready; 3 source-matching invoker functions; 4 enabled triggers; expected tenant FKs/generated columns |
+| New tables | RLS enabled; no browser-role policies; zero PUBLIC/anon/authenticated table/column-write privileges; bounded service_role privileges |
+| New adoption counts | Attempts 0; Events 0; Reconciliation 0; Linked ledger 0 |
+| Preserved data | Businesses 4; Customers 3; Appointments 11; Gift cards 0; Transactions 2; Invoices 1; Customer payment events 2 — all pre/post digests unchanged |
+| Existing history | Prior 10 rows/digest unchanged; total now 11 |
+| Timeouts | Fresh verification session lock 0 / statement 2min; no claim of inspecting reused apply session |
+| Sequence least privilege | SEQ-ACL-1: existing postgres/public defaults grant anon/authenticated sequence USAGE+SELECT, no UPDATE; no sequence call/exploit test; tracked in #153, not corrected |
+| Independent review | **COMPLETE — Claude S-A: exact Staging schema application ACCEPTED with bounded SEQ-ACL-1 follow-up in #153; no immediate corrective DDL gate.** Claude independently inspected source/identity and reviewed supplied live SQL evidence; Claude did not query Staging or reproduce hosted writes. Session `e4424f59-4662-4eca-8294-0fad6fab508f`. |
+| Production / GVM | No connection, mutation or release performed in this task; prior #131 accepted serving record below is historical, not re-probed |
+
+The repository timestamp and hosted timestamp are intentionally mapped; do not repair/rename/reapply this migration merely to equalize them. Its PREPARED ONLY source-header comment records authoring-time status and must remain byte-identical. Security advisor findings on the new tables are INFO RLS-enabled/no-policy, consistent with server-only design; other warnings concern existing objects. No whole-project security PASS is claimed. No runtime/provider activation, #153 closure, #133 completion, PR merge, Production acceptance or GVM Operational Acceptance follows.
+
+## 2026-10-03 first governed real Production release proof
+
+**Observed canonical Production:** `https://chasum.vercel.app/api/build-info` served exact approved #131 SHA `664fbc734c4103d78484c6b3828849a6605a562f`, `ref=main`, `env=production`, `production=true`. Canonical deployment: `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`, READY / target `production`. Governed workflow run: `37128562995`.
+
+**Git main after release-authorization closeout:** `120ea6cb2fd5c8fd9013753284a29a9a821333c2`. Main is later than serving SHA by governance/authorization metadata only; application/runtime trees are byte-identical across `app`, `components`, `lib`, `supabase`, `public`, package files, Next config and middleware. Never infer Production from Git main.
+
+**Production deployment policy:** CLI-only. Repository `vercel.json` independently suppresses `main` Git deployments. Preview remains enabled. The policy has now been exercised successfully on real Chasum.
+
+**Governed release workflow:** `.github/workflows/release-production.yml`, exact-SHA + deny-all candidate policy, protected `production-release` Environment, Product Owner approval, exact-candidate Chromium/full-test/build gates, canonical alias/build-info verification and restore-previous failure handling. Run `37128562995` passed all gates; rollback/restoration was not invoked.
+
+**Release credential:** `Chasum Governed Production Release 2026-10-02`, project-only to `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`, finite expiry approximately **2026-11-01**, stored only as `production-release` Environment secret `VERCEL_TOKEN`. **Rotation due 2026-11-01.** Secret value is not recorded here.
+
+**Credential hygiene:** zero non-expiring personal Vercel tokens remain. Vercel-managed Git credential `cred_af7117d19d5654c3f9236e0115968a8f65c82518` is retained for Preview. Five recent unidentified OTP sessions remain finite-lived and intentionally excluded from revocation.
+
+**B-1 governance waiver:** CODEOWNERS is present but not enforcing while Chasum has one human collaborator. The Product Owner deliberately deferred mandatory approval/code-owner/stale/last-push review controls to avoid routine administrative bypass. Revisit when a second trusted collaborator joins.
+
+**#131 / #129:** PRODUCTION ACCEPTED. Exact SHA `664fbc734c4103d78484c6b3828849a6605a562f`; deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`; run `37128562995`; canonical build-info PASS; health HTTP 200 / `ok=true`. No manufactured GVM Production booking, schema/migration/RLS/Auth change or release-time GVM operational-data mutation was used for acceptance. Historical deployment object `6788186484` remains the original stopped automatic-deployment defect and must not be interpreted as governed release evidence.
+
+**GVM post-release read-only integrity:** 3 active Locations, 3 active Staff, 9 staff-location, 43 service-location and 27 staff-service rows; zero cross-tenant mismatches; Brampton 14 / Burlington 15 / Caledonia 14 offered Services, each with zero offered-Service coverage gaps. The 15th Service was created 2026-10-01 before release. Candidate policy was cleared back to deny-all after release.
 
 ## Evidence and classification contract
 
@@ -113,7 +262,7 @@ Local restamp HEAD/tree/parent match the supplied merge identity. Fresh remote-m
 
 ## 2026-09-30 UTC / 2026-09-29 Toronto Issue #121 Production reconciliation
 
-**Issue #121 — Summer Location Disclosure: PRODUCTION ACCEPTED / CLOSED / COMPLETED.** Competitive Product Gate **PASS**; **LAUNCH REQUIRED**. PR #125 squash-merged at `2026-09-30T01:38:22Z` as `e8c307df07107736395f1b3b1f2d56bba3fec6be`, the latest accepted behavior-changing application release. Merge tree `17f396dfcb63afc7ccc237a9e7060ef46abbcbbf`; parent `f70229098ddf18443ae74c6456d35239824280e0`. Production deployment `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT`, target `production`, **READY / SUCCESS**; unique URL `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app`.
+**Issue #121 — Summer Location Disclosure: PRODUCTION ACCEPTED / CLOSED / COMPLETED.** Competitive Product Gate **PASS**; **LAUNCH REQUIRED**. PR #125 squash-merged at `2026-09-30T01:38:22Z` as `e8c307df07107736395f1b3b1f2d56bba3fec6be`, the prior accepted behavior-changing application release before #131. Merge tree `17f396dfcb63afc7ccc237a9e7060ef46abbcbbf`; parent `f70229098ddf18443ae74c6456d35239824280e0`. Production deployment `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT`, target `production`, **READY / SUCCESS**; unique URL `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app`.
 
 Direct Production `/api/build-info` HTTP 200: `commit=e8c307df07107736395f1b3b1f2d56bba3fec6be`, `commitShort=e8c307d`, `env=production`, `ref=main`, `production=true`. `/api/health` HTTP 200: `ok=true`, `production=true`; `supabase=true`, `serviceRole=true`, `email=configured`, `cronSecret=configured`, `sms=optional_missing`, `stripe=optional_missing`, `sentry=optional_missing`, `softSchemaFallbacks=disabled`. Health proves configuration presence only, not active DB binding, provider delivery or worker execution. Public `/`, `/pricing`, `/status`, `/login`, `/book/gvm-baby-world` returned HTTP 200. Merge-SHA Quality: **173 test files passed / 1 skipped; 1,697 tests passed / 36 skipped / 0 failed**.
 
@@ -129,17 +278,17 @@ This record supersedes historical “current/latest” release values for presen
 
 | Field | Expected / last observed | Classification | Evidence |
 | --- | --- | --- | --- |
-| Application URL | Expected and observed `https://chasum.vercel.app` | MATCH | P55-PROD alias copied from 5744330411 |
-| Serving Git SHA | Direct Production build-info `e8c307df07107736395f1b3b1f2d56bba3fec6be`, `commitShort=e8c307d`, `ref=main`, `env=production`, `production=true`. | MATCH | P125-ISSUE121-PROD |
-| Branch/ref; environment | `main`; `production`; `production=true`. | MATCH | P125-ISSUE121-PROD |
-| Vercel deployment ID | `dpl_8LUVxEeFtL8JuwLgUxCDL8xBFbZT` | MATCH | P125-ISSUE121-PROD |
-| Deployment URL | `https://chasum-4hcdc8wwh-renovisionappcom.vercel.app` | MATCH | P125-ISSUE121-PROD |
-| Active aliases | Fresh Vercel Production deployment inspection for #121 observed `chasum.vercel.app`, `chasumai.com`, `www.chasumai.com`, `chasum-renovisionappcom.vercel.app`; Issue #57 cutover remains DEFERRED and these aliases do not complete that governed cutover. | MATCH at #121 acceptance | P125-ISSUE121-PROD |
-| Deployment readiness | PR #125 Production target READY / SUCCESS. | MATCH | P125-ISSUE121-PROD |
-| Accepted application baseline vs serving | Latest accepted behavior-changing release and directly observed serving SHA both `e8c307df07107736395f1b3b1f2d56bba3fec6be`. | MATCH at acceptance | P125-ISSUE121-PROD |
-| Production SHA vs canonical main | Fresh GitHub connector read and direct Production build-info both reported `e8c307df07107736395f1b3b1f2d56bba3fec6be` at acceptance; local HEAD matches. | MATCH at acceptance | P125-ISSUE121-PROD |
+| Application URL | Fresh 2026-10-12 alias read: `https://chasum.vercel.app` maps to governed #131 deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` in Chasum project `prj_nUq0i5faNZTNYfQHSsLukYTW8ugm`. | MATCH | October 12 reconciliation above / P131-PROD |
+| Serving Git SHA | Fresh 2026-10-12 direct Production build-info: `664fbc734c4103d78484c6b3828849a6605a562f`, `commitShort=664fbc7`, `ref=main`, `env=production`, `production=true`. | MATCH | October 12 reconciliation above / P131-PROD |
+| Branch/ref; environment | `main`; `production`; `production=true`. | MATCH | P131-PROD |
+| Vercel deployment ID | `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` | MATCH | P131-PROD |
+| Deployment URL | `https://chasum-be6vrhrc4-renovisionappcom.vercel.app` | MATCH | P131-PROD |
+| Active aliases | Fresh 2026-10-03 read confirms canonical `chasum.vercel.app` maps to `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF`; previously attached `chasumai.com` also points to the same deployment. This does not reverse Issue #57: DNS/Auth/app-URL branded-domain activation remains DEFERRED. | MATCH for observed Vercel aliases | P131-PROD |
+| Deployment readiness | Canonical deployment `dpl_9Rfvssq3k8WHV6D6TFpkUtJDGuGF` is `READY`, target `production`, Git metadata SHA `664fbc…`, ref `main`, governedReleaseRun `37128562995`. | MATCH | P131-PROD |
+| Accepted application baseline vs serving | Latest accepted behavior-changing release is #131 `664fbc…`, and canonical Production serves that exact SHA. | MATCH | P131-PROD |
+| Production SHA vs canonical main | 2026-10-12: Production remains #131 `664fbc…`; main is Slice 2A integration `0bebe243e8fea17937171d74fd024c42ef9fe431`. Main contains unreleased application changes; no Production approval follows. | INTENTIONAL DIFFERENCE / NOT behavior-equivalent | October 12 reconciliation above |
 | Supabase project ref | Production project `kxcydvhswkuzepwzzinq` directly verified during Stage 1B release, and re-confirmed 2026-09-26 as the sole Supabase endpoint in the served Production public bundle. | MATCH | P87-PROD / GVM-DATA-2026-09-26 |
-| Migration summary / applied hashes | B1 `20260923185926`; Staff quota `20260923190213`; B2 `20260923190501`; C1 `20260923232629`. C1 exact SHA-256 `c5bab138294b84de40e9644fcd604594db94b2d917a8f1b5dc601b58d9542089`. | MATCH | P97-PROD |
+| Migration summary / applied hashes | B1 `20260923185926`; Staff quota `20260923190213`; B2 `20260923190501`; C1 `20260923232629`; C3 cutover `20260925140328`. #131 carried no migration/schema change. | MATCH | P131-PROD read-only ledger |
 | Locked/unapplied migrations | 034/035/036 remain absent/unapplied after C1 Production acceptance. | MATCH | P97-PROD |
 | Schema compatibility | Observed `softSchemaFallbacks=disabled`; configuration flag is not schema evidence. | UNKNOWN (schema) | P125-ISSUE121-PROD health only |
 | Cron state | C1 cleanup route is deployed; Production CRON_SECRET configuration presence confirmed; unauthenticated cleanup request denied HTTP 401. Scheduled invocation execution itself remains separately observable operational state. | MATCH for route/config/auth gate; scheduler execution not claimed | P97-PROD |

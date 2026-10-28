@@ -1,3 +1,4 @@
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
 /**
  * Summer orchestrator — professional receptionist turns.
  * Grounded answers from Business / Services / Employees / CRM.
@@ -17,12 +18,12 @@ import {
   matchStaffFromMessage,
 } from "@/lib/summer/intents";
 import {
+  summerReadCustomerFinancialTruth,
   summerLoadKnowledge,
   summerLookupCustomer,
   summerPreviewForService,
   upcomingToCards,
 } from "@/lib/summer/tools";
-import { getSummerCommerceSnapshot } from "@/lib/commerce";
 import type {
   SummerIntent,
   SummerSessionContext,
@@ -210,15 +211,20 @@ export async function handleSummerTurn(
       reply =
         "I can check balances and invoices once I recognize the guest (email or phone). I never process card payments — staff complete collection in Payments.";
     } else {
-      const commerce = await getSummerCommerceSnapshot(
+      const commerce = await summerReadCustomerFinancialTruth(
         input.businessId,
         customerSnap.customerId,
       );
       reply = [
         `Account for ${customerSnap.displayName}:`,
-        `Outstanding balance: $${(commerce.outstandingBalanceCents / 100).toFixed(2)}`,
-        `Lifetime spend: $${(commerce.lifetimeSpendCents / 100).toFixed(2)}`,
-        `Deposits on file: $${(commerce.depositsCents / 100).toFixed(2)}`,
+        `Payments collected this month: ${financialAmountText(commerce.collectedThisMonth)}`,
+        commerce.outstandingBalanceCents == null
+          ? commerce.financialStatus === "source_disagreement"
+            ? "Outstanding balance: unknown — account totals need review."
+            : "Outstanding balance: unknown — current sources could not be verified; account totals need review."
+          : `Outstanding balance: $${(commerce.outstandingBalanceCents / 100).toFixed(2)}`,
+        commerce.lifetimeSpendCents == null ? "Lifetime spend: unknown — complete history is unverified." : `Lifetime spend: $${(commerce.lifetimeSpendCents / 100).toFixed(2)}`,
+        commerce.depositsCents == null ? "Deposits on file: unknown — complete history is unverified." : `Deposits on file: $${(commerce.depositsCents / 100).toFixed(2)}`,
         commerce.storeCreditCents > 0
           ? `Store credit: $${(commerce.storeCreditCents / 100).toFixed(2)}`
           : null,
@@ -229,9 +235,9 @@ export async function handleSummerTurn(
                   `${i.number} ($${(i.balanceCents / 100).toFixed(2)}${i.dueDate ? `, due ${i.dueDate}` : ""})`,
               )
               .join("; ")}`
-          : "No open invoices.",
+          : "No open invoices in the loaded document list; this does not prove zero due.",
         "",
-        "I can explain balances and request a deposit — I never charge cards directly. Staff confirm payments in the Commerce Platform.",
+        "I can explain financial evidence. Financial actions are closed. Unknown totals or recorded payments do not authorize collecting again.",
       ]
         .filter(Boolean)
         .join("\n");

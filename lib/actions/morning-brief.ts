@@ -1,20 +1,21 @@
 "use server";
+import { readFinancialAggregate, singleFinancialAmount } from "@/lib/commerce/financial-aggregate";
+import type { FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getActiveLocationId } from "@/lib/actions/location";
 import { fetchAvailableSlots } from "@/lib/actions/scheduling";
-import { queryUtilizationProjection } from "@/lib/booking-engine";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 
 export type MorningBriefData = {
   todayAppointments: number;
-  todayRevenue: number;
+  todayRevenue: FinancialAmount;
   staffWorking: number;
   availableSlots: number;
   waitlistCount: number;
   noShows: number;
-  outstandingPayments: number;
+  outstandingPayments: number | null;
   pendingConfirmations: number;
   customersToday: number;
   summer: {
@@ -26,7 +27,7 @@ export type MorningBriefData = {
     revenueDeltaPct: number | null;
     recommendation: string;
     availableSlots: number;
-    overdueCustomers: number;
+    overdueCustomers: number | null;
   };
 };
 
@@ -47,10 +48,6 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
   const dateStr = format(now, "yyyy-MM-dd");
   const dow = now.getDay();
 
-  const yesterdayStart = new Date(todayStart);
-  yesterdayStart.setDate(yesterdayStart.getDate() - 1);
-  const yesterdayEnd = new Date(todayEnd);
-  yesterdayEnd.setDate(yesterdayEnd.getDate() - 1);
 
   const [
     { data: todayAppts },
@@ -60,8 +57,6 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
     { data: staff },
     { data: workingHours },
     { data: changeLog },
-    utilization,
-    yesterdayUtil,
   ] = await Promise.all([
     supabase
       .from("appointments")
@@ -109,18 +104,6 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
       .gte("created_at", todayStart.toISOString())
       .lte("created_at", todayEnd.toISOString())
       .limit(200),
-    queryUtilizationProjection({
-      businessId: business.id,
-      startIso: todayStart.toISOString(),
-      endIso: todayEnd.toISOString(),
-      locationId,
-    }),
-    queryUtilizationProjection({
-      businessId: business.id,
-      startIso: yesterdayStart.toISOString(),
-      endIso: yesterdayEnd.toISOString(),
-      locationId,
-    }),
   ]);
 
   const rows = todayAppts ?? [];
@@ -130,35 +113,9 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
     activeRows.map((a) => a.customer_id).filter(Boolean),
   ).size;
 
-  const todayRevenue = activeRows
-    .filter((a) => a.status === "completed")
-    .reduce((sum, a) => {
-      if (a.price_cents != null) return sum + Number(a.price_cents) / 100;
-      const service = a.service as
-        | { price?: number }
-        | { price?: number }[]
-        | null;
-      const price = Array.isArray(service)
-        ? service[0]?.price
-        : service?.price;
-      return sum + Number(price ?? 0);
-    }, 0);
+  const todayRevenue = singleFinancialAmount(await readFinancialAggregate({ period: "today", locationId }));
 
-  const outstandingPayments = activeRows.filter((a) => {
-    if (a.status === "completed" || a.status === "cancelled") return false;
-    const deposit = Number(a.deposit_cents ?? 0);
-    const priceCents =
-      a.price_cents != null
-        ? Number(a.price_cents)
-        : Math.round(
-            Number(
-              Array.isArray(a.service)
-                ? (a.service[0] as { price?: number })?.price
-                : (a.service as { price?: number } | null)?.price ?? 0,
-            ) * 100,
-          );
-    return priceCents > 0 && deposit < priceCents;
-  }).length;
+  const outstandingPayments = null; // Derived caches do not authorize recollection.
 
   const workingStaffIds = new Set(
     (workingHours ?? []).map((h) => h.staff_id as string),
@@ -199,15 +156,9 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
       .length,
   };
 
-  const yesterdayRevenue = yesterdayUtil.revenue;
-  const revenueDeltaPct =
-    yesterdayRevenue > 0
-      ? Math.round(
-          ((utilization.revenue - yesterdayRevenue) / yesterdayRevenue) * 100,
-        )
-      : utilization.revenue > 0
-        ? 100
-        : null;
+  const yesterdayCollected = singleFinancialAmount(await readFinancialAggregate({ period: "yesterday", locationId }));
+  const revenueDeltaPct = todayRevenue.state === "EXACT" && yesterdayCollected.state === "EXACT" && todayRevenue.currency === yesterdayCollected.currency && yesterdayCollected.cents > 0
+    ? Math.round((todayRevenue.cents - yesterdayCollected.cents) * 100 / yesterdayCollected.cents) : null;
 
   let recommendation =
     activeRows.length === 0
@@ -219,10 +170,8 @@ export async function getMorningBrief(): Promise<MorningBriefData> {
     recommendation = `${format(now, "EEEE")} looks underbooked — ${availableSlots} open slots remain.`;
   } else if ((pendingCount ?? 0) > 3) {
     recommendation = `${pendingCount} confirmations waiting — clear the queue first.`;
-  } else if (outstandingPayments > 0) {
-    recommendation = `${outstandingPayments} appointments still need payment collection.`;
   } else if (revenueDeltaPct != null && revenueDeltaPct >= 10) {
-    recommendation = `Revenue is up ${revenueDeltaPct}% vs yesterday — protect high-value slots.`;
+    recommendation = `Collected money is up ${revenueDeltaPct}% vs yesterday — protect high-value slots.`;
   }
 
   return {

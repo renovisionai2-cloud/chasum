@@ -12,6 +12,7 @@ import {
   emitBookingEvent,
 } from "@/lib/booking-engine/events";
 import {
+  isDurableOperationPersistence,
   isPublicRpcPersistence,
   sessionBookingPersistence,
   type BookingPersistenceStrategy,
@@ -113,8 +114,11 @@ export async function createBooking(
     .eq("business_id", intent.businessId)
     .maybeSingle();
 
+  const durablePersistence = isDurableOperationPersistence(persistence);
   const priceCents =
-    intent.priceCents != null && intent.priceCents > 0
+    intent.priceCents != null &&
+    (intent.priceCents > 0 ||
+      (durablePersistence && intent.priceCents === 0))
       ? intent.priceCents
       : Math.round(Number(serviceRow?.price ?? 0) * 100);
 
@@ -163,7 +167,9 @@ export async function createBooking(
     ? Math.max(0, Math.round(intent.taxCents!))
     : financials.taxCents;
   const depositCents =
-    intent.depositCents != null && intent.depositCents > 0
+    intent.depositCents != null &&
+    (intent.depositCents > 0 ||
+      (durablePersistence && intent.depositCents === 0))
       ? intent.depositCents
       : financials.depositRequiredCents;
 
@@ -193,7 +199,18 @@ export async function createBooking(
         taxCents,
         depositCents,
       })
-    : await persistViaSessionInsert(supabase, {
+    : durablePersistence
+      ? await persistViaDurableOperation({
+          intent,
+          persistence,
+          endTime: validation.endTime,
+          status,
+          appointmentNotes: intent.notes?.trim() || null,
+          stampedPriceCents,
+          taxCents,
+          depositCents,
+        })
+      : await persistViaSessionInsert(supabase, {
         intent,
         endTime: validation.endTime,
         status,
@@ -202,7 +219,7 @@ export async function createBooking(
         taxCents,
         depositCents,
         paymentStatus,
-      });
+        });
 
   if (persist.error && persist.conflict) {
     return {
@@ -249,6 +266,7 @@ export async function createBooking(
 
   if (
     !isPublicRpcPersistence(persistence) &&
+    !isDurableOperationPersistence(persistence) &&
     intent.resourceIds &&
     intent.resourceIds.length > 0
   ) {
@@ -348,6 +366,110 @@ async function persistViaSessionInsert(
     id: data?.id ?? null,
     error: error ? { message: error.message } : null,
   };
+}
+
+async function persistViaDurableOperation(input: {
+  intent: BookingIntent;
+  persistence: Extract<
+    BookingPersistenceStrategy,
+    { kind: "durable_operation" }
+  >;
+  endTime: string;
+  status: string;
+  appointmentNotes: string | null;
+  stampedPriceCents: number;
+  taxCents: number;
+  depositCents: number;
+}): Promise<{
+  id: string | null;
+  error: { message: string } | null;
+  conflict?: ReturnType<typeof mapRpcErrorToConflict>;
+}> {
+  const expected = input.persistence.expected;
+  const attached = input.intent.durableOperation;
+  const resourceIds = [...(input.intent.resourceIds ?? [])];
+  const exactSnapshot =
+    attached === expected &&
+    input.intent.businessId.length > 0 &&
+    input.intent.customerId === expected.customerId &&
+    input.endTime === expected.requestedEnd &&
+    input.status === expected.requestedStatus &&
+    input.appointmentNotes === expected.appointmentNotes &&
+    (input.intent.roomId ?? null) === expected.roomId &&
+    JSON.stringify(resourceIds) === JSON.stringify(expected.resourceIds) &&
+    (input.intent.packageId ?? null) === expected.packageId &&
+    (input.intent.packageName?.trim() || null) === expected.packageName &&
+    input.stampedPriceCents === expected.subtotalCents &&
+    input.taxCents === expected.taxCents &&
+    input.depositCents === expected.depositRequiredCents;
+
+  if (!exactSnapshot) {
+    return {
+      id: null,
+      error: { message: "DURABLE_BOOKING_PRICING_CHANGED" },
+    };
+  }
+
+  const { data, error } = await input.persistence.writeAppointment({
+    p_business_id: input.intent.businessId,
+    p_operation_id: expected.operationId,
+    p_actor_id: expected.actorId,
+    p_customer_id: expected.customerId,
+    p_location_id: input.intent.locationId,
+    p_service_id: input.intent.serviceId,
+    p_staff_id: input.intent.staffId,
+    p_requested_start: input.intent.requestedStart,
+    p_requested_end: input.endTime,
+    p_requested_status: input.status,
+    p_duration_minutes: expected.durationMinutes,
+    p_appointment_notes: input.appointmentNotes,
+    p_room_id: expected.roomId,
+    p_resource_ids: expected.resourceIds,
+    p_package_id: expected.packageId,
+    p_package_name: expected.packageName,
+    p_subtotal_cents: expected.subtotalCents,
+    p_tax_cents: expected.taxCents,
+    p_deposit_required_cents: expected.depositRequiredCents,
+  });
+
+  if (error) {
+    const conflict = mapRpcErrorToConflict(error.message);
+    const conflictCode = conflict.code;
+    return {
+      id: null,
+      error: { message: error.message },
+      conflict:
+        conflictCode === "DOUBLE_BOOKING" ||
+        conflictCode === "STAFF_BUSY" ||
+        conflictCode === "RESOURCE_BUSY"
+          ? conflict
+          : undefined,
+    };
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+  if (
+    !row ||
+    typeof row !== "object" ||
+    !["CREATED", "EXISTING"].includes(String(row.outcome)) ||
+    typeof row.appointment_id !== "string"
+  ) {
+    return {
+      id: null,
+      error: {
+        message: "Durable appointment persistence returned invalid evidence.",
+      },
+    };
+  }
+  if (row.operation_id !== expected.operationId) {
+    return {
+      id: null,
+      error: {
+        message: "Durable appointment persistence returned mismatched evidence.",
+      },
+    };
+  }
+  return { id: row.appointment_id, error: null };
 }
 
 async function persistViaPublicRpc(

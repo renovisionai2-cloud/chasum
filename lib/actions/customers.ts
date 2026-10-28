@@ -1,4 +1,6 @@
 "use server";
+import { unknownMoney } from "@/lib/commerce/financial-aggregate/types";
+
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
 import { getCommunicationService } from "@/lib/communication/service";
@@ -281,10 +283,7 @@ export async function getCustomerProfile(id: string) {
   const noShows = rows.filter((a) => a.status === "no_show");
   const completed = rows.filter((a) => a.status === "completed");
 
-  const lifetimeRevenue = completed.reduce((sum, a) => {
-    const price = (a.service as { price?: number } | null)?.price ?? 0;
-    return sum + Number(price);
-  }, 0);
+  const lifetimeRevenue = unknownMoney("LIFETIME_HISTORY_UNVERIFIED");
 
   const totalVisits = completed.length;
   const lastVisit = history[0]?.start_time ?? null;

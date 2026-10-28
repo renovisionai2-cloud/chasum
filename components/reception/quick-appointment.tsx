@@ -694,7 +694,9 @@ export function QuickAppointmentForm({
               role="alert"
             >
               <p className="font-semibold">
-                Appointment booked — payment NOT recorded
+                {state.payment.transactionId
+                  ? "Appointment booked — payment recorded; sync needs review"
+                  : "Appointment booked — payment NOT recorded"}
               </p>
               <p className="mt-0.5">
                 {state.payment.detail ?? "Payment could not be recorded."}

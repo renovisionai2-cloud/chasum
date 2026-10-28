@@ -1,0 +1,56 @@
+{
+  "marker": "issue134-attribution-8b18eea66912ac491541e60bcbeef098",
+  "evidenceDir": "/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF",
+  "serverLog": "/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/postgres.log",
+  "phaseLog": "/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/phases.jsonl",
+  "sqlStdoutLog": "/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/sql.stdout.log",
+  "sqlStderrLog": "/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/sql.stderr.log",
+  "sourceIdentityBeforeFile": "/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/source-identity-before.json",
+  "sourceIdentityAfterFile": "/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/source-identity-after.json",
+  "sourceIdentityBefore": {
+    "repositoryHead": "732e3821858826898e0c9ec80996e643f6cf0f2c",
+    "files": {
+      "scripts/verify-issue134-appointment-financial-attribution-postgres.mjs": "71c98a1e2f647bdd39e88b237eea342bc6b1a95fce5da629d17cf1dd724e4c83",
+      "tests/postgres/issue-134-appointment-financial-attribution-contract.sql": "6be2c3ae69f0d1a08298bbc3f33083097040cc849b9a29a09dd160c0158fd747",
+      "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+      "tests/postgres/issue-134-payment-attempt-foundation-fixture.sql": "29269eb09118ee941ca36e6372caa8ce49cb2e937b42cb7e868bbcf9595219e1",
+      "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+      "tests/postgres/issue-134-r1a-manual-kernel-fixture.sql": "8d13b3d210b8f61253585424a41a48235114a6d1f5c1d58c7034e2299a4da482",
+      "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+      "tests/postgres/issue-134-r1a-manual-kernel-contract.sql": "7d343b902711e264c3c2bbc15695ba092f983b88b84d9bdf9a4580b1652f2f23"
+    }
+  },
+  "sourceIdentityAfter": {
+    "repositoryHead": "732e3821858826898e0c9ec80996e643f6cf0f2c",
+    "files": {
+      "scripts/verify-issue134-appointment-financial-attribution-postgres.mjs": "71c98a1e2f647bdd39e88b237eea342bc6b1a95fce5da629d17cf1dd724e4c83",
+      "tests/postgres/issue-134-appointment-financial-attribution-contract.sql": "6be2c3ae69f0d1a08298bbc3f33083097040cc849b9a29a09dd160c0158fd747",
+      "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+      "tests/postgres/issue-134-payment-attempt-foundation-fixture.sql": "29269eb09118ee941ca36e6372caa8ce49cb2e937b42cb7e868bbcf9595219e1",
+      "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+      "tests/postgres/issue-134-r1a-manual-kernel-fixture.sql": "8d13b3d210b8f61253585424a41a48235114a6d1f5c1d58c7034e2299a4da482",
+      "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+      "tests/postgres/issue-134-r1a-manual-kernel-contract.sql": "7d343b902711e264c3c2bbc15695ba092f983b88b84d9bdf9a4580b1652f2f23"
+    }
+  },
+  "sourceIdentityMatched": true,
+  "sourceIdentityFailure": null,
+  "dataDirectory": "/private/var/folders/wv/vyjr2lhj4bz59t4v20js2pkc0000gn/T/chasum-issue134-attribution-evidence-WNClqF/pgdata",
+  "postgresVersion": "17.11 (Homebrew)",
+  "boundedFixture": "2003|2001|188416|401408|155648",
+  "migrationElapsedMs": 23,
+  "lockTimeoutElapsedMs": 5020,
+  "concurrency": [
+    "payment-commit-first",
+    "payment-rollback-first",
+    "reassignment-commit-first",
+    "reassignment-rollback-first"
+  ],
+  "passed": true,
+  "originalFailure": null,
+  "cleanupFailure": null,
+  "stopConfirmed": true,
+  "pgdataRemoved": true,
+  "stopCommandStatus": 0,
+  "statusCommandStatus": 3
+}

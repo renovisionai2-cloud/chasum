@@ -15,6 +15,23 @@ export type BookingChannel =
   | "summer"
   | "api";
 
+export type DurableBookingExpectedSnapshot = {
+  operationId: string;
+  actorId: string;
+  customerId: string;
+  requestedEnd: string;
+  requestedStatus: AppointmentStatus;
+  durationMinutes: number;
+  appointmentNotes: string | null;
+  roomId: string | null;
+  resourceIds: string[];
+  packageId: string | null;
+  packageName: string | null;
+  subtotalCents: number;
+  taxCents: number;
+  depositRequiredCents: number;
+};
+
 export type BookingIntent = {
   channel: BookingChannel;
   businessId: string;
@@ -42,6 +59,11 @@ export type BookingIntent = {
   /** Exclude self when validating updates / reschedules */
   excludeAppointmentId?: string;
   roomId?: string | null;
+  /**
+   * Internal-only durable operation identity and admitted server snapshot.
+   * Browser/session callers omit this and retain the existing persistence path.
+   */
+  durableOperation?: DurableBookingExpectedSnapshot;
 };
 
 export type RescheduleIntent = {

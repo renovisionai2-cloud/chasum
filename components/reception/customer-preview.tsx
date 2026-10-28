@@ -1,4 +1,6 @@
 "use client";
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
+
 
 import { StatusBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -132,9 +134,9 @@ export function CustomerPreview({
           </div>
           <div className="rounded-[var(--radius-md)] border border-border/70 bg-card/60 px-2 py-2 text-center transition-colors hover:border-border">
             <p className="text-sm font-semibold tabular-nums">
-              ${metrics.lifetimeRevenue.toFixed(0)}
+              {financialAmountText(metrics.lifetimeRevenue)}
             </p>
-            <p className="text-[10px] text-muted-foreground">Revenue</p>
+            <p className="text-[10px] text-muted-foreground">Lifetime spend</p>
           </div>
           <div className="rounded-[var(--radius-md)] border border-border/70 bg-card/60 px-2 py-2 text-center transition-colors hover:border-border">
             <p className="text-sm font-semibold tabular-nums">

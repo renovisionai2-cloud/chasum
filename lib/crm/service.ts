@@ -1,3 +1,4 @@
+import { unknownMoney } from "@/lib/commerce/financial-aggregate/types";
 import { getCommunicationService } from "@/lib/communication/service";
 import type {
   CrmAppointmentBucket,
@@ -82,10 +83,7 @@ function buildInsights(
         new Date(b.start_time).getTime() - new Date(a.start_time).getTime(),
     );
 
-  const lifetimeRevenue = completed.reduce((sum, a) => {
-    const price = (a.service as { price?: number } | null)?.price ?? 0;
-    return sum + Number(price);
-  }, 0);
+  const lifetimeRevenue = unknownMoney("LIFETIME_HISTORY_UNVERIFIED");
 
   const decided = completed.length + cancelled.length + noShows.length;
   const prefs = preferredFromHistory(appointments);
@@ -94,10 +92,7 @@ function buildInsights(
     lifetimeRevenue,
     totalAppointments: appointments.length,
     completedAppointments: completed.length,
-    averageSpend:
-      completed.length > 0
-        ? Math.round((lifetimeRevenue / completed.length) * 100) / 100
-        : 0,
+    averageSpend: unknownMoney("LIFETIME_HISTORY_UNVERIFIED"),
     noShowRate:
       decided > 0 ? Math.round((noShows.length / decided) * 1000) / 10 : 0,
     cancellationRate:
@@ -219,7 +214,7 @@ function buildTimeline(input: {
     items.push({
       id: `pay-${payment.id}`,
       type: "payment",
-      title: `Payment · $${(payment.amountCents / 100).toFixed(2)}`,
+      title: `Payment timeline projection · $${(payment.amountCents / 100).toFixed(2)}`,
       body: payment.description,
       status: payment.status,
       occurredAt: payment.occurredAt,

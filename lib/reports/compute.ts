@@ -1,3 +1,4 @@
+import { unknownMoney, type FinancialAmount } from "@/lib/commerce/financial-aggregate/types";
 import {
   appointmentPriceCents,
   isActiveBooking,
@@ -146,6 +147,7 @@ export function buildExecutive(input: {
   appointments: ReportAppointmentRow[];
   customers: ReportCustomerRow[];
   activeEmployees: number;
+  collected?: { today: FinancialAmount; week: FinancialAmount; month: FinancialAmount; year: FinancialAmount };
   outstandingInvoicesCents: number;
   membershipRevenueCents: number;
   giftCardRevenueCents: number;
@@ -153,9 +155,7 @@ export function buildExecutive(input: {
   const { now, appointments, customers } = input;
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
-  const weekStart = startOfWeek(now);
   const monthStart = startOfMonth(now);
-  const yearStart = startOfYear(now);
 
   const todayAppts = appointments.filter(
     (a) =>
@@ -183,26 +183,18 @@ export function buildExecutive(input: {
   );
 
   return {
-    revenueToday: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, todayStart, todayEnd)),
-    ),
-    revenueWeek: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, weekStart, now)),
-    ),
-    revenueMonth: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, monthStart, now)),
-    ),
-    revenueYear: sumRevenue(
-      appointments.filter((a) => inRange(a.start_time, yearStart, now)),
-    ),
+    revenueToday: input.collected?.today ?? unknownMoney(),
+    revenueWeek: input.collected?.week ?? unknownMoney(),
+    revenueMonth: input.collected?.month ?? unknownMoney(),
+    revenueYear: input.collected?.year ?? unknownMoney(),
     appointmentsToday: todayAppts.length,
     upcomingAppointments: upcoming.length,
     newCustomers: monthCustomerIds.size,
     returningCustomers: returning.size,
     activeEmployees: input.activeEmployees,
-    outstandingInvoicesCents: input.outstandingInvoicesCents,
-    membershipRevenueCents: input.membershipRevenueCents,
-    giftCardRevenueCents: input.giftCardRevenueCents,
+    outstandingInvoicesCents: unknownMoney("LEGACY_PAYMENT_EVENT_BALANCE_UNVERIFIED"),
+    membershipRevenueCents: unknownMoney("MEMBERSHIP_PRICE_IS_NOT_COLLECTION"),
+    giftCardRevenueCents: unknownMoney("GIFT_CARD_REDEMPTION_IS_NOT_COLLECTION"),
   };
 }
 
@@ -363,23 +355,6 @@ export function buildCustomerReport(
     inRange(c.created_at, monthStart, now),
   ).length;
 
-  const spent = new Map<string, number>();
-  for (const p of payments.filter((x) => x.status === "paid" || x.status === "recorded")) {
-    if (!p.customer_id) continue;
-    spent.set(
-      p.customer_id,
-      (spent.get(p.customer_id) ?? 0) + p.amount_cents / 100,
-    );
-  }
-  for (const a of completed(appointments)) {
-    if (!a.customer_id) continue;
-    if (spent.has(a.customer_id)) continue;
-    spent.set(
-      a.customer_id,
-      (spent.get(a.customer_id) ?? 0) + moneyFromAppt(a),
-    );
-  }
-
   const returning = new Set<string>();
   const counts = new Map<string, number>();
   for (const a of completed(appointments)) {
@@ -389,12 +364,6 @@ export function buildCustomerReport(
   for (const [id, n] of counts) {
     if (n > 1) returning.add(id);
   }
-
-  const withSpend = [...spent.values()];
-  const ltv =
-    withSpend.length === 0
-      ? 0
-      : withSpend.reduce((s, v) => s + v, 0) / withSpend.length;
 
   const active90 = customers.filter((c) => {
     const last = c.last_activity_at ?? c.created_at;
@@ -430,7 +399,7 @@ export function buildCustomerReport(
   const nameById = new Map(customers.map((c) => [c.id, c.name]));
   const top = namedTop(
     new Map(
-      [...spent.entries()].map(([id, value]) => [
+      [...counts.entries()].map(([id, value]) => [
         id,
         { label: nameById.get(id) ?? "Customer", value },
       ]),
@@ -456,7 +425,7 @@ export function buildCustomerReport(
   return {
     newCustomers,
     returningCustomers: returning.size,
-    lifetimeValueAvg: Math.round(ltv * 100) / 100,
+    lifetimeValueAvg: unknownMoney("LIFETIME_HISTORY_UNVERIFIED"),
     retentionRate: retention,
     growthSeries: [...growth.entries()]
       .sort((a, b) => a[0].localeCompare(b[0]))
@@ -497,16 +466,15 @@ export function buildEmployeeReports(
           : a.service?.duration_minutes ?? 0;
       return sum + dur;
     }, 0);
-    const rate = s.commission_rate_bps ?? 0;
     rows.push({
       id: s.id,
       name: s.name,
       revenue: Math.round(revenue * 100) / 100,
-      completed: Math.max(done.length, booked.length),
+      completed: done.length,
       averageRating: null,
       averageServiceMinutes:
         booked.length === 0 ? 0 : Math.round(minutes / booked.length),
-      commissionCents: Math.round(revenue * 100 * (rate / 10000)),
+      commissionCents: null,
       productivity: booked.length,
     });
   }
@@ -522,7 +490,7 @@ export function buildServiceReport(
   now: Date,
 ): ServiceReport {
   const monthStart = startOfMonth(now);
-  const done = revenueAppts(
+  const done = activeBookings(
     appointments.filter((a) => inRange(a.start_time, monthStart, now)),
   );
   const counts = new Map<string, number>();
@@ -532,7 +500,7 @@ export function buildServiceReport(
   for (const a of done) {
     const name = a.service?.name ?? "Unknown";
     counts.set(name, (counts.get(name) ?? 0) + 1);
-    revenue.set(name, (revenue.get(name) ?? 0) + moneyFromAppt(a));
+    if (a.status === "completed") revenue.set(name, (revenue.get(name) ?? 0) + moneyFromAppt(a));
     duration.set(
       name,
       a.service?.duration_minutes ?? duration.get(name) ?? 0,
@@ -567,32 +535,15 @@ export function buildLocationReports(
   now: Date,
 ): LocationReportRow[] {
   const monthStart = startOfMonth(now);
-  const prevStart = startOfMonth(
-    new Date(now.getFullYear(), now.getMonth() - 1, 1),
-  );
-  const prevEnd = new Date(monthStart.getTime() - 1);
 
   return locations.map((loc) => {
     const month = appointments.filter(
       (a) =>
         a.location_id === loc.id && inRange(a.start_time, monthStart, now),
     );
-    const prev = appointments.filter(
-      (a) =>
-        a.location_id === loc.id &&
-        inRange(a.start_time, prevStart, prevEnd),
-    );
     const customers = new Set(
       month.map((a) => a.customer_id).filter(Boolean),
     );
-    const rev = sumRevenue(month);
-    const prevRev = sumRevenue(prev);
-    const growth =
-      prevRev === 0
-        ? rev > 0
-          ? 100
-          : 0
-        : Math.round(((rev - prevRev) / prevRev) * 1000) / 10;
     const slots = 8 * 30;
     const occupancy = Math.min(
       100,
@@ -603,61 +554,29 @@ export function buildLocationReports(
     return {
       id: loc.id,
       name: loc.name,
-      revenue: Math.round(rev * 100) / 100,
+      revenue: unknownMoney("CURRENT_LOCATION_COLLECTION_UNPROVEN"),
       appointments: month.filter((a) => a.status !== "cancelled").length,
       customers: customers.size,
       employees: staffByLocation.get(loc.id) ?? 0,
       occupancyPct: occupancy,
-      growthPct: growth,
+      growthPct: null,
     };
   });
 }
 
+/** Legacy source classes remain explicit; none establishes collected money. */
 export function buildFinancial(
-  appointments: ReportAppointmentRow[],
-  payments: ReportPaymentRow[],
-  now: Date,
+  _appointments: ReportAppointmentRow[], _payments: ReportPaymentRow[], _now: Date,
+  collected: FinancialAmount = unknownMoney(),
 ): FinancialReport {
-  const monthStart = startOfMonth(now);
-  const monthAppts = appointments.filter((a) =>
-    inRange(a.start_time, monthStart, now),
-  );
-  const monthPay = payments.filter((p) =>
-    inRange(p.occurred_at, monthStart, now),
-  );
-
-  const paymentsCents = monthPay
-    .filter((p) => p.status === "paid" || p.status === "recorded")
-    .reduce((s, p) => s + p.amount_cents, 0);
-  const refundsCents = monthPay
-    .filter((p) => p.status === "refunded")
-    .reduce((s, p) => s + p.amount_cents, 0);
-  const outstandingCents = monthPay
-    .filter((p) => p.status === "pending")
-    .reduce((s, p) => s + p.amount_cents, 0);
-
-  const taxesCents = monthAppts.reduce(
-    (s, a) => s + (a.tax_cents ?? 0),
-    0,
-  );
-  const discountsCents = monthAppts.reduce(
-    (s, a) => s + (a.discount_cents ?? 0),
-    0,
-  );
-  const depositsCents = monthAppts.reduce(
-    (s, a) => s + (a.deposit_cents ?? 0),
-    0,
-  );
-  const invoicesCents = Math.round(sumRevenue(monthAppts) * 100);
-
   return {
-    invoicesCents,
-    paymentsCents,
-    refundsCents,
-    taxesCents,
-    discountsCents,
-    depositsCents,
-    outstandingCents,
+    invoicesCents: unknownMoney("LEGACY_APPOINTMENT_RECOGNIZED_VALUE"),
+    paymentsCents: collected,
+    refundsCents: unknownMoney("LEGACY_PAYMENT_EVENT_REFUNDS"),
+    taxesCents: unknownMoney("APPOINTMENT_TAX_COLUMNS_UNVERIFIED"),
+    discountsCents: unknownMoney("APPOINTMENT_DISCOUNT_COLUMNS_UNVERIFIED"),
+    depositsCents: unknownMoney("CONFIGURED_REQUIREMENT_IS_NOT_COLLECTION"),
+    outstandingCents: unknownMoney("LEGACY_PAYMENT_EVENT_BALANCE_UNVERIFIED"),
   };
 }
 

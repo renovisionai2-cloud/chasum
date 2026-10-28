@@ -7,6 +7,8 @@ import {
   appointmentDepositAppliedCents,
   appointmentExclusiveSubtotalCents,
   appointmentOutstandingCents,
+  appointmentNetPaidCents,
+  ledgerSpendCents,
   countUpcomingAppointmentsWithBalanceDue,
   customerBalanceChipLabel,
   projectCustomerAccountTotals,
@@ -96,18 +98,18 @@ describe("customer account deposit projection", () => {
       invoices: [PAID_INVOICE],
       timeline: CASH_PAYMENTS,
     });
-    expect(totals.depositsCents).toBe(0);
+    expect(totals.depositsCents).toBeNull();
     expect(totals.appointmentDepositsCents).toBe(0);
   });
 
-  it("real configured deposit is retained up to the configured amount", () => {
+  it("configured deposit application stays a source subtotal, not an unverified account total", () => {
     expect(appointmentDepositAppliedCents(TRUE_DEPOSIT)).toBe(3_000);
     const totals = projectCustomerAccountTotals({
       appointments: [TRUE_DEPOSIT],
       invoices: [PAID_INVOICE],
       timeline: CASH_PAYMENTS,
     });
-    expect(totals.depositsCents).toBe(3_000);
+    expect(totals.depositsCents).toBeNull();
   });
 
   it("partial payment toward a real deposit does not exceed net paid", () => {
@@ -119,7 +121,7 @@ describe("customer account deposit projection", () => {
     ).toBe(2_000);
   });
 
-  it("succeeded ledger kind=deposit still populates deposit summary", () => {
+  it("ledger deposit disagreement is retained without selecting the larger source", () => {
     const totals = projectCustomerAccountTotals({
       appointments: [{ ...DOGFOOD_PAID, amount_paid_cents: 3_000 }],
       invoices: [],
@@ -132,7 +134,7 @@ describe("customer account deposit projection", () => {
         },
       ],
     });
-    expect(totals.depositsCents).toBe(3_000);
+    expect(totals.depositsCents).toBeNull();
   });
 });
 
@@ -192,7 +194,7 @@ describe("customer account tax-inclusive outstanding", () => {
       invoices: [],
       timeline: [CASH_PAYMENTS[0]],
     });
-    expect(totals.outstandingBalanceCents).toBe(1_300);
+    expect(totals.outstandingBalanceCents).toBeNull();
     expect(totals.appointmentOutstandingCents).toBe(1_300);
   });
 
@@ -229,7 +231,7 @@ describe("customer balance chip", () => {
       timeline: [CASH_PAYMENTS[0]],
     });
     expect(withOpenInvoice.invoiceOutstandingCents).toBe(11_300);
-    expect(withOpenInvoice.outstandingBalanceCents).toBe(11_300);
+    expect(withOpenInvoice.outstandingBalanceCents).toBeNull();
     expect(customerBalanceChipLabel(1)).toBe("1 due");
   });
 
@@ -243,13 +245,13 @@ describe("customer balance chip", () => {
 });
 
 describe("customer total paid", () => {
-  it("keeps total paid at the ordinary cash total", () => {
+  it("matching source totals do not prove complete lifetime history", () => {
     const totals = projectCustomerAccountTotals({
       appointments: [DOGFOOD_PAID],
       invoices: [PAID_INVOICE],
       timeline: CASH_PAYMENTS,
     });
-    expect(totals.totalPaidCents).toBe(11_300);
+    expect(totals.totalPaidCents).toBeNull();
     expect(totals.outstandingBalanceCents).toBe(0);
   });
 });
@@ -266,8 +268,8 @@ describe("tenant filters", () => {
     expect(source).toContain("CUSTOMER_ACCOUNT_TENANT_SCOPE");
     expect(source).toMatch(/\.eq\(\s*CUSTOMER_ACCOUNT_TENANT_SCOPE\.businessId/);
     expect(source).toMatch(/\.eq\(\s*CUSTOMER_ACCOUNT_TENANT_SCOPE\.customerId/);
-    expect(source).toContain("listInvoices({ businessId, customerId");
-    expect(source).toContain("listTransactions({ businessId, customerId");
+    expect(source).toContain('supabase.from("commerce_invoices")');
+    expect(source).toContain('supabase.from("commerce_transactions")');
     expect(source).toContain("listReceipts({ businessId, customerId");
     expect(source).toContain("listRefunds({ businessId, customerId");
   });
@@ -287,6 +289,41 @@ describe("tenant filters", () => {
       timeline: CASH_PAYMENTS,
     });
     expect(scoped.outstandingBalanceCents).toBe(0);
-    expect(mixed.outstandingBalanceCents).toBeGreaterThan(0);
+    expect(mixed.outstandingBalanceCents).toBe(11300);
+    expect(mixed.appointmentOutstandingCents).toBeGreaterThan(0);
+  });
+});
+
+describe("Phase A projection truth", () => {
+  it("exposes source disagreement without choosing the larger source", () => {
+    const totals = projectCustomerAccountTotals({ appointments: [DOGFOOD_PAID], invoices: [OPEN_INVOICE], timeline: [] });
+    expect(totals).toMatchObject({ financialStatus: "source_disagreement", sourceDisagreement: true, ledgerPaidCents: 0, appointmentPaidCents: 11300, totalPaidCents: null, outstandingBalanceCents: null });
+  });
+  it("keeps matching incomplete histories unknown", () => {
+    expect(projectCustomerAccountTotals({ appointments: [DOGFOOD_PAID], invoices: [PAID_INVOICE], timeline: CASH_PAYMENTS })).toMatchObject({ financialStatus: "unknown", sourceDisagreement: false, totalPaidCents: null });
+  });
+  it("configured deposit is never paid money when payment cache is absent", () => {
+    expect(appointmentNetPaidCents({ deposit_cents: 5000 })).toBe(0);
+    expect(appointmentDepositAppliedCents({ deposit_cents: 5000 })).toBe(0);
+  });
+  it("gift-card refunds never increase spend", () => {
+    const giftRefund = { status: "succeeded" as const, method: "gift_card" as const, kind: "refund" as const, amountCents: 3000 };
+    expect(ledgerSpendCents([giftRefund])).toBe(0);
+    expect(ledgerSpendCents([{ ...giftRefund, kind: "payment", amountCents: 5000 }, giftRefund])).toBe(5000);
+  });
+});
+
+
+describe("Option A current outstanding", () => {
+  it.each([true, false])("current balance is numeric only when every source agrees (ledger matches=%s)", matches => {
+    const totals = projectCustomerAccountTotals({
+      appointments: [PARTIAL_AFTER_SUBTOTAL],
+      invoices: [{ status: "partial", balanceCents: 1300 }],
+      timeline: matches ? [CASH_PAYMENTS[0]] : [],
+    });
+    expect(totals).toMatchObject({ outstandingBalanceCents: matches ? 1300 : null, totalPaidCents: null, depositsCents: null, sourceDisagreement: !matches });
+  });
+  it("unavailable current sources cannot falsely agree at zero", () => {
+    expect(projectCustomerAccountTotals({ appointments: [], invoices: [], timeline: [], currentSourcesAvailable: false }).outstandingBalanceCents).toBeNull();
   });
 });

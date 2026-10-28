@@ -1,0 +1,236 @@
+{
+  "schema_version": "hv134-fixture-v1",
+  "status": "PREPARED_ONLY_NOT_EXECUTED",
+  "project": {
+    "ref": "wnfahklzaxirftyskctd",
+    "supabase_url": "https://wnfahklzaxirftyskctd.supabase.co",
+    "management_query_url": "https://api.supabase.com/v1/projects/wnfahklzaxirftyskctd/database/query"
+  },
+  "actors": {
+    "a": {
+      "email": "hv134-actor-a-20261005@auth.invalid",
+      "label": "HV134 synthetic owner A"
+    },
+    "b": {
+      "email": "hv134-actor-b-20261005@auth.invalid",
+      "label": "HV134 synthetic owner B"
+    }
+  },
+  "businesses": {
+    "a": {
+      "name": "HV134 Kernel Lab A 20261005",
+      "legal_name": null,
+      "email": "hv134-lab-a-20261005@business.invalid",
+      "phone": "+1 000 000 0134",
+      "website": null,
+      "city": "Toronto",
+      "region": "Ontario",
+      "country": "CA",
+      "requested_slug": "hv134-kernel-a-20261005"
+    },
+    "b": {
+      "name": "HV134 Kernel Lab B 20261005",
+      "legal_name": null,
+      "email": "hv134-lab-b-20261005@business.invalid",
+      "phone": "+1 000 000 0135",
+      "website": null,
+      "city": "Toronto",
+      "region": "Ontario",
+      "country": "CA",
+      "requested_slug": "hv134-kernel-b-20261005"
+    }
+  },
+  "contained_business_settings": {
+    "currency": "cad",
+    "timezone": "America/Toronto",
+    "email_notifications_enabled": false,
+    "sms_notifications_enabled": false,
+    "owner_notifications_enabled": false,
+    "staff_notifications_enabled": false,
+    "marketing_email_enabled": false,
+    "online_booking_enabled": false,
+    "public_booking_mode": "staff_only",
+    "notification_email": null
+  },
+  "fixture": {
+    "customers": {
+      "a1": {
+        "name": "HV134 Kernel Customer",
+        "email": "hv134-customer-a1-20261005@customer.invalid",
+        "phone": null
+      },
+      "a2": {
+        "name": "HV134 Reassignment Customer",
+        "email": "hv134-customer-a2-20261005@customer.invalid",
+        "phone": null
+      },
+      "b1": {
+        "name": "HV134 Isolation Customer",
+        "email": "hv134-customer-b1-20261005@customer.invalid",
+        "phone": null
+      }
+    },
+    "service": {
+      "name": "HV134 Internal Manual Payment Validation",
+      "duration_minutes": 60,
+      "price": "100.00",
+      "deposit_cents": 5000,
+      "deposit_required": true,
+      "is_active": false,
+      "online_booking": false,
+      "booking_visibility": "internal",
+      "commercial_settings_reviewed": false
+    },
+    "staff": {
+      "name": "HV134 Internal Validation Staff",
+      "email": null,
+      "phone": null,
+      "user_id": null,
+      "is_active": false,
+      "employment_status": "active",
+      "accept_online_bookings": false,
+      "accept_new_clients": false,
+      "accept_walk_ins": false
+    },
+    "appointments": {
+      "a1": {
+        "start_time": "2030-11-17T15:00:00Z",
+        "end_time": "2030-11-17T16:00:00Z",
+        "status": "confirmed",
+        "price_cents": 10000,
+        "tax_cents": 0,
+        "discount_cents": 0,
+        "deposit_cents": 5000,
+        "amount_paid_cents": 0,
+        "amount_refunded_cents": 0,
+        "payment_status": "deposit_required"
+      },
+      "a2": {
+        "start_time": "2030-11-18T15:00:00Z",
+        "end_time": "2030-11-18T16:00:00Z",
+        "status": "confirmed",
+        "price_cents": 8000,
+        "tax_cents": 0,
+        "discount_cents": 0,
+        "deposit_cents": 0,
+        "amount_paid_cents": 0,
+        "amount_refunded_cents": 0,
+        "payment_status": "unpaid"
+      }
+    }
+  },
+  "attempts": {
+    "d1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000001",
+      "source": "quick_appointment",
+      "customer": "a1",
+      "appointment": "a1",
+      "payment_kind": "deposit",
+      "amount_cents": 5000,
+      "currency": "cad",
+      "method": "e_transfer",
+      "provider_route": "manual"
+    },
+    "d2": {
+      "attempt_key": "13400000-0000-4000-8000-000000000002",
+      "source": "collect_payment",
+      "customer": "a1",
+      "appointment": "a1",
+      "payment_kind": "payment",
+      "amount_cents": 5000,
+      "currency": "cad",
+      "method": "cash",
+      "provider_route": "manual"
+    },
+    "f1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000003",
+      "source": "payments_dashboard",
+      "customer": "a1",
+      "appointment": "a2",
+      "payment_kind": "payment",
+      "amount_cents": 8000,
+      "currency": "cad",
+      "method": "debit_card",
+      "provider_route": "manual"
+    },
+    "n1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000004",
+      "source": "customer_billing",
+      "customer": "a1",
+      "appointment": null,
+      "payment_kind": "payment",
+      "amount_cents": 2500,
+      "currency": "cad",
+      "method": "other",
+      "provider_route": "manual"
+    },
+    "r1": {
+      "attempt_key": "13400000-0000-4000-8000-000000000005",
+      "source": "collect_payment",
+      "customer": "a1",
+      "appointment": "a2",
+      "payment_kind": "payment",
+      "amount_cents": 1300,
+      "currency": "cad",
+      "method": "cash",
+      "provider_route": "manual"
+    },
+    "atomic_rollback": {
+      "attempt_key": "13400000-0000-4000-8000-000000000090",
+      "source": "collect_payment",
+      "customer": "a1",
+      "appointment": "a2",
+      "payment_kind": "payment",
+      "amount_cents": 900,
+      "currency": "cad",
+      "method": "cash",
+      "provider_route": "manual"
+    },
+    "d1_conflict": {
+      "attempt_key": "13400000-0000-4000-8000-000000000001",
+      "source": "quick_appointment",
+      "customer": "a1",
+      "appointment": "a1",
+      "payment_kind": "deposit",
+      "amount_cents": 5001,
+      "currency": "cad",
+      "method": "e_transfer",
+      "provider_route": "manual"
+    }
+  },
+  "legacy_rollback": {
+    "amount_cents": 100,
+    "currency": "cad",
+    "kind": "payment",
+    "status": "succeeded",
+    "method": "cash",
+    "provider": "manual",
+    "provider_reference": "hv134-legacy-null-link-rollback",
+    "description_before": "HV134 legacy NULL-link insert",
+    "description_after": "HV134 legacy NULL-link update"
+  },
+  "ceilings": {
+    "public_provisioning_rows": 53,
+    "retained_financial_rows": 29,
+    "retained_public_rows_total": 82,
+    "auth_users": 2,
+    "auth_identities": 2,
+    "auth_platform_audit_records": "OBSERVE_AND_REPORT_SEPARATELY",
+    "attempts": 5,
+    "attempt_events": 9,
+    "linked_ledger_rows": 3,
+    "reconciliation_rows": 12,
+    "event_sequence_nextval_calls": 12,
+    "staff_working_hours": 7,
+    "communication_rows": 0,
+    "communication_follow_ups": 0,
+    "communications_audit_log": 0,
+    "business_members": 0,
+    "business_slug_aliases": 0,
+    "communication_global_counts": "OBSERVE_AND_REPORT_NOT_ASSERT",
+    "invoices": 0,
+    "invoice_lines": 0,
+    "receipts": 0,
+    "customer_payment_events": 0
+  }
+}

@@ -1,4 +1,6 @@
 "use client";
+import { financialAmountText } from "@/lib/commerce/financial-aggregate/types";
+
 
 import {
   createInvoiceAction,
@@ -166,44 +168,44 @@ export function PaymentsDashboard({
 
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <Metric
-            label="Revenue today"
-            value={money(snapshot.revenueTodayCents)}
+            label="Collected today"
+            value={financialAmountText(snapshot.revenueTodayCents)}
           />
           <Metric
-            label="Revenue this week"
-            value={money(snapshot.revenueWeekCents)}
+            label="Collected this week"
+            value={financialAmountText(snapshot.revenueWeekCents)}
           />
           <Metric
-            label="Revenue this month"
-            value={money(snapshot.revenueMonthCents)}
+            label="Collected this month"
+            value={financialAmountText(snapshot.revenueMonthCents)}
           />
           <Metric
             label="Avg transaction"
             value={
               snapshot.averageTransactionCents != null
-                ? money(snapshot.averageTransactionCents)
+                ? financialAmountText(snapshot.averageTransactionCents)
                 : "—"
             }
           />
           <Metric
             label="Outstanding invoices"
-            value={money(snapshot.outstandingInvoicesCents)}
-            hint={`${snapshot.outstandingInvoicesCount} open`}
+            value={financialAmountText(snapshot.outstandingInvoicesCents)}
+            hint="Recent invoice documents; complete balance unverified"
           />
           <Metric
             label="Outstanding deposits"
-            value={money(snapshot.outstandingDepositsCents)}
-            hint={`${snapshot.outstandingDepositsCount} bookings`}
+            value={financialAmountText(snapshot.outstandingDepositsCents)}
+            hint="Configured deposits do not prove collection"
           />
           <Metric
             label="Refunds (month)"
-            value={money(snapshot.refundsMonthCents)}
+            value={financialAmountText(snapshot.refundsMonthCents)}
           />
           <Metric
             label="Avg customer value"
             value={
               snapshot.averageCustomerValueCents != null
-                ? money(snapshot.averageCustomerValueCents)
+                ? financialAmountText(snapshot.averageCustomerValueCents)
                 : "—"
             }
           />
@@ -323,7 +325,7 @@ export function PaymentsDashboard({
                   on the client.
                 </p>
               ) : null}
-              <Button type="submit" size="sm" disabled={payPending}>
+              <Button type="submit" size="sm" disabled={payPending || (payState.canRetry === false && payState.syncStatus === "failed")}>
                 {payPending ? "Recording…" : "Record payment"}
               </Button>
             </form>
@@ -376,7 +378,7 @@ export function PaymentsDashboard({
                 error={refundState.error}
                 success={refundState.success}
               />
-              <Button type="submit" size="sm" variant="outline" disabled={refundPending}>
+              <Button type="submit" size="sm" variant="outline" disabled={refundPending || (refundState.canRetry === false && refundState.syncStatus === "failed")}>
                 {refundPending ? "Processing…" : "Process refund"}
               </Button>
             </form>

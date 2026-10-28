@@ -84,3 +84,6 @@ export type {
   CommerceDomainEvent,
   CommerceDomainEventType,
 } from "@/lib/commerce/events";
+
+export { readFinancialAggregate, singleFinancialAmount } from "./financial-aggregate";
+export type { FinancialAggregate, FinancialAmount } from "./financial-aggregate/types";

@@ -1,0 +1,194 @@
+// Local-only integration reconciliation. Never fetches, publishes, queries data, or deploys.
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+
+const candidate = "9f305c2f9a377b95aa1642a3dc69f70cc0cb4573";
+const main = "80968d24dc1d87407205e54ccc949433ed39e8eb";
+const verifierPath = "scripts/verify-reception-integration.mjs";
+const precommit = process.argv.includes("--precommit");
+const git = (...args) =>
+  execFileSync("git", ["--no-replace-objects", ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+const blobAt = (ref, path) => {
+  try {
+    return git("rev-parse", `${ref}:${path}`);
+  } catch {
+    return null;
+  }
+};
+const indexBlob = (path) => {
+  try {
+    return git("rev-parse", `:${path}`);
+  } catch {
+    return null;
+  }
+};
+const finalBlob = (path) => precommit ? indexBlob(path) : blobAt("HEAD", path);
+
+if (precommit) {
+  assert.equal(git("rev-parse", "HEAD"), candidate, "Precommit merge must start at the exact candidate");
+  assert.equal(git("rev-parse", "MERGE_HEAD"), main, "Precommit merge must target exact main");
+  assert.equal(git("diff", "--name-only", "--diff-filter=U"), "", "Merge conflicts remain unresolved");
+  assert.equal(git("diff", "--name-only"), "", "Precommit verifier requires no unstaged changes");
+} else {
+  assert.equal(
+    git("show", "-s", "--format=%P", "HEAD"),
+    `${candidate} ${main}`,
+    "Integration must be one two-parent merge with candidate first and main second",
+  );
+  git("merge-base", "--is-ancestor", candidate, "HEAD");
+  git("merge-base", "--is-ancestor", main, "HEAD");
+  assert.equal(git("status", "--porcelain"), "", "Integration worktree must be clean");
+}
+
+const manualPaths = new Set([
+  "components/calendar/calendar-client.tsx",
+  "components/day-view/morning-brief.tsx",
+  "components/reception/reception-panel.tsx",
+  "tests/unit/booking/booking-sheet-payment-submit.test.tsx",
+  "tests/unit/calendar/calendar-booking-selection.test.tsx",
+  "docs/CHANGELOG.md",
+  "docs/handoffs/LATEST_HANDOFF.md",
+  "docs/product/14_DECISION_LOG.md",
+  "docs/CURRENT_PROJECT_STATE.md",
+  "tests/unit/calendar/reception-production-compatibility.test.tsx",
+  ".github/workflows/quality.yml",
+  ".github/workflows/release-production.yml",
+  verifierPath,
+]);
+assert.equal(manualPaths.size, 13, "Manual integration boundary must contain exactly 13 paths");
+
+const candidateResolutions = [
+  "components/calendar/calendar-client.tsx",
+  "components/day-view/morning-brief.tsx",
+  "components/reception/reception-panel.tsx",
+  "tests/unit/booking/booking-sheet-payment-submit.test.tsx",
+  "tests/unit/calendar/calendar-booking-selection.test.tsx",
+];
+for (const path of candidateResolutions) {
+  assert.equal(finalBlob(path), blobAt(candidate, path), `Candidate resolution diverged: ${path}`);
+}
+
+const reconciledBlobs = new Map([
+  [".github/workflows/quality.yml", "ffdc792b477738b81e19fe64f348c11aaa9c13d2"],
+  [".github/workflows/release-production.yml", "b169e8421a89ef31c4c00cd347199cc7a5a0f6a6"],
+  ["docs/CHANGELOG.md", "2a25ea098bf843a02bfd8ae2717823d7795dc62b"],
+  ["docs/CURRENT_PROJECT_STATE.md", "665287fa9cf7a3e87ab4e2cbbc3cafc0aa3cec1c"],
+  ["docs/handoffs/LATEST_HANDOFF.md", "ebb0b6936136c61dc02158e0479c6162c6188bb9"],
+  ["docs/product/14_DECISION_LOG.md", "621a8e5fdc04a54468aec44e7a12fb481fd4fe17"],
+  ["tests/unit/calendar/reception-production-compatibility.test.tsx", "1332c15b234c07b0137254590c1803a4f17eaca2"],
+]);
+for (const [path, blob] of reconciledBlobs) {
+  assert(manualPaths.has(path), `Reconciled path is outside manual boundary: ${path}`);
+  assert.equal(finalBlob(path), blob, `Unexpected reconciled blob: ${path}`);
+}
+
+const pathSet = (ref) => new Set(git("ls-tree", "-r", "--name-only", ref).split("\n").filter(Boolean));
+const candidatePaths = pathSet(candidate);
+const mainPaths = pathSet(main);
+const finalPaths = precommit
+  ? new Set(git("ls-files").split("\n").filter(Boolean))
+  : pathSet("HEAD");
+const inheritedPaths = new Set([...candidatePaths, ...mainPaths]);
+for (const path of inheritedPaths) {
+  assert(finalPaths.has(path), `Unexpected inherited-path deletion: ${path}`);
+  const resolvedBlob = finalBlob(path);
+  const inherited = resolvedBlob === blobAt(candidate, path) || resolvedBlob === blobAt(main, path);
+  if (!inherited) {
+    assert.equal(reconciledBlobs.get(path), resolvedBlob, `Non-parent blob outside reviewed reconciliation: ${path}`);
+  }
+}
+for (const path of finalPaths) {
+  if (!inheritedPaths.has(path)) assert.equal(path, verifierPath, `Unexpected integration-only path: ${path}`);
+}
+
+const protectedPaths = [
+  "lib",
+  "supabase",
+  "providers",
+  "app/api",
+  "app/auth",
+  "hooks",
+  "middleware.ts",
+  "proxy.ts",
+  "package.json",
+  "package-lock.json",
+];
+const protectedDiff = precommit
+  ? git("diff", "--cached", main, "--", ...protectedPaths)
+  : git("diff", main, "HEAD", "--", ...protectedPaths);
+assert.equal(protectedDiff, "", "Protected main paths changed");
+
+const candidateParityPaths = [
+  "app/(dashboard)/dashboard/calendar/page.tsx",
+  "components/booking-sheet/appointment-section.tsx",
+  "components/booking-sheet/booking-sheet.tsx",
+  "components/calendar/calendar-client.tsx",
+  "components/calendar/calendar-toolbar.tsx",
+  "components/calendar/calendar-views.tsx",
+  "components/dashboard/sidebar.tsx",
+  "components/day-view/appointment-card.module.css",
+  "components/day-view/appointment-card.tsx",
+  "components/day-view/day-control-center.tsx",
+  "components/day-view/morning-brief.tsx",
+  "components/reception/color-legend.tsx",
+  "components/reception/reception-panel.tsx",
+  "components/reception/reception-workspace.tsx",
+  "components/system/preview-build-badge.tsx",
+  "components/ui/sheet.tsx",
+];
+for (const path of candidateParityPaths) {
+  assert.equal(finalBlob(path), blobAt(candidate, path), `Approved Reception parity changed: ${path}`);
+}
+
+const mainControlParityPaths = [
+  ".github/CODEOWNERS",
+  "AGENTS.md",
+  "release/candidates.json",
+  "scripts/assert-release-sha.mjs",
+  "scripts/release-guard.mjs",
+  "scripts/verify-production-build-info.mjs",
+  "scripts/verify-release-control-config.mjs",
+  "tests/release-control/assert-release-sha.test.mjs",
+  "tests/release-control/verify-production-build-info.test.mjs",
+  "vercel.json",
+];
+for (const path of mainControlParityPaths) {
+  assert.equal(finalBlob(path), blobAt(main, path), `Release control diverged from main: ${path}`);
+}
+
+const quality = readFileSync(".github/workflows/quality.yml", "utf8");
+assert(quality.includes("name: Quality") && quality.includes("pull_request:"));
+assert(quality.includes("npx playwright install --with-deps chromium webkit"));
+assert(quality.includes("npm run test -- --maxWorkers=1"));
+assert(quality.indexOf("run: npm run build") < quality.indexOf("run: npm run test"));
+
+const release = readFileSync(".github/workflows/release-production.yml", "utf8");
+for (const invariant of [
+  "workflow_dispatch:",
+  "environment: production-release",
+  'git --no-replace-objects -C control archive "$RELEASE_SHA"',
+  "rollback_hold_deployment:",
+  "verify-production-build-info.mjs",
+  "npx playwright install --with-deps chromium webkit",
+  "npm test -- --maxWorkers=1",
+]) assert(release.includes(invariant), `Missing release invariant: ${invariant}`);
+assert(release.indexOf("run: npm run build") < release.indexOf("run: npm test"));
+
+const policy = JSON.parse(readFileSync("release/candidates.json", "utf8"));
+assert.equal(policy.version, 1);
+assert.deepEqual(policy.candidates, [], "Release policy must remain deny-all");
+
+console.log(JSON.stringify({
+  mode: precommit ? "precommit" : "committed",
+  head: precommit ? null : git("rev-parse", "HEAD"),
+  tree: precommit ? git("write-tree") : git("rev-parse", "HEAD^{tree}"),
+  parents: [candidate, main],
+  manualPaths: [...manualPaths],
+  protectedPaths,
+  candidateParityPaths,
+  releasePolicy: "deny-all",
+}, null, 2));

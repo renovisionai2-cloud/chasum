@@ -18,6 +18,22 @@ import { createClient } from "@/lib/supabase/server";
 const TERMINAL_ERROR = "Cancelled appointments are terminal.";
 const NOTES_ONLY_ERROR = "Cancelled appointments can only update notes.";
 const USE_CANCEL_ERROR = "Use Cancel appointment to cancel this appointment.";
+const FINANCIAL_ATTRIBUTION_CONSTRAINT =
+  "commerce_transactions_appt_business_customer_financial_fk";
+const FINANCIAL_ATTRIBUTION_ERROR =
+  "This appointment has financial history, so its customer cannot be changed. Create a new appointment for the correct customer; handle any refund or reversal separately.";
+
+function isFinancialAttributionConstraintError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const candidate = error as Record<string, unknown>;
+  if (candidate.code !== "23503") return false;
+
+  if (candidate.constraint === FINANCIAL_ATTRIBUTION_CONSTRAINT) return true;
+  if (typeof candidate.message !== "string") return false;
+  return candidate.message.includes(
+    `constraint "${FINANCIAL_ATTRIBUTION_CONSTRAINT}"`,
+  );
+}
 
 function sameRef(left: unknown, right: unknown): boolean {
   const a = left == null || left === "" ? null : String(left);
@@ -227,6 +243,9 @@ export async function updateBooking(
     .eq("business_id", intent.businessId);
 
   if (error) {
+    if (isFinancialAttributionConstraintError(error)) {
+      return { phase: "rollback", error: FINANCIAL_ATTRIBUTION_ERROR };
+    }
     return { phase: "rollback", error: error.message };
   }
 

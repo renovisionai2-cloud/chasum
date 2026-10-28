@@ -63,3 +63,6 @@ it("C11 rejects a foreign-Business location_id through the real action and booki
   expect(emit).not.toHaveBeenCalled();
   expect(revalidate).not.toHaveBeenCalled();
 });
+
+// Financial dashboard reads are separate from the writer/Location contract under test.
+vi.mock("@/lib/commerce/financial-aggregate", () => ({ readFinancialAggregate: vi.fn(), singleFinancialAmount: vi.fn() }));

@@ -114,17 +114,17 @@ jobs:
         working-directory: source
         run: npm ci --ignore-scripts --no-audit --no-fund
 
-      - name: Install Chromium
-        working-directory: source
-        run: npx playwright install chromium --with-deps
-
-      - name: Test exact candidate
-        working-directory: source
-        run: npm test
-
       - name: Build exact candidate
         working-directory: source
         run: npm run build
+
+      - name: Install Chromium and WebKit
+        working-directory: source
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Test exact candidate
+        working-directory: source
+        run: npm test -- --maxWorkers=1
 
       - name: Install pinned Vercel CLI without Production credentials
         run: >-

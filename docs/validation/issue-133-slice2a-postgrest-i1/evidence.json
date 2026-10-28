@@ -1,0 +1,566 @@
+{
+  "proofVersion": 1,
+  "timestamp": "2026-10-10T22:27:12.915Z",
+  "designSha256": "1f1a966c8466d6f124adab76a2bb188497c363a30d1f104df42c663d7eba029a",
+  "harnessSha256": "1b6068e68b02493fb429c65a5e86254ac1c0cb66b5ddfd330cf1b16b75636c2b",
+  "localOnly": true,
+  "migrations": [
+    {
+      "name": "001_booking_engine.sql",
+      "sha256": "20b78578d4eb819f4dc13e8a30cf9a69d9b7312e370394c7008808a5529369c8"
+    },
+    {
+      "name": "002_booking_enhancements.sql",
+      "sha256": "98ebf1f249a0af4af589b02389ad40e17a5ca5bc462dbb6233211e39d07cb03a"
+    },
+    {
+      "name": "003_rls_hardening.sql",
+      "sha256": "91bfd8743d1d8165b66e2caaf19cf52edf81dccba8a64447a7bc837483cfe7e9"
+    },
+    {
+      "name": "004_phase3_integrations.sql",
+      "sha256": "782766f2e81e29646cd4c15dc20ae0a425a0a6896dbb62b26b54650598f837d1"
+    },
+    {
+      "name": "005_phase4_scheduling_engine.sql",
+      "sha256": "82527e50d6274b16ac0cab42c26a975a7949356c02e5748b24b42cfd6bc7d081"
+    },
+    {
+      "name": "006_deduplicate_businesses.sql",
+      "sha256": "0eae950b42dfb0b6a7b3613d6cf33aedd5a00f4ad86d8a23a04def5db0383070"
+    },
+    {
+      "name": "007_one_business_per_owner.sql",
+      "sha256": "65d96bfeeb350242564ad47ce7a8e43cd325a7f34575212f271eff8b36a2be51"
+    },
+    {
+      "name": "008_phase5_multi_location.sql",
+      "sha256": "82398d6cc29c8a0678555b979f54481f1ab4c159ce197ccb7ad70b0589fd09b2"
+    },
+    {
+      "name": "009_phase5_drop_old_rpc_overloads.sql",
+      "sha256": "3fd3e0c4ffd68bcc3794a1cb6a6ecab71b6b6876b68acfe9e83dfd582c723be3"
+    },
+    {
+      "name": "010_phase5_location_rls_hardening.sql",
+      "sha256": "9b58e900ccb30ceb7c652409802675f610184d0ed6077d9660541b680a6ead90"
+    },
+    {
+      "name": "011_sprint2_gvm_go_live.sql",
+      "sha256": "97d737ad2df5a4337513fe30a75db636fbd3bc6a931abd6a3c22b517017602a7"
+    },
+    {
+      "name": "012_sprint7_public_booking.sql",
+      "sha256": "a93c69a2cc7bb770500eecc1672885bde97cf99e6e3e247be68487ee1b80db9f"
+    },
+    {
+      "name": "013_sprint8_gvm_go_live.sql",
+      "sha256": "9e0704077cae38fbfc2b507299da333a1170547fee9dd4f7b85abbd296c3e8de"
+    },
+    {
+      "name": "014_owner_platform.sql",
+      "sha256": "14f64c3a516ed12f1781f0eaa843a26ba869971be8740370b68e5bf303f902cc"
+    },
+    {
+      "name": "015_billing_phase1.sql",
+      "sha256": "bd2e0bbaa4ac3f194356867250b1420d80a46fbf123e24102ad556e01f6ea884"
+    },
+    {
+      "name": "016_communication_center_phase1.sql",
+      "sha256": "05638e909a1cdae4d5448de57694a3d894365079425257485eb1c2baaa97b523"
+    },
+    {
+      "name": "017_employee_management.sql",
+      "sha256": "66ae2c6a3e96cd3ae5c245013788cfd5a6a7ad586e6e5e8249627f1a51c84bc2"
+    },
+    {
+      "name": "018_crm_department.sql",
+      "sha256": "81135211651a91c5d94a5e86718760816119726e3defb8c056ecc26d321f7163"
+    },
+    {
+      "name": "019_booking_engine_2.sql",
+      "sha256": "b4ce28be3cb5e2d58b3c9cc7a22a0fb7fba8236b72c86d04a1642fb3d44f9323"
+    },
+    {
+      "name": "020_business_management.sql",
+      "sha256": "dcb87748c70f6813f228a9234d6659b8ca726e90dff7623128602cda7c7a13d9"
+    },
+    {
+      "name": "021_reports_analytics.sql",
+      "sha256": "a33a9706715ac3164472dcc5e38e5a113b774c7f857a47f2346442cc069ed12f"
+    },
+    {
+      "name": "022_ai_receptionist.sql",
+      "sha256": "663c14715b1258bbef20331bbbc4cc366aae159bb1c6baed900335e566d9cc73"
+    },
+    {
+      "name": "023_business_management_settings.sql",
+      "sha256": "2be3b88ff36bc8659076f49e1156ec47e447736733d803b3ed8d312a8fd2dca1"
+    },
+    {
+      "name": "024_services_module.sql",
+      "sha256": "835c7f257e89dce41a61ccf4bae5a713f8215d83969ea14995496b2ab5720b70"
+    },
+    {
+      "name": "025_employees_module.sql",
+      "sha256": "1ed1cf9af6e2158297b95d9d799cd2c40368e140a52d422abef69d3ac4b74db5"
+    },
+    {
+      "name": "026_availability_engine.sql",
+      "sha256": "37b19fb00c95994b5c8c05d143b7fc668b1d032c665ed3ce43aba8a33caea0a8"
+    },
+    {
+      "name": "027_crm_phase_5_4.sql",
+      "sha256": "c8cc754d32bbb56dc21b7f626afe2ba38cceca3f70692a9e803b6175e0891109"
+    },
+    {
+      "name": "028_commerce_platform.sql",
+      "sha256": "f262d750f6c6d9a1d711f793d2b6f92661283026ad635a78d618622f654615ab"
+    },
+    {
+      "name": "029_communications_platform.sql",
+      "sha256": "fa72c992b5916c1097fe7f90512244b6ec923d87597148a9a473a117b8dbc136"
+    },
+    {
+      "name": "030_repair_commerce_payment_columns.sql",
+      "sha256": "4dd92e715fe1806a8bdcb89bbfc4535389b36d0cfad3fe88fe9db81390d44c4a"
+    },
+    {
+      "name": "031_commerce_finalize_and_arrival_workflow.sql",
+      "sha256": "f5411008906d00a380cacb25427d7d2b6236b3a2219019cc5bf1fbfdb231814e"
+    },
+    {
+      "name": "032_private_alpha_co_owners.sql",
+      "sha256": "7e2e00f37f9f314f465e046aa29a9e4a71c476052a558de6767fa933aa66d578"
+    },
+    {
+      "name": "033_private_alpha_co_owner_rls.sql",
+      "sha256": "d2470783554edf549f02314fa9397f0f67be8c736c97b9d3c12960d13ba2db37"
+    },
+    {
+      "name": "034_optional_appointment_staff.sql",
+      "sha256": "049e613156637406c0f291b888ab82503c6247181387883c87f535bf9fa60a93"
+    },
+    {
+      "name": "035_booking_interval_allowed_values.sql",
+      "sha256": "ad25bb5f999bec593d947ffeae00824fdbdbe08544908cd32e801e3da43e0014"
+    },
+    {
+      "name": "036_booking_resources.sql",
+      "sha256": "388615e3d9e61f7bf92c4aed880949a0e91907fa65d2b3570ad9bf99880dfac2"
+    },
+    {
+      "name": "039_business_slug_aliases.sql",
+      "sha256": "c86d3aafb096f4604846a36bb0ae820eaf2734bcebcca739447dd9043cb0481a"
+    },
+    {
+      "name": "041_book_public_appointment_server_financials.sql",
+      "sha256": "c2aaf4971ff72845ed9e1a77fd6f6778abc20374529d1ad88ffbf8a4ea326ec6"
+    },
+    {
+      "name": "20261004190341_issue_134_payment_attempt_foundation.sql",
+      "sha256": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47"
+    },
+    {
+      "name": "20261005154345_issue_134_r1a_manual_payment_kernel.sql",
+      "sha256": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7"
+    },
+    {
+      "name": "20261007012529_issue_134_appointment_financial_attribution.sql",
+      "sha256": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524"
+    },
+    {
+      "name": "20261007203352_issue_134_durable_booking_operation.sql",
+      "sha256": "01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b"
+    },
+    {
+      "name": "20261008210359_issue_133_payment_projection_observability.sql",
+      "sha256": "ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56"
+    }
+  ],
+  "P": {
+    "P1": true,
+    "P2": true,
+    "P3": true,
+    "P4": true,
+    "P5": true,
+    "P6": true,
+    "P7": true,
+    "P8": true,
+    "P9": true
+  },
+  "N": {
+    "N1": true,
+    "N2": true,
+    "N3": true,
+    "N4": true,
+    "N5": true,
+    "N6": true,
+    "N7": true
+  },
+  "cleanup": {
+    "postgrestStopped": true,
+    "postgresStopped": true,
+    "ownedPgdataRemoved": true
+  },
+  "postgresVersion": "postgres (PostgreSQL) 17.11 (Homebrew)",
+  "postgrestVersion": "PostgREST 16.4",
+  "binary": {
+    "path": "/private/tmp/chasum-i1-postgrest/v16.4/postgrest",
+    "sha256": "325628d6bc975251c2952c1275e969b8dc57f88db32dfb82c4c6597cebcd260b",
+    "libpqDirectory": "/opt/homebrew/Cellar/postgresql@17/17.11/lib/postgresql"
+  },
+  "referenceRelease": {
+    "version": "16.4",
+    "platform": "macOS ARM64",
+    "url": "https://github.com/PostgREST/postgrest/releases/tag/v16.4",
+    "archiveUrl": "https://github.com/PostgREST/postgrest/releases/download/v16.4/postgrest-v16.4-macos-aarch64.tar.xz",
+    "archiveSha256": "5720fbde4a19ade9fb189791615c84beb9f0e58201b1b6d17fe3b698faf60776",
+    "binarySha256": "325628d6bc975251c2952c1275e969b8dc57f88db32dfb82c4c6597cebcd260b"
+  },
+  "bootstrap": {
+    "scope": "Supabase auth/storage external platform prerequisites only; every application relation comes from unchanged repository migrations",
+    "sha256": "372dde3e322a42d0604d1f3f29fca3a094ecc3007cc3deee85fe51444b9764a1"
+  },
+  "fixtures": {
+    "businessA": "a1332000-0000-4000-8000-000000000001",
+    "businessB": "a1332000-0000-4000-8000-000000000002",
+    "roots": [
+      {
+        "name": "CLEAN",
+        "transaction": "a1332000-0000-4000-8000-000000000101",
+        "appointment": "a1332000-0000-4000-8000-000000000201",
+        "attempt": "a1332000-0000-4000-8000-000000000301"
+      },
+      {
+        "name": "SAME_BUSINESS_TRANSACTION_REFUND",
+        "transaction": "a1332000-0000-4000-8000-000000000102",
+        "appointment": "a1332000-0000-4000-8000-000000000202",
+        "attempt": "a1332000-0000-4000-8000-000000000302"
+      },
+      {
+        "name": "CROSS_BUSINESS_TRANSACTION_REFUND",
+        "transaction": "a1332000-0000-4000-8000-000000000103",
+        "appointment": "a1332000-0000-4000-8000-000000000203",
+        "attempt": "a1332000-0000-4000-8000-000000000303"
+      },
+      {
+        "name": "APPOINTMENT_ONLY_REFUND",
+        "transaction": "a1332000-0000-4000-8000-000000000104",
+        "appointment": "a1332000-0000-4000-8000-000000000204",
+        "attempt": "a1332000-0000-4000-8000-000000000304"
+      }
+    ],
+    "foreignRoot": "a1332000-0000-4000-8000-000000000109",
+    "refunds": [
+      {
+        "id": "a1332000-0000-4000-8000-000000000501",
+        "business": "a1332000-0000-4000-8000-000000000001",
+        "customer": "a1332000-0000-4000-8000-000000000021",
+        "tx": "a1332000-0000-4000-8000-000000000102",
+        "appt": null
+      },
+      {
+        "id": "a1332000-0000-4000-8000-000000000502",
+        "business": "a1332000-0000-4000-8000-000000000002",
+        "customer": "a1332000-0000-4000-8000-000000000022",
+        "tx": "a1332000-0000-4000-8000-000000000103",
+        "appt": null
+      },
+      {
+        "id": "a1332000-0000-4000-8000-000000000503",
+        "business": "a1332000-0000-4000-8000-000000000002",
+        "customer": "a1332000-0000-4000-8000-000000000022",
+        "tx": "a1332000-0000-4000-8000-000000000103",
+        "appt": null
+      },
+      {
+        "id": "a1332000-0000-4000-8000-000000000504",
+        "business": "a1332000-0000-4000-8000-000000000002",
+        "customer": "a1332000-0000-4000-8000-000000000022",
+        "tx": "a1332000-0000-4000-8000-000000000109",
+        "appt": "a1332000-0000-4000-8000-000000000204"
+      },
+      {
+        "id": "a1332000-0000-4000-8000-000000000505",
+        "business": "a1332000-0000-4000-8000-000000000002",
+        "customer": "a1332000-0000-4000-8000-000000000022",
+        "tx": "a1332000-0000-4000-8000-000000000109",
+        "appt": "a1332000-0000-4000-8000-000000000204"
+      }
+    ],
+    "seededRefundCounts": {
+      "sameBusiness": 1,
+      "crossBusiness": 2,
+      "appointmentOnly": 2
+    }
+  },
+  "principal": {
+    "role": "i1_reader",
+    "superuser": false,
+    "bypassrls": true,
+    "refundSelect": true
+  },
+  "relationships": [
+    {
+      "name": "appointments_booking_operation_fk",
+      "from": "appointments",
+      "to": "commerce_booking_operations",
+      "definition": "FOREIGN KEY (booking_operation_id, business_id) REFERENCES commerce_booking_operations(id, business_id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_business_id_fkey",
+      "from": "appointments",
+      "to": "businesses",
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "appointments_customer_id_fkey",
+      "from": "appointments",
+      "to": "customers",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_location_id_fkey",
+      "from": "appointments",
+      "to": "locations",
+      "definition": "FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_recurring_rule_id_fkey",
+      "from": "appointments",
+      "to": "recurring_rules",
+      "definition": "FOREIGN KEY (recurring_rule_id) REFERENCES recurring_rules(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "appointments_room_id_fkey",
+      "from": "appointments",
+      "to": "booking_resources",
+      "definition": "FOREIGN KEY (room_id) REFERENCES booking_resources(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "appointments_service_id_fkey",
+      "from": "appointments",
+      "to": "services",
+      "definition": "FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_staff_id_fkey",
+      "from": "appointments",
+      "to": "staff",
+      "definition": "FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "commerce_refunds_appointment_id_fkey",
+      "from": "commerce_refunds",
+      "to": "appointments",
+      "definition": "FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "commerce_refunds_approved_by_fkey",
+      "from": "commerce_refunds",
+      "to": "auth.users",
+      "definition": "FOREIGN KEY (approved_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "commerce_refunds_business_id_fkey",
+      "from": "commerce_refunds",
+      "to": "businesses",
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "commerce_refunds_created_by_fkey",
+      "from": "commerce_refunds",
+      "to": "auth.users",
+      "definition": "FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "commerce_refunds_customer_id_fkey",
+      "from": "commerce_refunds",
+      "to": "customers",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "commerce_refunds_invoice_id_fkey",
+      "from": "commerce_refunds",
+      "to": "commerce_invoices",
+      "definition": "FOREIGN KEY (invoice_id) REFERENCES commerce_invoices(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "commerce_refunds_transaction_id_fkey",
+      "from": "commerce_refunds",
+      "to": "commerce_transactions",
+      "definition": "FOREIGN KEY (transaction_id) REFERENCES commerce_transactions(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "commerce_transactions_appointment_id_fkey",
+      "from": "commerce_transactions",
+      "to": "appointments",
+      "definition": "FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "commerce_transactions_appt_business_customer_financial_fk",
+      "from": "commerce_transactions",
+      "to": "appointments",
+      "definition": "FOREIGN KEY (appointment_id, business_id, customer_id) REFERENCES appointments(id, business_id, customer_id) ON UPDATE RESTRICT"
+    },
+    {
+      "name": "commerce_transactions_attempt_business_fk",
+      "from": "commerce_transactions",
+      "to": "commerce_payment_attempts",
+      "definition": "FOREIGN KEY (payment_attempt_id, business_id) REFERENCES commerce_payment_attempts(id, business_id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "commerce_transactions_business_id_fkey",
+      "from": "commerce_transactions",
+      "to": "businesses",
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "commerce_transactions_created_by_fkey",
+      "from": "commerce_transactions",
+      "to": "auth.users",
+      "definition": "FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "commerce_transactions_customer_id_fkey",
+      "from": "commerce_transactions",
+      "to": "customers",
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "commerce_transactions_invoice_id_fkey",
+      "from": "commerce_transactions",
+      "to": "commerce_invoices",
+      "definition": "FOREIGN KEY (invoice_id) REFERENCES commerce_invoices(id) ON DELETE SET NULL"
+    }
+  ],
+  "fkHints": {
+    "transactionWitness": "commerce_refunds_transaction_id_fkey",
+    "appointmentWitness": "commerce_refunds_appointment_id_fkey",
+    "appointment": "commerce_transactions_appt_business_customer_financial_fk",
+    "location": "appointments_location_id_fkey",
+    "attempt": "commerce_transactions_attempt_business_fk"
+  },
+  "config": {
+    "db-uri": "postgresql:///postgres?host=%2Fprivate%2Ftmp%2Fchasum-i1-run-qFWGR5%2Fsocket&port=55439&user=i1_reader",
+    "db-schemas": "public",
+    "db-anon-role": "i1_reader",
+    "db-aggregates-enabled": false,
+    "db-plan-enabled": true,
+    "db-config": false,
+    "db-max-rows": 100,
+    "db-pool": 1,
+    "server-host": "127.0.0.1",
+    "server-port": 52160
+  },
+  "effectiveConfigSha256": "9c5a3f6276127cf580c15e19144cf0a2f3747bf1ddfea3bec62c3b661ea99a0c",
+  "effectiveConfig": "admin-server-host = \"127.0.0.1\"\nadmin-server-port = \"\"\nadmin-server-unix-socket = \"\"\nadmin-server-unix-socket-mode = \"660\"\nclient-error-verbosity = \"verbose\"\ndb-aggregates-enabled = false\ndb-anon-role = \"i1_reader\"\ndb-channel = \"pgrst\"\ndb-channel-enabled = true\ndb-config = false\ndb-extra-search-path = \"public\"\ndb-hoisted-tx-settings = \"statement_timeout,plan_filter.statement_cost_limit,default_transaction_isolation\"\ndb-max-rows = 100\ndb-plan-enabled = true\ndb-pool = 1\ndb-pool-acquisition-timeout = 10\ndb-pool-automatic-recovery = true\ndb-pool-max-idletime = 30\ndb-pool-max-lifetime = 1800\ndb-pre-config = \"\"\ndb-pre-request = \"\"\ndb-prepared-statements = true\ndb-root-spec = \"\"\ndb-schemas = \"public\"\ndb-tx-end = \"commit\"\ndb-uri = \"postgresql:///postgres?host=%2Fprivate%2Ftmp%2Fchasum-i1-run-qFWGR5%2Fsocket&port=55439&user=i1_reader\"\njwt-aud = \"\"\njwt-cache-max-entries = 1000\njwt-role-claim-key = \"$$.role\"\njwt-secret = \"\"\njwt-secret-is-base64 = false\nlog-level = \"error\"\nlog-query = false\nopenapi-mode = \"follow-privileges\"\nopenapi-security-active = false\nopenapi-server-proxy-uri = \"\"\nserver-cors-allowed-origins = \"\"\nserver-host = \"127.0.0.1\"\nserver-port = 52160\nserver-reuseport = false\nserver-timing-enabled = false\nserver-trace-header = \"\"\nserver-unix-socket = \"\"\nserver-unix-socket-mode = \"660\"\nurl-use-legacy-target-names = true\n",
+  "request": {
+    "path": "/commerce_transactions",
+    "select": "id,business_id,customer_id,appointment_id,payment_attempt_id,amount_cents,currency,occurred_at,attempt:commerce_payment_attempts!commerce_transactions_attempt_business_fk(id,business_id,customer_id,appointment_id,execution_state),appointment:appointments!commerce_transactions_appt_business_customer_financial_fk(id,business_id,customer_id,location_id,current_location:locations!appointments_location_id_fkey(id,business_id),appointment_witness:commerce_refunds!commerce_refunds_appointment_id_fkey(appointment_id)),transaction_witness:commerce_refunds!commerce_refunds_transaction_id_fkey(transaction_id)",
+    "query": "select=id%2Cbusiness_id%2Ccustomer_id%2Cappointment_id%2Cpayment_attempt_id%2Camount_cents%2Ccurrency%2Coccurred_at%2Cattempt%3Acommerce_payment_attempts%21commerce_transactions_attempt_business_fk%28id%2Cbusiness_id%2Ccustomer_id%2Cappointment_id%2Cexecution_state%29%2Cappointment%3Aappointments%21commerce_transactions_appt_business_customer_financial_fk%28id%2Cbusiness_id%2Ccustomer_id%2Clocation_id%2Ccurrent_location%3Alocations%21appointments_location_id_fkey%28id%2Cbusiness_id%29%2Cappointment_witness%3Acommerce_refunds%21commerce_refunds_appointment_id_fkey%28appointment_id%29%29%2Ctransaction_witness%3Acommerce_refunds%21commerce_refunds_transaction_id_fkey%28transaction_id%29&business_id=eq.a1332000-0000-4000-8000-000000000001&and=%28occurred_at.gte.2032-01-01T00%3A00%3A00Z%2Coccurred_at.lt.2032-02-01T00%3A00%3A00Z%29&order=id.asc&limit=100&transaction_witness.limit=1&appointment.appointment_witness.limit=1",
+    "headers": {
+      "Prefer": "count=exact",
+      "Accept": "application/json"
+    },
+    "dataRequests": 1
+  },
+  "httpStatus": 200,
+  "contentRange": "0-3/4",
+  "privacy": {
+    "forbiddenValues": [
+      "a1332000-0000-4000-8000-000000000002",
+      "a1332000-0000-4000-8000-000000000022",
+      "a1332000-0000-4000-8000-000000000012",
+      "a1332000-0000-4000-8000-000000000109",
+      "987654321",
+      "zzq",
+      "I1_REFUND_REASON_CANARY",
+      "I1_REFUND_PROVIDER_CANARY",
+      "I1_REFUND_REFERENCE_CANARY",
+      "I1_REFUND_METADATA_CANARY",
+      "rejected",
+      "failed",
+      "2047-06-17",
+      "a1332000-0000-4000-8000-000000000501",
+      "a1332000-0000-4000-8000-000000000502",
+      "a1332000-0000-4000-8000-000000000503",
+      "a1332000-0000-4000-8000-000000000504",
+      "a1332000-0000-4000-8000-000000000505"
+    ],
+    "forbiddenWitnessFields": [
+      "id",
+      "business_id",
+      "amount_cents",
+      "currency",
+      "reason",
+      "provider",
+      "provider_reference",
+      "metadata",
+      "status",
+      "approval_status",
+      "approved_by",
+      "approved_at",
+      "customer_id",
+      "created_by",
+      "created_at",
+      "updated_at",
+      "invoice_id",
+      "refund_type"
+    ],
+    "rawScanned": true,
+    "unexpectedWitnessKeys": 0
+  },
+  "plan": {
+    "accept": "application/vnd.pgrst.plan+json; for=\"application/json\"; options=verbose",
+    "httpStatus": 200,
+    "topLevelPlans": 1,
+    "dataStatements": 1,
+    "dataStatementSha256": "d5c122e5fc355aca44e7f74df81967c6702a50be5ffd8abe87408062e655e171",
+    "refundScans": 2
+  },
+  "completeness": {
+    "expected": 4,
+    "actual": 4,
+    "total": 4,
+    "guards": {
+      "C1": true,
+      "C2": true,
+      "C3": true,
+      "C4": true,
+      "C5": true,
+      "C6": true
+    },
+    "negativeCountMismatch": "UNKNOWN",
+    "negativePartial": "UNKNOWN",
+    "negativeError": "UNKNOWN"
+  },
+  "cardinalities": [
+    {
+      "case": "CLEAN",
+      "transaction": 0,
+      "appointment": 0
+    },
+    {
+      "case": "SAME_BUSINESS_TRANSACTION_REFUND",
+      "transaction": 1,
+      "appointment": 0
+    },
+    {
+      "case": "CROSS_BUSINESS_TRANSACTION_REFUND",
+      "transaction": 1,
+      "appointment": 0
+    },
+    {
+      "case": "APPOINTMENT_ONLY_REFUND",
+      "transaction": 0,
+      "appointment": 1
+    }
+  ],
+  "hashes": {
+    "rawResponse": "93e498ed6f6c8970cbf337b489958a922963c0357e3ec2b305cf096988055d75",
+    "plan": "089ff6af0b90de6115515e73d05792d23584d0645c5e7766402aa526ed24d28d"
+  },
+  "verdict": "SLICE2A_I1_LOCAL_POSTGREST_PROOF_PASS"
+}

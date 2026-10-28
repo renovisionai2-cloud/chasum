@@ -1,3 +1,4 @@
+import type { FinancialAmount } from "./financial-aggregate/types";
 /**
  * Commerce Platform contracts — client payments, invoices, receipts, refunds.
  * Never store card numbers. Only provider references.
@@ -156,11 +157,12 @@ export type BookingPaymentSummary = {
 
 export type CustomerCommerceAccount = {
   customerId: string;
-  outstandingBalanceCents: number;
-  lifetimeSpendCents: number;
-  depositsCents: number;
-  remainingBalanceCents: number;
-  totalPaidCents: number;
+  financialStatus: "unknown" | "source_disagreement";
+  outstandingBalanceCents: number | null;
+  lifetimeSpendCents: number | null;
+  depositsCents: number | null;
+  remainingBalanceCents: number | null;
+  totalPaidCents: number | null;
   storeCreditCents: number;
   giftCards: {
     id: string;
@@ -180,16 +182,16 @@ export type CommerceDashboardSnapshot = {
   generatedAt: string;
   schemaReady: boolean;
   schemaMessage: string | null;
-  revenueTodayCents: number;
-  revenueWeekCents: number;
-  revenueMonthCents: number;
-  outstandingInvoicesCents: number;
+  revenueTodayCents: FinancialAmount;
+  revenueWeekCents: FinancialAmount;
+  revenueMonthCents: FinancialAmount;
+  outstandingInvoicesCents: FinancialAmount;
   outstandingInvoicesCount: number;
-  outstandingDepositsCents: number;
+  outstandingDepositsCents: FinancialAmount;
   outstandingDepositsCount: number;
-  refundsMonthCents: number;
-  averageTransactionCents: number | null;
-  averageCustomerValueCents: number | null;
+  refundsMonthCents: FinancialAmount;
+  averageTransactionCents: FinancialAmount;
+  averageCustomerValueCents: FinancialAmount;
   recentTransactions: CommerceTransaction[];
   openInvoices: CommerceInvoice[];
   recentRefunds: CommerceRefund[];
@@ -200,14 +202,14 @@ export type CommerceDashboardSnapshot = {
 };
 
 export type ChaseCommerceMetrics = {
-  revenueTodayCents: number;
-  revenueWeekCents: number;
-  revenueMonthCents: number;
-  outstandingInvoicesCents: number;
-  outstandingDepositsCents: number;
-  refundsTrendCents: number;
-  averageTransactionCents: number | null;
-  averageCustomerValueCents: number | null;
+  revenueTodayCents: FinancialAmount;
+  revenueWeekCents: FinancialAmount;
+  revenueMonthCents: FinancialAmount;
+  outstandingInvoicesCents: FinancialAmount;
+  outstandingDepositsCents: FinancialAmount;
+  refundsTrendCents: FinancialAmount;
+  averageTransactionCents: FinancialAmount;
+  averageCustomerValueCents: FinancialAmount;
 };
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {

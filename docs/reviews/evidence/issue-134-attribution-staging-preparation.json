@@ -1,0 +1,176 @@
+{
+  "provenance": "Coordinator normalized transcription of native Supabase.execute_sql results; not raw response bytes or reviewer database execution",
+  "project_id": "wnfahklzaxirftyskctd",
+  "scope": "READ-ONLY PREPARATION \u2014 NOT APPLICATION",
+  "package_audit": "6abdd6ff1ed79e4a7ca6c21c625c26f29b45397b2bb41b5dc8606dfecc4ae4ba",
+  "chunk01": {
+    "reviewed_source_sha256": "6ba2c60d63a218da3b6101255a5ff7dd4da0c06556dd9567c95e5e6177bb96c5",
+    "outcome": "PRE_APPLY_CATALOGUE_PASS",
+    "context": {
+      "observed_at": "2026-10-07T16:43:34.622352+00:00",
+      "database": "postgres",
+      "server_version": "17.6",
+      "server17": true,
+      "session_user": "postgres",
+      "effective_role": "postgres",
+      "transaction_read_only": true,
+      "lock_timeout": "5s",
+      "statement_timeout": "30s"
+    },
+    "history": {
+      "all_row_count": 12,
+      "foundation_exact": true,
+      "r1a_exact": true,
+      "candidate_absent": true,
+      "candidate_exact": false,
+      "candidate_rows": [],
+      "all_rows_sha256": "865a9ec00fa6fa67d5321e0e9946423ff76111737a7522068574742ce3e18dd9",
+      "prior_rows_sha256": "865a9ec00fa6fa67d5321e0e9946423ff76111737a7522068574742ce3e18dd9"
+    },
+    "candidate_state": "PRE_APPLY_ABSENT",
+    "candidate_constraints": [],
+    "candidate_function": null,
+    "candidate_triggers": [],
+    "schema_columns": {
+      "all_exact": true,
+      "mismatches": []
+    },
+    "old_appointment_fk": {
+      "exact": true,
+      "name": "commerce_transactions_appointment_id_fkey",
+      "definition": "FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE SET NULL",
+      "validated": true,
+      "deferrable": false,
+      "deferred": false
+    },
+    "accepted_guard_exact": true,
+    "accepted_guard_trigger_exact": true,
+    "accepted_guard_trigger": {
+      "enabled": "O",
+      "internal": false,
+      "trigger_type": 31,
+      "trigger_name": "commerce_transactions_attempt_guard",
+      "relation_name": "commerce_transactions",
+      "function_name": "guard_commerce_attempt_ledger_link()"
+    },
+    "prior_target_triggers": {
+      "count": 2,
+      "sha256": "abc6ddaecbc96ea4e5e0f2969c9f156a9ec54d6af5fad4200b3e35b753063ce8",
+      "names": [
+        "commerce_transactions_attempt_guard",
+        "commerce_transactions_updated_at"
+      ]
+    },
+    "target_locks": {
+      "other_lock_count": 0,
+      "rows": []
+    },
+    "policies": {
+      "count": 2,
+      "sha256": "fb5a9c72056521253e293d408a2d7f106fe35f8c3c3731286e0a479cb651a9dc"
+    },
+    "all15_target_indexes_valid_and_ready": true,
+    "relations": [
+      {
+        "name": "appointments",
+        "rows_from_data_query": 13,
+        "heap_bytes": 8192,
+        "index_bytes": 114688,
+        "total_bytes": 163840
+      },
+      {
+        "name": "commerce_transactions",
+        "rows_from_data_query": 6,
+        "heap_bytes": 8192,
+        "index_bytes": 114688,
+        "total_bytes": 131072
+      }
+    ],
+    "existing_security": {
+      "all5_relations_owner": "postgres",
+      "all5_rls_enabled": true,
+      "all5_force_rls": false,
+      "appointments_and_transactions_acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "attempts_events_reconciliation_acl": "{postgres=arwdDxtm/postgres,service_role=ar/postgres}",
+      "all5_functions_acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "all5_functions_security_definer": false,
+      "all5_functions_search_path": "pg_catalog, pg_temp",
+      "event_sequence_acl": "{postgres=rwU/postgres,anon=rU/postgres,authenticated=rU/postgres,service_role=rU/postgres}",
+      "sequence_anon_authenticated_usage_select": true,
+      "sequence_anon_authenticated_update": false
+    },
+    "accepted_function_body_hashes": {
+      "admit_payment_attempt_v1": "110485eb1eb2a86fd2eec72507fdf8beb7304aae92251ddef598162d05dd5847",
+      "commit_manual_payment_attempt_v1": "e6acc9a31613b2f039305cf5169871e9b433839b4077b83d0858246194f46b15",
+      "guard_commerce_attempt_ledger_link": "20d443ae21823633aa97d9560b37a1816127e814da25d23e96412eb375b90e79",
+      "guard_commerce_payment_attempt": "2de880afde790a0fe06b92a6904c123dc946e2e99fe0c896c48631f074f7ff9f",
+      "reject_commerce_attempt_history_mutation": "ae6fd13c82cf5537502dcd57470cac2dc184a6f3a6c10aaeb3801118f6f178ac"
+    }
+  },
+  "chunk02": {
+    "source_sha256": "0f1d25963292340be887002fcbf53089bdd38e0ea5a990a40789c3af04845411",
+    "observed_at": "2026-10-07T16:29:22.098708+00:00",
+    "database": "postgres",
+    "server_version": "17.6",
+    "transaction_read_only": true,
+    "lock_timeout": "5s",
+    "statement_timeout": "30s",
+    "outcome": "PREPARATION_DATA_CHECK_PASS",
+    "accepted_old_cohort_matches": true,
+    "accepted_old_snapshot_tables": 18,
+    "run02_financial_matches": true,
+    "run02_financial_rows": 27,
+    "run02_financial_sha256": "42ed8dfff1dd81c807168b652f7d4bb5a736664f63b48fb261b9b8b94a0dd0de",
+    "noncohort_matches": true,
+    "noncohort_tables": 4,
+    "tuple_compatibility": {
+      "appointment_linked_rows": 5,
+      "mismatch_count": 0,
+      "business_mismatch_count": 0,
+      "customer_mismatch_count": 0,
+      "duplicate_parent_triple_count": 0,
+      "mismatch_identifiers": []
+    },
+    "current_retained": {
+      "parent_rows": 53,
+      "financial_rows": 37,
+      "public_rows": 90,
+      "attempts": 6,
+      "accepted_attempts": 4,
+      "requested_attempts": 2,
+      "events": 11,
+      "requested_events": 6,
+      "accepted_events": 4,
+      "conflict_events": 1,
+      "linked_ledgers": 4,
+      "ledger_total_cents": 18100,
+      "all_ledger_currency_cad": true,
+      "obligations": 16,
+      "pending_obligations": 15,
+      "not_required_obligations": 1,
+      "c1_not_required_appointment_cache": true,
+      "counts_match_expected": true,
+      "identity_mismatch_count": 0,
+      "identity_mismatch_keys": [],
+      "sequence": {
+        "last_value": "14",
+        "is_called": true
+      }
+    }
+  },
+  "initial_query_error_preserved": {
+    "source_sha256": "9830be274f3af7a28a07d83e3d66fa706b318d2d239f9058677c45493953f545",
+    "outcome": "READ_ONLY_QUERY_ERROR",
+    "sqlstate": "42725",
+    "message": "operator is not unique: text || \"char\"",
+    "location": "policy fingerprint concatenation at relation_name || ... || polcmd",
+    "no_catalogue_PASS_claimed": true
+  },
+  "no_application_or_hosted_writes": true,
+  "local_proof_not_rerun": true,
+  "limits": [
+    "Different timestamps and transactions; not a frozen or current-at-apply snapshot. Fresh same queries must run immediately before separately approved apply.",
+    "Candidate exact=false and function=null are expected PRE_APPLY_ABSENT, not a failed postapply assertion. No postapply result exists.",
+    "Current full native results are on the conversation tool surface; this file is a selected normalized evidence summary, not an unedited transport capture."
+  ]
+}
