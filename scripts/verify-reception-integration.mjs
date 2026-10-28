@@ -7,6 +7,9 @@ const candidate = "9f305c2f9a377b95aa1642a3dc69f70cc0cb4573";
 const main = "80968d24dc1d87407205e54ccc949433ed39e8eb";
 const auditedMerge = "2942ac9edd29600bf05d7208526778b0d995d7e6";
 const auditedMergeTree = "3488bddb4a30c1eb43ef16c640b370e426b6ee34";
+const auditedHardening = "bd0e9fc73528373f304dbc9fb8c259bd9b7daa93";
+const auditedHardeningTree = "095577e81096ef0ecedccb5f3d9ac7f73c5ec8cd";
+const diagnosticTestPath = "tests/unit/dashboard/m1c-reception-compatibility.test.tsx";
 const qualityPath = ".github/workflows/quality.yml";
 const verifierPath = "scripts/verify-reception-integration.mjs";
 const precommit = process.argv.includes("--precommit");
@@ -32,6 +35,7 @@ const indexBlob = (path) => {
 const finalBlob = (path) => precommit ? indexBlob(path) : blobAt("HEAD", path);
 
 const hardeningPaths = [qualityPath, verifierPath];
+const diagnosticPaths = [diagnosticTestPath, verifierPath];
 const head = git("rev-parse", "HEAD");
 assert.equal(git("rev-parse", `${auditedMerge}^{tree}`), auditedMergeTree, "Audited merge tree changed");
 assert.equal(
@@ -40,28 +44,39 @@ assert.equal(
   "Audited integration must retain candidate first and main second",
 );
 
+// The accepted hardening commit remains immutable; validate its original delta.
+assert.equal(git("rev-parse", `${auditedHardening}^{tree}`), auditedHardeningTree, "Audited hardening tree changed");
+assert.equal(git("show", "-s", "--format=%P", auditedHardening), auditedMerge, "Audited hardening parent changed");
+assert.deepEqual(
+  git("diff", "--name-only", auditedMerge, auditedHardening).split("\n").filter(Boolean).sort(),
+  [...hardeningPaths].sort(),
+  "Historical hardening must retain exactly its two approved paths",
+);
+
 if (precommit) {
-  assert.equal(head, auditedMerge, "Precommit hardening must start at the exact audited merge");
+  assert.equal(head, auditedHardening, "Precommit diagnostics must start at the exact audited hardening");
   assert.equal(git("diff", "--name-only", "--diff-filter=U"), "", "Merge conflicts remain unresolved");
   assert.equal(git("diff", "--name-only"), "", "Precommit verifier requires no unstaged changes");
   assert.equal(git("ls-files", "--others", "--exclude-standard"), "", "Unexpected untracked files");
 } else {
   assert.equal(
     git("show", "-s", "--format=%P", "HEAD"),
-    auditedMerge,
-    "CI hardening must have the exact audited merge as its direct and only parent",
+    auditedHardening,
+    "Diagnostics must have the exact audited hardening as their direct and only parent",
   );
+  assert.equal(git("rev-list", "--count", `${auditedHardening}..HEAD`), "1", "Exactly one diagnostics child is allowed");
   assert.equal(git("status", "--porcelain"), "", "Integration worktree must be clean");
 }
 git("merge-base", "--is-ancestor", candidate, "HEAD");
 git("merge-base", "--is-ancestor", main, "HEAD");
-const hardeningDiff = precommit
-  ? git("diff", "--cached", "--name-only", auditedMerge)
-  : git("diff", "--name-only", auditedMerge, "HEAD");
+git("merge-base", "--is-ancestor", auditedHardening, "HEAD");
+const diagnosticDiff = precommit
+  ? git("diff", "--cached", "--no-renames", "--name-status", auditedHardening)
+  : git("diff", "--no-renames", "--name-status", auditedHardening, "HEAD");
 assert.deepEqual(
-  hardeningDiff.split("\n").filter(Boolean).sort(),
-  [...hardeningPaths].sort(),
-  "CI hardening must change exactly the two approved files",
+  diagnosticDiff.split("\n").filter(Boolean).sort(),
+  diagnosticPaths.map((path) => `M\t${path}`).sort(),
+  "Diagnostics must modify exactly the two approved existing files",
 );
 
 function assertBuildBeforeTest(workflow, testCommand, label) {
@@ -77,6 +92,7 @@ assertBuildBeforeTest(quality, "run: npm run test", "Quality");
 assert(quality.includes("name: Quality") && quality.includes("pull_request:"));
 assert(quality.includes("npx playwright install --with-deps chromium webkit"));
 assert(quality.includes("npm run test -- --maxWorkers=1"));
+assert.match(quality, /^    timeout-minutes: 30$/m, "Quality timeout must remain exactly 30 minutes");
 
 const release = readFileSync(".github/workflows/release-production.yml", "utf8");
 assertBuildBeforeTest(release, "run: npm test", "Production release");
@@ -141,14 +157,20 @@ const finalPaths = precommit
 const inheritedPaths = new Set([...candidatePaths, ...mainPaths]);
 for (const path of inheritedPaths) {
   assert(finalPaths.has(path), `Unexpected inherited-path deletion: ${path}`);
-  const resolvedBlob = finalBlob(path);
+  // Preserve the historical 13-file reconciliation independently of this child.
+  const resolvedBlob = blobAt(auditedHardening, path);
   const inherited = resolvedBlob === blobAt(candidate, path) || resolvedBlob === blobAt(main, path);
   if (!inherited) {
     assert.equal(reconciledBlobs.get(path), resolvedBlob, `Non-parent blob outside reviewed reconciliation: ${path}`);
   }
 }
+const hardeningFileSet = pathSet(auditedHardening);
+assert.deepEqual([...finalPaths].sort(), [...hardeningFileSet].sort(), "Diagnostic child must not add or remove paths");
 for (const path of finalPaths) {
   if (!inheritedPaths.has(path)) assert.equal(path, verifierPath, `Unexpected integration-only path: ${path}`);
+  if (!diagnosticPaths.includes(path)) {
+    assert.equal(finalBlob(path), blobAt(auditedHardening, path), `Unexpected diagnostics change: ${path}`);
+  }
 }
 
 const protectedPaths = [
@@ -214,7 +236,10 @@ console.log(JSON.stringify({
   mode: precommit ? "precommit" : "committed",
   head: precommit ? null : git("rev-parse", "HEAD"),
   tree: precommit ? git("write-tree") : git("rev-parse", "HEAD^{tree}"),
-  parents: [auditedMerge],
+  parents: [auditedHardening],
+  auditedHardening,
+  auditedHardeningTree,
+  diagnosticPaths,
   auditedMerge,
   auditedMergeTree,
   mergeParents: [candidate, main],

@@ -1,10 +1,11 @@
 // @vitest-environment node
 import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { createServer, type ViteDevServer } from "vite";
+import { performance } from "node:perf_hooks";
+import { createLogger, createServer, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import ts from "typescript";
-import { chromium, webkit, type Browser } from "playwright-core";
+import { chromium, webkit, type Browser, type BrowserContext, type Page, type Request, type Response, type ConsoleMessage } from "playwright-core";
 import { afterAll, beforeAll, expect, it } from "vitest";
 
 // Actual Calendar/BookingSheet/dashboard/CSS, with the already accepted synthetic
@@ -18,7 +19,189 @@ let server: ViteDevServer;
 const browsers: Record<string, Browser> = {};
 let origin: string;
 
+// Observers only: no transforms, prewarming, readiness waits or navigation retries.
+const diagnosticEpoch = performance.now();
+const elapsed = () => Math.round((performance.now() - diagnosticEpoch) * 10) / 10;
+type DiagnosticEvent = { event: string; atMs: number; [key: string]: unknown };
+function diagnosticBuffer(limit: number) {
+  const events: DiagnosticEvent[] = [];
+  let dropped = 0;
+  return {
+    add(event: string, detail: Record<string, unknown> = {}) {
+      if (events.length === limit) { events.shift(); dropped++; }
+      events.push({ event, atMs: elapsed(), ...detail });
+    },
+    snapshot: () => ({ events: [...events], dropped }),
+  };
+}
+function diagnosticPath(value: string) {
+  if (value.startsWith("\0badge:")) return "/@id/" + value.slice(1).split("?")[0].slice(0, 140);
+  const local = value.startsWith(root + "/") ? value.slice(root.length) : value;
+  try {
+    const url = new URL(local, origin || "http://127.0.0.1");
+    return url.origin === (origin || "http://127.0.0.1") ? url.pathname.slice(0, 160) : "[external]";
+  } catch { return "[unparseable path]"; }
+}
+function diagnosticText(value: unknown) {
+  return String(value instanceof Error ? value.message : value)
+    .replace(/(?:https?|wss?):\/\/[^\s<>"']+/g, (url) => diagnosticPath(url))
+    .replace(/\?[^\s<>"']+/g, "?[redacted]")
+    .replace(/[\w.+-]+@[\w.-]+/g, "[email]")
+    .replace(/\b(?:Bearer\s+\S+|eyJ[\w.-]+)\b/gi, "[credential]")
+    .replace(/\b(authorization|cookie|token|password|secret)\s*[:=]\s*[^\n]+/gi, "$1=[redacted]")
+    .replaceAll(root, "[fixture]").slice(0, 240);
+}
+function emitDiagnostic(payload: Record<string, unknown>) {
+  // Logging must never replace the error being investigated, even if a sink fails.
+  try {
+    const json = JSON.stringify(payload);
+    console.info("[m1c-navigation] " + (json.length <= 32_000 ? json : JSON.stringify({
+      event: "DIAGNOSTIC_OUTPUT_LIMIT", truncated: true, jsonPrefix: json.slice(0, 30_000),
+    })));
+  } catch {
+    try { process.stderr.write('[m1c-navigation] {"event":"DIAGNOSTIC_COLLECTION_FAILED","phase":"emit"}\n'); } catch { /* Keep the original error. */ }
+  }
+}
+const lifecycle = diagnosticBuffer(24);
+const serverRequests = diagnosticBuffer(32);
+const serverErrors = diagnosticBuffer(8);
+type TransformObservation = { path: string; startedAtMs: number; completedAtMs?: number; elapsedMs?: number; observations: number };
+const transforms = new Map<string, TransformObservation>();
+let omittedTransforms = 0;
+function observeTransform(id: string, complete: boolean) {
+  const path = diagnosticPath(id);
+  if (!(path.endsWith(".css") || path.endsWith(".tsx") || path.includes("badge:entry") || path.includes("/.vite/deps/"))) return;
+  const previous = transforms.get(path);
+  if (complete) {
+    if (previous) {
+      previous.completedAtMs = elapsed();
+      previous.elapsedMs = Math.round((previous.completedAtMs - previous.startedAtMs) * 10) / 10;
+    }
+  } else if (previous || transforms.size < 80) {
+    transforms.set(path, { path, startedAtMs: elapsed(), observations: (previous?.observations ?? 0) + 1 });
+  } else omittedTransforms++;
+}
+function preparationSnapshot() {
+  const observed = [...transforms.values()];
+  return {
+    // Pre/post user hooks bracket CSS processing, not Vite's entire pipeline.
+    measurement: "Vite pre/post user transform-hook window; later internal hooks are not included",
+    css: transforms.get("/app/globals.css") ?? "NOT_OBSERVED",
+    pending: observed.filter((item) => item.completedAtMs === undefined).slice(0, 20),
+    slowest: observed.filter((item) => item.completedAtMs !== undefined).sort((a, b) => b.elapsedMs! - a.elapsedMs!).slice(0, 8),
+    observedCount: observed.length, omittedTransforms,
+    modulesPrepared: "NOT_OBSERVABLE: per-module hook completion is not whole-graph readiness",
+    dependencyOptimizer: "NOT_OBSERVABLE: dependency requests/transforms do not establish optimizer completion",
+    tailwindSubphases: "NOT_OBSERVABLE through these hooks; existing DEBUG=tailwindcss can provide separate timings",
+  };
+}
+const successfulNavigations = new Map<string, number>();
+function navigationDiagnostics(page: Page, engine: string, label: string, contextCreatedAtMs: number) {
+  let navigationFailed = false;
+  return {
+    async navigate<T>(action: () => Promise<T>): Promise<T> {
+      const milestones = diagnosticBuffer(12), requests = diagnosticBuffer(48), failures = diagnosticBuffer(12);
+      type Resource = { path: string; type: string; startedAtMs: number; status?: number; responseAtMs?: number };
+      const pending = new Map<Request, Resource>();
+      const counts = { started: 0, completed: 0, failed: 0, omitted: 0, dependencyRequests: 0 };
+      let firstModulePath: string | undefined;
+      let firstCss = false;
+      const onRequest = (request: Request) => {
+        counts.started++;
+        const resource = { path: diagnosticPath(request.url()), type: request.resourceType(), startedAtMs: elapsed() };
+        if (pending.size < 128) pending.set(request, resource); else counts.omitted++;
+        if (resource.path.includes("/.vite/deps/")) counts.dependencyRequests++;
+        requests.add("REQUEST_STARTED", resource);
+        if (!firstModulePath && resource.type === "script") { firstModulePath = resource.path; milestones.add("FIRST_MODULE_REQUEST", resource); }
+        if (!firstCss && resource.path === "/app/globals.css") { firstCss = true; milestones.add("APPLICATION_CSS_REQUEST", resource); }
+      };
+      const onResponse = (response: Response) => {
+        const resource = pending.get(response.request());
+        if (resource) { resource.status = response.status(); resource.responseAtMs = elapsed(); }
+        if (response.status() >= 400) failures.add("HTTP_ERROR", { path: diagnosticPath(response.url()), status: response.status() });
+      };
+      const finishRequest = (request: Request, failed: boolean) => {
+        const resource = pending.get(request);
+        if (failed) counts.failed++; else counts.completed++;
+        const detail = { ...resource, path: diagnosticPath(request.url()), durationMs: resource ? Math.round((elapsed() - resource.startedAtMs) * 10) / 10 : null };
+        requests.add(failed ? "REQUEST_FAILED" : "REQUEST_COMPLETED", detail);
+        if (failed) failures.add("REQUEST_FAILED", { ...detail, error: diagnosticText(request.failure()?.errorText) });
+        if (detail.path === "/app/globals.css") milestones.add(failed ? "APPLICATION_CSS_REQUEST_FAILED" : "APPLICATION_CSS_REQUEST_COMPLETED", detail);
+        if (detail.path === firstModulePath) milestones.add(failed ? "FIRST_MODULE_REQUEST_FAILED" : "FIRST_MODULE_REQUEST_COMPLETED", detail);
+        pending.delete(request);
+      };
+      const onFinished = (request: Request) => finishRequest(request, false);
+      const onFailed = (request: Request) => finishRequest(request, true);
+      const onPageError = (error: Error) => failures.add("PAGE_ERROR", { message: diagnosticText(error) });
+      const onConsole = (message: ConsoleMessage) => {
+        if (message.type() === "error") failures.add("CONSOLE_ERROR", { message: diagnosticText(message.text()) });
+      };
+      const onDom = () => milestones.add("DOM_CONTENT_LOADED");
+      const onLoad = () => milestones.add("BROWSER_DOCUMENT_LOADED");
+      const onCrash = () => failures.add("PAGE_CRASH");
+      page.on("request", onRequest); page.on("response", onResponse);
+      page.on("requestfinished", onFinished); page.on("requestfailed", onFailed);
+      page.on("pageerror", onPageError); page.on("console", onConsole);
+      page.on("domcontentloaded", onDom); page.on("load", onLoad); page.on("crash", onCrash);
+      milestones.add("CONTEXT_CREATED", { atMs: contextCreatedAtMs });
+      const navigationStartedAtMs = elapsed();
+      milestones.add("NAVIGATION_BEGIN");
+      try {
+        // The caller retains the exact original page.goto arguments/defaults.
+        const result = await action();
+        milestones.add("NAVIGATION_SUCCEEDED");
+        const successes = (successfulNavigations.get(engine) ?? 0) + 1;
+        successfulNavigations.set(engine, successes);
+        if (successes <= 2 || process.env.CHASUM_M1C_DIAGNOSTICS_VERBOSE === "1") emitDiagnostic({
+          event: "NAVIGATION_SUMMARY", engine, label, navigationStartedAtMs, durationMs: elapsed() - navigationStartedAtMs,
+          counts, milestones: milestones.snapshot(), lifecycle: lifecycle.snapshot(), preparation: preparationSnapshot(),
+        });
+        return result;
+      } catch (error) {
+        navigationFailed = true;
+        milestones.add("NAVIGATION_FAILED");
+        try {
+          // Emit synchronously BEFORE any best-effort browser RPC or cleanup.
+          emitDiagnostic({ event: "NAVIGATION_FAILURE", engine, label, error: diagnosticText(error),
+            currentPath: diagnosticPath(page.url()), durationMs: elapsed() - navigationStartedAtMs,
+            pending: [...pending.values()].slice(0, 32), pendingCount: pending.size, counts,
+            failures: failures.snapshot(), lifecycle: lifecycle.snapshot(), preparation: preparationSnapshot(),
+            milestones: milestones.snapshot(), serverErrors: serverErrors.snapshot(),
+            serverRequests: serverRequests.snapshot(), recentRequests: requests.snapshot(),
+          });
+          let deadline: ReturnType<typeof setTimeout> | undefined;
+          try {
+            // A collection deadline only; never a navigation/readiness wait.
+            const state = await Promise.race([
+              page.evaluate(() => ({ readyState: document.readyState, rootPresent: Boolean(document.getElementById("root")) })),
+              new Promise<string>((resolve) => { deadline = setTimeout(() => resolve("NOT_OBSERVABLE: diagnostic RPC deadline"), 250); }),
+            ]);
+            emitDiagnostic({ event: "FAILURE_DOCUMENT_STATE", engine, label, state });
+          } finally { clearTimeout(deadline); }
+        } catch (collectionError) {
+          emitDiagnostic({ event: "DIAGNOSTIC_COLLECTION_FAILED", engine, label, message: diagnosticText(collectionError) });
+        }
+        throw error;
+      } finally {
+        page.off("request", onRequest); page.off("response", onResponse);
+        page.off("requestfinished", onFinished); page.off("requestfailed", onFailed);
+        page.off("pageerror", onPageError); page.off("console", onConsole);
+        page.off("domcontentloaded", onDom); page.off("load", onLoad); page.off("crash", onCrash);
+      }
+    },
+    async closeContext(context: BrowserContext) {
+      try { await context.close(); }
+      catch (error) {
+        if (!navigationFailed) throw error;
+        emitDiagnostic({ event: "CONTEXT_CLEANUP_FAILED", engine, label, message: diagnosticText(error) });
+      }
+    },
+  };
+}
+
+
 beforeAll(async () => {
+  lifecycle.add("FIXTURE_SETUP_BEGIN");
   if (evidence) await mkdir(evidence, { recursive: true });
   const fontBuild = resolve(root, ".next/static");
   const cssFiles = (await readdir(fontBuild, { recursive: true })).filter((name) => name.endsWith(".css"));
@@ -37,11 +220,35 @@ beforeAll(async () => {
     .replace("{content}</DashboardShell>", "{content}<PreviewBuildBadge /></DashboardShell>")
     .replace('userEmail="operator@invalid.test"', 'userEmail={new URLSearchParams(window.location.search).get("email") || "Operator.LongIdentity+reception.synthetic@example.invalid"}')
     .replace('name: "South Studio", is_default: false }];', 'name: "Lakeshore Community Wellness Studio — East Annex", is_default: false }].slice(0, new URLSearchParams(window.location.search).get("locations") === "one" ? 1 : 2);');
+  const logger = createLogger();
+  const logError = logger.error.bind(logger);
+  logger.error = (message, options) => {
+    serverErrors.add("VITE_ERROR", { message: diagnosticText(message) });
+    logError(message, options);
+  };
+  lifecycle.add("SERVER_CREATE_BEGIN");
   server = await createServer({
+    customLogger: logger,
     root, configFile: false, define: { "process.env": "{}" },
     plugins: [{
       name: "badge-local-boundaries", enforce: "pre",
       configureServer(vite) {
+        let firstHtml = true;
+        vite.middlewares.use((req, res, next) => {
+          const path = diagnosticPath(req.url || "/");
+          const startedAtMs = elapsed();
+          const initialHtml = path === "/__badge" && firstHtml;
+          if (initialHtml) { firstHtml = false; lifecycle.add("FIRST_HTML_REQUEST"); }
+          serverRequests.add("SERVER_REQUEST", { path });
+          res.once("finish", () => {
+            serverRequests.add("SERVER_RESPONSE_SENT", { path, status: res.statusCode, durationMs: elapsed() - startedAtMs });
+            if (initialHtml) lifecycle.add("FIRST_HTML_RESPONSE_SENT", { status: res.statusCode });
+          });
+          res.once("close", () => {
+            if (!res.writableFinished) serverErrors.add("SERVER_RESPONSE_CLOSED_EARLY", { path, durationMs: elapsed() - startedAtMs });
+          });
+          next();
+        });
         vite.middlewares.use(async (req, res, next) => {
           const path = req.url?.split("?")[0];
           if (path === "/__badge") {
@@ -103,22 +310,41 @@ beforeAll(async () => {
         };` + names.map((name) => `export const ${name}=(...args)=>call('${name}',args);`).join("\n");
       },
       transform(code, id) {
+        observeTransform(id, false);
         if (id === "\0badge:entry") return ts.transpileModule(code, { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.ESNext } }).outputText;
       },
-    }, react()], resolve: { alias: { "@": root } },
+    }, react(), {
+      name: "badge-diagnostic-transform-end", enforce: "post",
+      transform(_code, id) { observeTransform(id, true); },
+    }], resolve: { alias: { "@": root } },
     server: { host: "127.0.0.1", port: 0, watch: { ignored: ["**/.next/**", "**/docs/validation/**"] } },
   });
+  lifecycle.add("SERVER_CREATE_COMPLETE");
+  lifecycle.add("SERVER_LISTEN_BEGIN");
   await server.listen();
+  lifecycle.add("SERVER_LISTEN_COMPLETE");
   const address = server.httpServer!.address();
   if (!address || typeof address === "string") throw new Error("Missing local port");
   origin = `http://127.0.0.1:${address.port}`;
+  lifecycle.add("SERVER_BOUND", { address: address.address, port: address.port });
+  lifecycle.add("BROWSER_LAUNCH_BEGIN", { engine: "chromium" });
   browsers.chromium = await chromium.launch();
+  lifecycle.add("BROWSER_LAUNCH_COMPLETE", { engine: "chromium" });
+  lifecycle.add("BROWSER_LAUNCH_BEGIN", { engine: "webkit" });
   browsers.webkit = await webkit.launch();
+  lifecycle.add("BROWSER_LAUNCH_COMPLETE", { engine: "webkit" });
 }, 120_000);
 
 afterAll(async () => {
-  for (const browser of Object.values(browsers)) await browser.close();
-  await server?.close();
+  lifecycle.add("FIXTURE_TEARDOWN_BEGIN");
+  const cleanupErrors: unknown[] = [];
+  for (const browser of Object.values(browsers)) {
+    try { await browser.close(); } catch (error) { cleanupErrors.push(error); }
+  }
+  try { await server?.close(); } catch (error) { cleanupErrors.push(error); }
+  lifecycle.add("FIXTURE_TEARDOWN_COMPLETE", { cleanupErrors: cleanupErrors.length });
+  emitDiagnostic({ event: "FIXTURE_LIFECYCLE", lifecycle: lifecycle.snapshot() });
+  if (cleanupErrors.length) throw new AggregateError(cleanupErrors, "M1C fixture cleanup failed");
   if (evidence) await writeFile(resolve(evidence, "browser-results.json"), JSON.stringify(results, null, 2) + "\n");
 });
 
@@ -126,6 +352,7 @@ const sizes = [[320, 740], [375, 812], [390, 844], [639, 900], [640, 900], [647,
 for (const engine of ["chromium", "webkit"]) for (const theme of ["light", "dark"] as const) {
   it.each(sizes)(`${engine} M1C/Reception at %ipx × %ipx (${theme})`, async (width, height) => {
     const context = await browsers[engine].newContext({ viewport: { width, height }, hasTouch: width < 1024, isMobile: width < 1024, colorScheme: theme, timezoneId: "America/Toronto" });
+    const contextCreatedAtMs = elapsed();
     const errors: string[] = [], writes: string[] = [], external: string[] = [];
     const states: unknown[] = [];
     await context.exposeFunction("__recordWriteAttempt", (name: string) => writes.push(name));
@@ -135,6 +362,7 @@ for (const engine of ["chromium", "webkit"]) for (const theme of ["light", "dark
       return route.continue();
     });
     const page = await context.newPage();
+    const diagnostics = navigationDiagnostics(page, engine, `${width}x${height} ${theme}`, contextCreatedAtMs);
     page.on("pageerror", (error) => errors.push(error.message));
     const oneLocation = width % 2 === 1;
     const capture = async (state: string) => {
@@ -160,7 +388,7 @@ for (const engine of ["chromium", "webkit"]) for (const theme of ["light", "dark
         const cdp = await context.newCDPSession(page);
         await cdp.send("Emulation.setSafeAreaInsetsOverride", { insets: { bottom: 34 } });
       }
-      await page.goto(origin + `/__badge?locations=${oneLocation ? "one" : "multiple"}`);
+      await diagnostics.navigate(() => page.goto(origin + `/__badge?locations=${oneLocation ? "one" : "multiple"}`));
       await page.getByLabel("Build information").waitFor();
       await page.evaluate(async (dark) => { document.documentElement.classList.toggle("dark", dark); await document.fonts.ready; }, theme === "dark");
       expect(await page.getByRole("dialog").count()).toBe(0);
@@ -259,13 +487,14 @@ for (const engine of ["chromium", "webkit"]) for (const theme of ["light", "dark
       await capture("closed-after");
       expect(errors).toEqual([]); expect(writes).toEqual([]); expect(external).toEqual([]);
       results.push({ engine, width, height, theme, oneLocation, safeAreaBottom: engine === "chromium" && width < 1024 ? 34 : 0, states, errors, writes, external });
-    } finally { await context.close(); }
+    } finally { await diagnostics.closeContext(context); }
   }, 60_000);
 }
 
 
 for (const engine of ["chromium", "webkit"]) it.each([390, 834])(`${engine} identity, Location and cross-view continuity at %ipx`, async (width) => {
   const context = await browsers[engine].newContext({ viewport: { width, height: 900 }, hasTouch: true, isMobile: true, timezoneId: "America/Toronto" });
+  const contextCreatedAtMs = elapsed();
   const errors: string[] = [], writes: string[] = [], external: string[] = [];
   await context.exposeFunction("__recordWriteAttempt", (name: string) => writes.push(name));
   await context.route("**/*", (route) => {
@@ -273,11 +502,12 @@ for (const engine of ["chromium", "webkit"]) it.each([390, 834])(`${engine} iden
     return route.continue();
   });
   const page = await context.newPage(); page.on("pageerror", (error) => errors.push(error.message));
+  const diagnostics = navigationDiagnostics(page, engine, `${width}px continuity`, contextCreatedAtMs);
   const transitions: string[] = [];
   try {
     await page.clock.setFixedTime(new Date("2026-10-26T12:00:00Z"));
     for (const [locations, email] of [["one", "a@invalid.test"], ["multiple", "A.very.long.synthetic.operator.identity+account.regression@example.invalid"]]) {
-      await page.goto(origin + `/__badge?locations=${locations}&email=${encodeURIComponent(email)}`);
+      await diagnostics.navigate(() => page.goto(origin + `/__badge?locations=${locations}&email=${encodeURIComponent(email)}`));
       await page.getByLabel("Build information").waitFor();
       const avatar = page.getByRole("button", { name: `Account, signed in as ${email}`, exact: true });
       await avatar.click();
@@ -318,5 +548,5 @@ for (const engine of ["chromium", "webkit"]) it.each([390, 834])(`${engine} iden
     }
     expect(errors).toEqual([]); expect(writes).toEqual([]); expect(external).toEqual([]);
     results.push({ engine, width, test: "short/long identity, one/multiple Locations, local scope retention, cross-view continuity", transitions, errors, writes, external });
-  } finally { await context.close(); }
+  } finally { await diagnostics.closeContext(context); }
 }, 60_000);
