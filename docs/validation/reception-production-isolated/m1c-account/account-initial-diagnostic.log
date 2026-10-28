@@ -1,0 +1,317 @@
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/m1c-reception-account-local/chasum
+
+(node:70732) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/unit/dashboard/mobile-account-control.test.tsx (15 tests | 2 failed) 1434ms
+     × guards pointer through a deferred canonical action and restores controls after settlement 26ms
+     × guards keyboard through a deferred canonical action and restores controls after settlement 1060ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/dashboard/mobile-account-control.test.tsx > Reception Account submit protection > guards pointer through a deferred canonical action and restores controls after settlement
+Error: expect(element).toHaveFocus()
+
+Expected element with focus:
+  <button
+  aria-label="Close"
+  class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 hover:bg-muted text-foreground active:scale-[0.98] min-h-10 text-sm rounded-[var(--radius-sm)] h-10 w-10 p-0 touch-manipulation"
+  type="button"
+>
+  <svg
+    aria-hidden="true"
+    class="lucide lucide-x size-4"
+    fill="none"
+    height="24"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="2"
+    viewBox="0 0 24 24"
+    width="24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M18 6 6 18"
+    />
+    <path
+      d="m6 6 12 12"
+    />
+  </svg>
+</button>
+Received element with focus:
+  <body
+  style="overflow: hidden;"
+>
+  <div>
+    <header
+      class="sticky top-0 z-40 flex h-16 items-center justify-between gap-2 border-b border-border bg-card/85 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 md:px-6"
+    >
+      <div
+        class="flex min-w-0 flex-1 items-center gap-2 sm:gap-3"
+      >
+        <button
+          aria-label="Open menu"
+          class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 hover:bg-muted text-foreground active:scale-[0.98] min-h-10 text-sm rounded-[var(--radius-sm)] touch-manipulation h-9 w-9 shrink-0 p-0 lg:hidden"
+          type="button"
+        >
+          <svg … />
+        </button>
+        <div
+          class="shrink-0 lg:hidden"
+        >
+          <a … />
+        </div>
+        <a
+          aria-label="Search clients"
+          class="hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:bg-muted md:flex lg:max-w-sm ds-focus-ring"
+          href="/dashboard/clients"
+        >
+          <svg … />
+          <span … />
+        </a>
+      </div>
+      <div
+        class="flex shrink-0 items-center gap-0 sm:gap-2"
+      >
+        <a
+          href="/dashboard/notifications"
+        >
+          <button … />
+        </a>
+        <button
+          aria-label="Switch to dark mode"
+          class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 hover:bg-muted text-foreground active:scale-[0.98] text-sm touch-manipulation relative h-9 w-9 min-h-9 rounded-xl p-0"
+          type="button"
+        >
+          <svg … />
+          <svg … />
+        </button>
+        <button
+          aria-expanded="true"
+          aria-haspopup="dialog"
+          aria-label="Account, signed in as Exact.Operator+mobile@example.test"
+          class="ds-focus-ring flex min-h-11 min-w-11 shrink-0 items-center gap-2.5 rounded-[var(--radius-md)] border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted/40 touch-manipulation"
+          type="button"
+        >
+          <span … />
+          <span … />
+        </button>
+      </div>
+    </header>
+  </div>
+  <div
+    class="fixed inset-0 z-[60] flex items-end justify-center md:items-stretch md:justify-end"
+  >
+    <button
+      aria-label="Close panel"
+      class="absolute inset-0 bg-black/40 backdrop-blur-[1px] motion-safe:transition-opacity"
+      type="button"
+    />
+    <div
+      aria-labelledby="_r_o_"
+      aria-modal="true"
+      class="relative z-10 flex w-full flex-col border-border bg-card shadow-xl max-h-[92dvh] rounded-t-[var(--radius-lg)] border pb-[env(safe-area-inset-bottom)] md:h-full md:max-h-none md:w-[min(34rem,100%)] md:rounded-none md:pb-0 md:border-l md:border-y-0 md:border-r-0 md:max-w-sm"
+      role="dialog"
+    >
+      <header
+        class="flex shrink-0 items-start justify-between gap-3 border-b border-border px-5 py-4"
+      >
+        <div
+          class="min-w-0"
+        >
+          <h2 … />
+        </div>
+        <div
+          class="flex shrink-0 items-center gap-1"
+        >
+          <button … />
+        </div>
+      </header>
+      <div
+        class="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5"
+      >
+        <div
+          class="space-y-5"
+        >
+          <div … />
+          <form … />
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+ ❯ tests/unit/dashboard/mobile-account-control.test.tsx:186:19
+    184|     expect(screen.getByRole("status")).toHaveTextContent("Signing out.…
+    185|     const close = within(panel).getByRole("button", { name: "Close", e…
+    186|     expect(close).toHaveFocus();
+       |                   ^
+    187|     await user.tab(); expect(close).toHaveFocus();
+    188|     await user.tab({ shift: true }); expect(close).toHaveFocus();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/dashboard/mobile-account-control.test.tsx > Reception Account submit protection > guards keyboard through a deferred canonical action and restores controls after settlement
+Error: expect(element).toBeEnabled()
+
+Received element is not enabled:
+  <button
+  class="inline-flex items-center justify-center font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 bg-primary text-primary-foreground shadow-sm shadow-primary/20 hover:bg-primary/90 active:scale-[0.98] h-11 px-5 text-sm rounded-[var(--radius-md)] touch-manipulation min-h-11 w-full gap-2"
+  disabled=""
+  type="submit"
+/>
+
+Ignored nodes: comments, script, style
+[36m<html>[39m
+  [36m<head>[39m
+    [36m<link[39m
+      [33mas[39m=[32m"image"[39m
+      [33mhref[39m=[32m"/brand-v2/png/logo-horizontal-light.png"[39m
+      [33mrel[39m=[32m"preload"[39m
+    [36m/>[39m
+  [36m</head>[39m
+  [36m<body[39m
+    [33mstyle[39m=[32m"overflow: hidden;"[39m
+  [36m>[39m
+    [36m<div>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"sticky top-0 z-40 flex h-16 items-center justify-between gap-2 border-b border-border bg-card/85 px-3 backdrop-blur-xl sm:gap-3 sm:px-4 md:px-6"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex min-w-0 flex-1 items-center gap-2 sm:gap-3"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Open menu"[39m
+            [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 hover:bg-muted text-foreground active:scale-[0.98] min-h-10 text-sm rounded-[var(--radius-sm)] touch-manipulation h-9 w-9 shrink-0 p-0 lg:hidden"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-menu h-5 w-5"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M4 5h16"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M4 12h16"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M4 19h16"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+          [36m</button>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"shrink-0 lg:hidden"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33maria-label[39m=[32m"Chasum"[39m
+              [33mclass[39m=[32m"group inline-flex items-center transition-opacity hover:opacity-90"[39m
+              [33mhref[39m=[32m"/"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"transition-transform duration-200 group-hover:scale-[1.02]"[39m
+              [36m>[39m
+                [36m<img[39m
+                  [33malt[39m=[32m"Chasum"[39m
+                  [33mclass[39m=[32m"object-contain shrink-0"[39m
+                  [33mdata-nimg[39m=[32m"1"[39m
+                  [33mdecoding[39m=[32m"async"[39m
+                  [33mheight[39m=[32m"32"[39m
+                  [33mloading[39m=[32m"lazy"[39m
+                  [33msrc[39m=[32m"/brand-v2/svg/logo-icon.svg"[39m
+                  [33mstyle[39m=[32m"color: transparent; height: 32px; width: 32px;"[39m
+                  [33mwidth[39m=[32m"32"[39m
+                [36m/>[39m
+              [36m</span>[39m
+            [36m</a>[39m
+          [36m</div>[39m
+          [36m<a[39m
+            [33maria-label[39m=[32m"Search clients"[39m
+            [33mclass[39m=[32m"hidden min-w-0 max-w-xs flex-1 items-center gap-2 rounded-[var(--radius-md)] border border-border bg-muted/40 px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-primary/30 hover:bg-muted md:flex lg:max-w-sm ds-focus-ring"[39m
+            [33mhref[39m=[32m"/dashboard/clients"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-search h-4 w-4 shrink-0"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m21 21-4.34-4.34"[39m
+              [36m/>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"11"[39m
+                [33mcy[39m=[32m"11"[39m
+                [33mr[39m=[32m"8"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"truncate"[39m
+            [36m>[39m
+              [0mSearch clients…[0m
+            [36m</span>[39m
+          [36m</a>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex shrink-0 items-center gap-0 sm:gap-2"[39m
+        [36m>[39m
+          [36m<a[39m
+            [33mhref[39m=[32m"/dashboard/notifications"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Communications"[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 hover:bg-muted text-foreground active:scale-[0.98] min-h-10 text-sm touch-manipulation relative h-9 w-9 rounded-xl p-0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33maria-hidden[39m=[32m"true"[39m
+                [33mclass[39m=[32m"lucide lucide-bell h-4 w-4"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M10.268 21a2 2 0 0 0 3.464 0"[39m
+                [36m/>[39m
+                [36m<path[39m
+               ...
+ ❯ tests/unit/dashboard/mobile-account-control.test.tsx:197:40
+    195|     expect(screen.queryByText(/successfully signed out/i)).not.toBeInT…
+    196|     await act(async () => finish());
+    197|     await waitFor(() => expect(button).toBeEnabled());
+       |                                        ^
+    198|     expect(button).toHaveTextContent("Sign out");
+    199|     expect(screen.getByRole("status")).toBeEmptyDOMElement();
+ ❯ runWithExpensiveErrorDiagnosticsDisabled ../../reception-production-isolated-release/chasum/node_modules/@testing-library/dom/dist/config.js:47:12
+ ❯ checkCallback ../../reception-production-isolated-release/chasum/node_modules/@testing-library/dom/dist/wait-for.js:124:77
+ ❯ Timeout.checkRealTimersCallback ../../reception-production-isolated-release/chasum/node_modules/@testing-library/dom/dist/wait-for.js:118:16
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 13 passed (15)
+   Start at  20:19:06
+   Duration  2.34s (transform 67ms, setup 134ms, import 210ms, tests 1.43s, environment 440ms)

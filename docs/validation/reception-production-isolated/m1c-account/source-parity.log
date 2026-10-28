@@ -1,0 +1,73 @@
+{
+  "base": "d3b20b5445baa40c2aa6bb0fb0e375c1ee55bc00",
+  "protectedPathsUnchanged": [
+    "lib",
+    "supabase",
+    "providers",
+    "app/api",
+    "app/auth",
+    "hooks",
+    "middleware.ts",
+    "proxy.ts",
+    "package.json",
+    "package-lock.json",
+    "app/globals.css",
+    "app/layout.tsx"
+  ],
+  "exactBlobs": [
+    {
+      "path": "components/ui/sheet.tsx",
+      "blob": "f4a1ee4c6379d70fceca568a2584061cc41f6f86"
+    },
+    {
+      "path": "components/ui/button.tsx",
+      "blob": "e34de034e044aaf1cbb96e0786fbad603bea9d1e"
+    },
+    {
+      "path": "components/dashboard/shell.tsx",
+      "blob": "a6d2c00be1c400d4e7fbfaad6f3eb517e988b0a4"
+    },
+    {
+      "path": "components/dashboard/mobile-bottom-nav.tsx",
+      "blob": "addae52c6ea553753948d8ac5d5c9ca965a1a37c"
+    },
+    {
+      "path": "components/system/preview-build-badge.tsx",
+      "blob": "13213b0bf8873c3fe87b2a9ea13e4884a1d78031"
+    },
+    {
+      "path": "components/calendar/calendar-client.tsx",
+      "blob": "5e07c8f4551775d44c3ea2966d7bb4fab0b2c076"
+    },
+    {
+      "path": "components/booking-sheet/booking-sheet.tsx",
+      "blob": "eddeb96020f74598c20c63ce6db3c5e48766f13f"
+    },
+    {
+      "path": "components/day-view/morning-brief.tsx",
+      "blob": "eb0f397f0ee8bb9fbc964a8d7e2e56c5a524e4d6"
+    },
+    {
+      "path": "app/(dashboard)/layout.tsx",
+      "blob": "91b46f6c8271354e89658e142e272694af98f1a5"
+    },
+    {
+      "path": "lib/actions/auth.ts",
+      "blob": "cfd63e22ea5925e0219003a94e9f1ca2a2db4545"
+    }
+  ],
+  "originalDashboardSidebarFunctionAndForm": "byte-identical",
+  "originalPR128TestDeclarationsPreserved": [
+    "opens the real Account Sheet with exact identity and a prominent canonical Sign out form",
+    "closes via %s, restores scrolling and returns focus",
+    "inherits Sheet focus entry and traps forward and reverse Tab within the panel",
+    "truthfully handles an absent email (%s) without inventing an identity",
+    "unlocks body scrolling when an open Account control unmounts",
+    "preserves the real sidebar Signed in identity and canonical Sign out fallback"
+  ],
+  "expandedOriginalCases": 9,
+  "runtimeDelta": [
+    "components/dashboard/sidebar.tsx"
+  ],
+  "historicalTrackedEvidenceUnchanged": true
+}

@@ -1,5 +1,13 @@
 # Chasum — Latest Development Handoff
 
+## Local M1C / Reception account candidate — 2026-10-27
+
+Darshan authorized one separate LOCAL descendant of audited Reception `d3b20b5445baa40c2aa6bb0fb0e375c1ee55bc00`, on `codex/m1c-reception-account-local`. Only `components/dashboard/sidebar.tsx` changes in application source. Bounded PR #128 AccountControl presentation is reused with canonical-form pending/repeat protection; the mobile navigation drawer gains priority over bottom navigation, safe-area/dynamic-height handling, visible Close contrast, focus containment/return, background inertness and desktop-resize cleanup. The audited shared Sheet, Auth action, Calendar, Booking/#135, Notes, Morning Brief, Preview footer and backend/financial paths remain unchanged.
+
+Local validation and exact evidence are recorded in `docs/validation/reception-production-isolated/m1c-account/README.md` and `results.json`. No live sign-out or hosted writes are part of these tests. Sign out retains its inherited global scope and returned-error limitation; the Account panel remains open while its form is pending so dismissal cannot reset the local submit claim. This is not a server exactly-once guarantee or physical-device acceptance.
+
+Next gate: Darshan manually dispatches an independent Claude delta audit of the new immutable local SHA against d3b20b5. No automatic dispatch, push, PR update or deployment is authorized. Existing #173/#128/#171/#172/#164 remain protected. Main conflicts/missing Quality, post-login horizontal-positioning investigation, physical iPad and mobile Sign out acceptance remain separate gates. GVM CAD $50 deposit collection remains HELD. Earlier audits/evidence below remain historical and unchanged.
+
 ## Local Preview build footer correction — 2026-10-27
 
 Darshan authorized one local direct-child correction of `feda74b59f283ed4715d2b77b048d7367e87a286` on the existing isolated Reception branch. Only `components/system/preview-build-badge.tsx` changes in application source: verified non-Production identity in a compact normal-flow footer, a keyboard-accessible Build details link, and no fabricated fallback identity. Dashboard mounting, build-info endpoint, account UI, Calendar/Booking/Notes/Morning Brief, backend and release controls are unchanged. The verifier pins the exact corrected badge blob.

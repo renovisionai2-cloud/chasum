@@ -1,5 +1,12 @@
 # Chasum Changelog
 
+## 2026-10-27 — M1C Reception-compatible LOCAL candidate
+
+- Reuse the governed Account avatar/Sheet presentation with the unchanged canonical Sign out form, pending indication and synchronous local repeat protection.
+- Correct mobile drawer stacking, safe-area/viewport behavior, Close contrast and focus/scroll restoration within sidebar.tsx only.
+- Preserve audited Reception, shared Sheet, Booking Notes, #135, Auth, tenant and financial behavior; no newer-main ancestry imported.
+- Focused validation and limitations: [M1C evidence](validation/reception-production-isolated/m1c-account/README.md). Independent delta audit remains the next gate. No publication or deployment authorization.
+
 All notable changes to this project are documented here.
 
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).

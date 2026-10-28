@@ -1,0 +1,734 @@
+{
+  "date": "2026-10-27",
+  "scope": "Local-only M1C descendant; no real authentication or hosted writes",
+  "base": "d3b20b5445baa40c2aa6bb0fb0e375c1ee55bc00",
+  "baseTree": "4019321cfc88c52f451ce773fd08a3e55206f7b9",
+  "branch": "codex/m1c-reception-account-local",
+  "worktree": "/Users/darshan/.codex/worktrees/m1c-reception-account-local/chasum",
+  "identityNote": "Evidence is prepared before the sole commit. Final HEAD/tree/direct parent are recorded by Git and the final delivery report; no self-referential hash is embedded.",
+  "sidebarBlob": "e5065841c9cc80b8ad27703e3802627d6b2dc185",
+  "checks": [
+    {
+      "name": "focused-tests",
+      "command": "npx vitest run tests/unit/dashboard/mobile-account-control.test.tsx tests/unit/dashboard/portal-nav.test.ts tests/unit/dashboard/mobile-workspace-scope.test.tsx tests/unit/dashboard/workspace-scope-action.test.ts tests/unit/ui/sheet-focus-stability.test.tsx tests/unit/booking/booking-sheet-payment-submit.test.tsx tests/unit/booking/m1b-foreign-location.test.ts tests/unit/booking/m1b-scope-transport.test.tsx tests/unit/booking/m1b-location-ui.test.tsx tests/unit/booking/default-location.test.ts tests/unit/booking/location-readiness.test.ts tests/unit/booking/authenticated-create-booking-callers.test.ts tests/unit/calendar/calendar-booking-selection.test.tsx tests/unit/calendar/calendar-date-retention.test.tsx tests/unit/calendar/reception-production-compatibility.test.tsx tests/unit/calendar/operational-calendar.test.tsx tests/unit/calendar/reception-origin.test.ts tests/unit/system/preview-build-badge.test.tsx tests/unit/auth/permissions-and-validation.test.ts tests/unit/auth/password-reset-callback.test.ts tests/unit/access/operator-tenant-guard.test.ts tests/unit/api/appointment-tenant-integrity.test.ts",
+      "exit": 0,
+      "log": "focused-tests.log"
+    },
+    {
+      "name": "build",
+      "command": "npm run build",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck",
+      "exit": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "changed-lint",
+      "command": "npx eslint components/dashboard/sidebar.tsx scripts/verify-reception-isolation.mjs tests/unit/dashboard/mobile-account-control.test.tsx tests/unit/dashboard/top-nav-containment.test.tsx tests/unit/dashboard/m1c-reception-compatibility.test.tsx",
+      "exit": 0,
+      "log": "changed-lint.log"
+    },
+    {
+      "name": "isolation",
+      "command": "node scripts/verify-reception-isolation.mjs",
+      "exit": 0,
+      "log": "isolation.log"
+    },
+    {
+      "name": "release-config",
+      "command": "node scripts/verify-release-control-config.mjs",
+      "exit": 0,
+      "log": "release-config.log"
+    },
+    {
+      "name": "release-tests",
+      "command": "node --test tests/release-control/assert-release-sha.test.mjs tests/release-control/verify-production-build-info.test.mjs",
+      "exit": 0,
+      "log": "release-tests.log"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check",
+      "exit": 0,
+      "log": "diff-check.log"
+    }
+  ],
+  "focusedTests": {
+    "files": 22,
+    "passed": 303,
+    "accountCasesIncluded": 23
+  },
+  "browser": {
+    "newCompatibility": {
+      "command": "CHASUM_M1C_EVIDENCE=docs/validation/reception-production-isolated/m1c-account npx vitest run tests/unit/dashboard/m1c-reception-compatibility.test.tsx",
+      "exit": 0,
+      "passed": 64,
+      "log": "browser-verified.log"
+    },
+    "preservedSuites": {
+      "command": "CHASUM_M1C_EVIDENCE=docs/validation/reception-production-isolated/m1c-account npx vitest run tests/unit/dashboard/m1c-reception-compatibility.test.tsx tests/unit/dashboard/top-nav-containment.test.tsx tests/unit/dashboard/preview-build-badge-containment.test.tsx",
+      "overallExit": 1,
+      "preservedSuitesPassed": 22,
+      "headerWidthQuotaCombinations": 42,
+      "diagnosticFailures": 20,
+      "diagnosticReason": "The new suite asserted body overflow before React resize cleanup completed. It now polls cleanup; assertions retained. The final 64-case new-suite rerun passed. The two preserved suites passed in this combined run.",
+      "log": "browser-resize-diagnostic.log"
+    },
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "matrixCases": 60,
+    "identityLocationViewCases": 4,
+    "screenshots": 56,
+    "widths": [
+      320,
+      375,
+      390,
+      639,
+      640,
+      647,
+      767,
+      768,
+      834,
+      1023,
+      1024,
+      1366,
+      1440
+    ],
+    "landscape": [
+      [
+        667,
+        320
+      ],
+      [
+        844,
+        390
+      ]
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "safeArea": "Chromium CDP bottom inset 34px at mobile widths; WebKit desktop runner inset 0; physical device acceptance not claimed.",
+    "pageErrors": 0,
+    "unexpectedMutationAttempts": 0,
+    "externalRequests": 0,
+    "data": "browser-results.json",
+    "fixtureIdentity": "Synthetic 0123456789abcdef0123456789abcdef01234567; not a deployment identity"
+  },
+  "releaseTests": {
+    "passed": 10,
+    "log": "release-tests.log"
+  },
+  "sourceParity": {
+    "base": "d3b20b5445baa40c2aa6bb0fb0e375c1ee55bc00",
+    "protectedPathsUnchanged": [
+      "lib",
+      "supabase",
+      "providers",
+      "app/api",
+      "app/auth",
+      "hooks",
+      "middleware.ts",
+      "proxy.ts",
+      "package.json",
+      "package-lock.json",
+      "app/globals.css",
+      "app/layout.tsx"
+    ],
+    "exactBlobs": [
+      {
+        "path": "components/ui/sheet.tsx",
+        "blob": "f4a1ee4c6379d70fceca568a2584061cc41f6f86"
+      },
+      {
+        "path": "components/ui/button.tsx",
+        "blob": "e34de034e044aaf1cbb96e0786fbad603bea9d1e"
+      },
+      {
+        "path": "components/dashboard/shell.tsx",
+        "blob": "a6d2c00be1c400d4e7fbfaad6f3eb517e988b0a4"
+      },
+      {
+        "path": "components/dashboard/mobile-bottom-nav.tsx",
+        "blob": "addae52c6ea553753948d8ac5d5c9ca965a1a37c"
+      },
+      {
+        "path": "components/system/preview-build-badge.tsx",
+        "blob": "13213b0bf8873c3fe87b2a9ea13e4884a1d78031"
+      },
+      {
+        "path": "components/calendar/calendar-client.tsx",
+        "blob": "5e07c8f4551775d44c3ea2966d7bb4fab0b2c076"
+      },
+      {
+        "path": "components/booking-sheet/booking-sheet.tsx",
+        "blob": "eddeb96020f74598c20c63ce6db3c5e48766f13f"
+      },
+      {
+        "path": "components/day-view/morning-brief.tsx",
+        "blob": "eb0f397f0ee8bb9fbc964a8d7e2e56c5a524e4d6"
+      },
+      {
+        "path": "app/(dashboard)/layout.tsx",
+        "blob": "91b46f6c8271354e89658e142e272694af98f1a5"
+      },
+      {
+        "path": "lib/actions/auth.ts",
+        "blob": "cfd63e22ea5925e0219003a94e9f1ca2a2db4545"
+      }
+    ],
+    "originalDashboardSidebarFunctionAndForm": "byte-identical",
+    "originalPR128TestDeclarationsPreserved": [
+      "opens the real Account Sheet with exact identity and a prominent canonical Sign out form",
+      "closes via %s, restores scrolling and returns focus",
+      "inherits Sheet focus entry and traps forward and reverse Tab within the panel",
+      "truthfully handles an absent email (%s) without inventing an identity",
+      "unlocks body scrolling when an open Account control unmounts",
+      "preserves the real sidebar Signed in identity and canonical Sign out fallback"
+    ],
+    "expandedOriginalCases": 9,
+    "runtimeDelta": [
+      "components/dashboard/sidebar.tsx"
+    ],
+    "historicalTrackedEvidenceUnchanged": true
+  },
+  "protectedPRsReadOnly": [
+    {
+      "number": 128,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "b352729c2a0c3106989aed7ecfde36ec667866a1",
+      "base": "35dd307986c36bb9a5c3a4847e4a212e8dce9fde",
+      "mergeable": true,
+      "mergeable_state": "behind"
+    },
+    {
+      "number": 164,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "e76839182e5255102fe15e1bd9b0085d2b382057",
+      "base": "35dd307986c36bb9a5c3a4847e4a212e8dce9fde",
+      "mergeable": true,
+      "mergeable_state": "behind"
+    },
+    {
+      "number": 171,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "7eca5899abc1d44d65205f144dc7e32307008f79",
+      "base": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+      "mergeable": true,
+      "mergeable_state": "clean"
+    },
+    {
+      "number": 172,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "b440f053fbb521ab414bea6e937071f1a9e3e7ed",
+      "base": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+      "mergeable": true,
+      "mergeable_state": "clean"
+    },
+    {
+      "number": 173,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "d3b20b5445baa40c2aa6bb0fb0e375c1ee55bc00",
+      "base": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+      "mergeable": false,
+      "mergeable_state": "dirty"
+    }
+  ],
+  "main": {
+    "sha": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+    "protected": true
+  },
+  "changedFiles": [
+    "components/dashboard/sidebar.tsx",
+    "docs/CHANGELOG.md",
+    "docs/CURRENT_PROJECT_STATE.md",
+    "docs/handoffs/LATEST_HANDOFF.md",
+    "docs/validation/reception-production-isolated/m1c-account/README.md",
+    "docs/validation/reception-production-isolated/m1c-account/account-initial-diagnostic.log",
+    "docs/validation/reception-production-isolated/m1c-account/browser-resize-diagnostic.log",
+    "docs/validation/reception-production-isolated/m1c-account/browser-results.json",
+    "docs/validation/reception-production-isolated/m1c-account/browser-verified.log",
+    "docs/validation/reception-production-isolated/m1c-account/build-symlink-diagnostic.log",
+    "docs/validation/reception-production-isolated/m1c-account/build.log",
+    "docs/validation/reception-production-isolated/m1c-account/changed-files.log",
+    "docs/validation/reception-production-isolated/m1c-account/changed-lint.log",
+    "docs/validation/reception-production-isolated/m1c-account/check-exits.json",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-drawer-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-drawer-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-drawer-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-drawer-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/diff-check.log",
+    "docs/validation/reception-production-isolated/m1c-account/focused-tests.log",
+    "docs/validation/reception-production-isolated/m1c-account/isolation.log",
+    "docs/validation/reception-production-isolated/m1c-account/protected-prs.log",
+    "docs/validation/reception-production-isolated/m1c-account/release-config.log",
+    "docs/validation/reception-production-isolated/m1c-account/release-tests.log",
+    "docs/validation/reception-production-isolated/m1c-account/results.json",
+    "docs/validation/reception-production-isolated/m1c-account/source-parity.log",
+    "docs/validation/reception-production-isolated/m1c-account/typecheck.log",
+    "docs/validation/reception-production-isolated/m1c-account/verifier-final-checks.log",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-drawer-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-drawer-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-drawer-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-account-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-booking-open.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-closed-after.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-closed.png",
+    "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-drawer-open.png",
+    "scripts/verify-reception-isolation.mjs",
+    "tests/unit/dashboard/m1c-reception-compatibility.test.tsx",
+    "tests/unit/dashboard/mobile-account-control.test.tsx",
+    "tests/unit/dashboard/top-nav-containment.test.tsx"
+  ],
+  "limitations": [
+    "Real logout/global revocation and physical iPhone/iPad/VoiceOver not exercised.",
+    "Canonical signOut retains SDK default global scope and inherited ignored returned errors.",
+    "Pending Account Sheet dismissal is held to keep the mounted form and synchronous claim intact; recovery is tested with settled mocks.",
+    "Guard is local UI repeat protection, not server exactly-once or a cross-tab/global session lock.",
+    "Shared Sheet default overflow restoration and absence of a stacked-modal manager are unchanged; sequential Account/Booking use is covered.",
+    "Separate intermittent post-login Safari horizontal positioning defect not claimed fixed.",
+    "Repository-wide lint not claimed PASS; inherited shared Sheet/Booking lint remains outside this delta.",
+    "Initial external-root dependency symlink failed Turbopack; exact installed dependencies were cloned locally with no package/lock/config change. Final normal build passed.",
+    "Initial pending-pointer focus test failures were corrected locally; original assertions preserved.",
+    "Independent manually dispatched Claude delta audit is next. Publication, hosted/device acceptance, main conflict/true-merge audit, Quality, exact-SHA registration and protected Production approvals remain separate gates.",
+    "GVM CAD $50 deposit collection remains HELD."
+  ],
+  "artifactHashesExcludingSelf": [
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/README.md",
+      "sha256": "dee15e0f006cbc869e5a730ad96b32659667267c7fe7e04176aed8b6e1662c86",
+      "bytes": 6335
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/account-initial-diagnostic.log",
+      "sha256": "0ef80b1d3c6ae2345c0dc17c261246a7ffa85ab21e30ab93bb7b47328b91663f",
+      "bytes": 15283
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/browser-resize-diagnostic.log",
+      "sha256": "89d4b3a2c6aff5a0c6386e23c9ba07070bdeed5826b9eba9b9bd7f83446a2531",
+      "bytes": 5219
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/browser-results.json",
+      "sha256": "4a600eeccc460d74dfaee0aa4c0b1fc3fb51facc4e7fc0b2dece33abcffe5f53",
+      "bytes": 117361
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/browser-verified.log",
+      "sha256": "4fe4a8f9f58a25dcd90b533e2d098d07ab1822e27706d125a8487e01636f2c1d",
+      "bytes": 439
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/build-symlink-diagnostic.log",
+      "sha256": "15fb921ed6f2884dd2ae2a500ede85710a103363b79cc95ee2edca86e2e20425",
+      "bytes": 2997
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/build.log",
+      "sha256": "d4973c1f63f30204c710e8d9054f18fd7cb20b8432149097614b575669a5e5e4",
+      "bytes": 2983
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/changed-files.log",
+      "sha256": "170cd13e5f5815047066dce42be5ccb14d3fc29764423dc9ea2a8d998d0021a2",
+      "bytes": 6966
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/changed-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/check-exits.json",
+      "sha256": "a49bf31e0b8f8b8916e88c087ccaf2ef28573629d434ba75cb0c97c3cb8e7a7f",
+      "bytes": 2410
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-account-open.png",
+      "sha256": "6b13fb1f4b4e91d220111b918169b4822da04b1ee1a3c397ef0882d05c7cf0c5",
+      "bytes": 170371
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-booking-open.png",
+      "sha256": "bce48b721aee11378e55ddc53951905053e7c36bcdcdf2b86a3d24ef2878018a",
+      "bytes": 221632
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-closed-after.png",
+      "sha256": "9bc2e45dec60f6be550afae667f666781b7c4fc2280a1d004f609d1d6b78d30d",
+      "bytes": 144118
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-dark-closed.png",
+      "sha256": "a07a6b244d8c04eb8d766c307a5944ef88a6ce988bf6defcd36430eac7fcf624",
+      "bytes": 156023
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-account-open.png",
+      "sha256": "c02af3975e203e2002b662d09249f255ced20f885dd98b38366a5607fd4f5e81",
+      "bytes": 171994
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-booking-open.png",
+      "sha256": "8654600f556e22ca3458110209fdd12575acd86dc0493b25afcda423d2b777b4",
+      "bytes": 221573
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-closed-after.png",
+      "sha256": "d1c861cd72dde1318964bf8a596b0469cd4b9cad6c261a931970cd5f868d1aa2",
+      "bytes": 139809
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-1440-light-closed.png",
+      "sha256": "3ac1e865360132e42fea94465e49181e9709255817d044e65fc5e7ed515d3f0c",
+      "bytes": 154015
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-account-open.png",
+      "sha256": "05b187fb5c0796cb8d751b659b60ab97367fb17c65434072f58a67b910a0071c",
+      "bytes": 76566
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-booking-open.png",
+      "sha256": "37eb02a2abd9e5693ac3e302ca5161742982af7c52775ed5747158c7b50915d8",
+      "bytes": 62759
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-closed-after.png",
+      "sha256": "54336275064b0cab6f4245ca6c241b894137b754e7e4895ae1781e75fac0663f",
+      "bytes": 72009
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-closed.png",
+      "sha256": "88d9a927cca8db01c8ff51cb594073ced06de25cc67fb9e6b319dc0d238fe0dc",
+      "bytes": 80810
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-dark-drawer-open.png",
+      "sha256": "7f01e8b58b7715bb668249c35f8639391cd0f4fdfd6f9a82cada80c4d7b3abd8",
+      "bytes": 55570
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-account-open.png",
+      "sha256": "1ad7d7124a36016d0329c9d3a872d4dafe22d335569a2ed0627b29a93e9c4506",
+      "bytes": 76598
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-booking-open.png",
+      "sha256": "9703562bcc628e79ffc402653a5478f26945a8b744c40f42a1f258e7250196ca",
+      "bytes": 62061
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-closed-after.png",
+      "sha256": "4f624f60f5658dc27f6b13abe02f274f182d122868665539db4d09935edaa18c",
+      "bytes": 69349
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-closed.png",
+      "sha256": "be84bd62f7e773f2f213124484fe5c80bccd24bcf204d31a23bd3a80aef18c62",
+      "bytes": 76267
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-390-light-drawer-open.png",
+      "sha256": "24921882be0d8a0659fc424d3eb1ed8e607b6e853bb0747d3098b5096ee10deb",
+      "bytes": 54795
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-account-open.png",
+      "sha256": "93534bcdfc750c49283ab5a5369ef27e58f55e0c85ce3e091ea337c8c1f17361",
+      "bytes": 111451
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-booking-open.png",
+      "sha256": "40ddd4b04abf905a3bcf7a1d1344f4a24c30114658bca6fbf200107ca1cd9e2f",
+      "bytes": 158501
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-closed-after.png",
+      "sha256": "cc01c4b981408982748a5c3d9026a933b9f41d802f7f64b9018063b292876e56",
+      "bytes": 99572
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-closed.png",
+      "sha256": "716415a03e10d316a2e16fef8dfffbb13bc2622cc39ecebbcdab443423a50759",
+      "bytes": 112258
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-dark-drawer-open.png",
+      "sha256": "f015559ad2c9a600e3d207f850936336fab9dadec13ea8290c45474584e7ca6d",
+      "bytes": 135013
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-account-open.png",
+      "sha256": "b1681473f820d8d23d95aec1028430b447137d223619ae192ba2b4d1a15fffce",
+      "bytes": 115054
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-booking-open.png",
+      "sha256": "1877b01db18b256f9028aa992d50413a22b76c08803093722afcb734e746f862",
+      "bytes": 158245
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-closed-after.png",
+      "sha256": "509ee4a5c17f657917028a0e1945ac9cfafe813b12d4caffbd313b91abe15925",
+      "bytes": 95988
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-closed.png",
+      "sha256": "e32ecf911ffefee854171b5ca0cd116da7e5dc53d2ccaedaeae4be958d2a7939",
+      "bytes": 111227
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/chromium-834-light-drawer-open.png",
+      "sha256": "7e71950cd03a54c4f75c2c5816424a9f4bed0b5c26715c0d35309c9204a6831b",
+      "bytes": 131170
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/diff-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/focused-tests.log",
+      "sha256": "ac067a4a079f6ce80293bcddffb2003067cce75e7a9370d61a4af7d61d148fb7",
+      "bytes": 4314
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/isolation.log",
+      "sha256": "cb789de0ce8603fd8db5d9b22248a28ce8231e4fc4af142949f4be4487fb02f9",
+      "bytes": 30029
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/protected-prs.log",
+      "sha256": "4b6684feb7f4f5ba1232eba04bc997a0010a441f996abda8ed439fd19e004d01",
+      "bytes": 1281
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/release-config.log",
+      "sha256": "490af3cdab53dc6d9afec6db0d2e0df5b1cd135725550152cb134062bfcb18a7",
+      "bytes": 32
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/release-tests.log",
+      "sha256": "c912321092cd937f340f4714c6c58b74147caf5dc3add0719754186f7eeac600",
+      "bytes": 917
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/source-parity.log",
+      "sha256": "df700a5ad91c9a140f9238f1653d1b6adb530d5efff234032851a9138b6a3cb3",
+      "bytes": 2255
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/typecheck.log",
+      "sha256": "64feb4cf9c4896e7cc87bbf9e84ff48406125129df5d791a8c1feb35bc362133",
+      "bytes": 41
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/verifier-final-checks.log",
+      "sha256": "bddf0e17371ba6a615698154d65640525e835eb53a36a10d1a798b61abc71b01",
+      "bytes": 101
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-account-open.png",
+      "sha256": "fc0184e68abab7d531f9892c260b6bf6f9d3d77ab8351a30ba16bc7c71d2d707",
+      "bytes": 164728
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-booking-open.png",
+      "sha256": "893eba0a43f43d9c0c899c88eb5708c2e1d7dc34a7aa84c6456b43bf67ceb7e7",
+      "bytes": 219329
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-closed-after.png",
+      "sha256": "346a61d98e26c200d01533f37d01c1283e0bd111a89852bd62257478fa87f235",
+      "bytes": 183813
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-dark-closed.png",
+      "sha256": "9be545d1b9b446964ef12230fb3d12f82f14c13a1cf1196c083a0d024131c3e4",
+      "bytes": 185505
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-account-open.png",
+      "sha256": "163ce701839b1bfc993a13ee7f9310e9c7f239f81b034518062ed9dd0dd1e117",
+      "bytes": 164710
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-booking-open.png",
+      "sha256": "29f938d35270fb4a3f71c5bb184ce20ebf456bf1edacc94563227207f5765b24",
+      "bytes": 218356
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-closed-after.png",
+      "sha256": "16d61ec4d4ec19bec479799a02ec79705ba8c0c8ec2a1692fbed8c82f7c6ec5c",
+      "bytes": 178703
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-1440-light-closed.png",
+      "sha256": "fae88d3191e785a3f76f3d22314c423c02fba89ea78f50bb14be07b1f1ffa75d",
+      "bytes": 184793
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-account-open.png",
+      "sha256": "a16f390ae5f4dfce55c0d99b73ad5c405f244d5f527aa93adfdf56d27a5f50ad",
+      "bytes": 75401
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-booking-open.png",
+      "sha256": "2b816d3b63b41a6994cbd467b1534d613610de88df3f284e9b006bac93eca714",
+      "bytes": 73588
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-closed-after.png",
+      "sha256": "7808b05261c0bf86698dc71f3a6cc162bcc3168f14b375a0bde26cfe48ffdd75",
+      "bytes": 94092
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-closed.png",
+      "sha256": "ba190fe2a49d104433ce3a382fc6ba81bd41cd500cf3bdac3a1d680066c2e0e3",
+      "bytes": 94195
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-dark-drawer-open.png",
+      "sha256": "784203d3578b3fc7b6ea5c2b6eea98dd29a77183731e8911843d05803896efb5",
+      "bytes": 66294
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-account-open.png",
+      "sha256": "b38e3b3e1ff31515a61b8cbacbf9fc0981d98e9371c1627e386a6b5ccc5b641d",
+      "bytes": 75495
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-booking-open.png",
+      "sha256": "cfdcfd99f4c31ab70604241427c471bbcdbb2de18d611b625b59e04c6829bb73",
+      "bytes": 73733
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-closed-after.png",
+      "sha256": "32168949ca5ec5f6272f02035df47812b171d0502c5e459aa342e4e8f487851a",
+      "bytes": 91668
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-closed.png",
+      "sha256": "3e3386e36ad11776fdb06815acc7cff9517ce804e25d00dd15f61d48ca3075c5",
+      "bytes": 92221
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-390-light-drawer-open.png",
+      "sha256": "a73e05a2379e64c6b445b082f6338bb74577470fc7814c1b44138cb45a8ff12e",
+      "bytes": 64406
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-account-open.png",
+      "sha256": "eaef2921fe022b359a9b6a2c91f1d8afec097be0311b9e45e4ac8a73a46e5de2",
+      "bytes": 120517
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-booking-open.png",
+      "sha256": "f4c92007d84c902917a287ce3ad650d53d7b8b68589fcf83f3e50d2a2d8c0f7b",
+      "bytes": 174075
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-closed-after.png",
+      "sha256": "9ee8a6f0efc4018538fe92d81324660a0ac24c3b447a0bc427054dd3c2beca51",
+      "bytes": 137497
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-closed.png",
+      "sha256": "d88672562b6f26b0cfe6f4a9374dc9775fb38987c4041b80c08c77175d32bb59",
+      "bytes": 140466
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-dark-drawer-open.png",
+      "sha256": "d85d55005bebbdc0fd612f3efb4fea40022dd408ec27c924b3b62a28de43c7a5",
+      "bytes": 144825
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-account-open.png",
+      "sha256": "57bf69c2ce95b6d98ab779145efd132aa70147f6fb4ccbfd4173cc3cd9957193",
+      "bytes": 120691
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-booking-open.png",
+      "sha256": "4b4f6a90b91254b0f4beab0e63a27ca872901b573af74cd989cb0b13cb6dc5bc",
+      "bytes": 173564
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-closed-after.png",
+      "sha256": "3d357c17136a2885986a93f4e2bfadbd80c70e74e9ca62c9665b87f79aaff6ba",
+      "bytes": 134223
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-closed.png",
+      "sha256": "6ad287df47ba99666f18a5e0706d0cd37808257df71b51f8546efe2f72021418",
+      "bytes": 139452
+    },
+    {
+      "path": "docs/validation/reception-production-isolated/m1c-account/webkit-834-light-drawer-open.png",
+      "sha256": "34123971a8254fd2038a6b125955661a7dd5a59567d77b20a0b269a6936f40eb",
+      "bytes": 141129
+    }
+  ],
+  "consoleLogNormalization": "Terminal carriage returns, trailing spaces and final blank lines removed for Git diff hygiene; diagnostic messages and outcomes preserved."
+}

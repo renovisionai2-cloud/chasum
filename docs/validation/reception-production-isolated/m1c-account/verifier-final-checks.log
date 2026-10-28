@@ -1,0 +1,4 @@
+COMMAND: npx eslint scripts/verify-reception-isolation.mjs
+EXIT: 0
+COMMAND: git diff --check
+EXIT: 0

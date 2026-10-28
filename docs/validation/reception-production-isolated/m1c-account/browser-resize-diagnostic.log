@@ -1,0 +1,75 @@
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/m1c-reception-account-local/chasum
+
+(node:73793) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73792) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:73902) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/unit/dashboard/m1c-reception-compatibility.test.tsx (60 tests | 20 failed) 120954ms
+   × chromium M1C/Reception at 375px × 812px (light) 1893ms
+   × chromium M1C/Reception at 639px × 900px (light) 1839ms
+   × chromium M1C/Reception at 834px × 1112px (light) 2114ms
+   × chromium M1C/Reception at 1023px × 900px (light) 1926ms
+   × chromium M1C/Reception at 375px × 812px (dark) 1826ms
+   × chromium M1C/Reception at 639px × 900px (dark) 1788ms
+   × chromium M1C/Reception at 640px × 900px (dark) 1811ms
+   × chromium M1C/Reception at 647px × 900px (dark) 1790ms
+   × chromium M1C/Reception at 767px × 900px (dark) 1825ms
+   × chromium M1C/Reception at 768px × 1024px (dark) 1821ms
+   × chromium M1C/Reception at 834px × 1112px (dark) 2051ms
+   × chromium M1C/Reception at 1023px × 900px (dark) 1927ms
+   × chromium M1C/Reception at 667px × 320px (dark) 1775ms
+   × webkit M1C/Reception at 375px × 812px (light) 2002ms
+   × webkit M1C/Reception at 639px × 900px (light) 2036ms
+   × webkit M1C/Reception at 768px × 1024px (light) 2047ms
+   × webkit M1C/Reception at 844px × 390px (light) 1993ms
+   × webkit M1C/Reception at 647px × 900px (dark) 2115ms
+   × webkit M1C/Reception at 768px × 1024px (dark) 2064ms
+   × webkit M1C/Reception at 844px × 390px (dark) 2061ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 375px × 812px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 639px × 900px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 834px × 1112px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 1023px × 900px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 375px × 812px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 639px × 900px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 640px × 900px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 647px × 900px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 767px × 900px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 768px × 1024px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 834px × 1112px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 1023px × 900px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > chromium M1C/Reception at 667px × 320px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > webkit M1C/Reception at 375px × 812px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > webkit M1C/Reception at 639px × 900px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > webkit M1C/Reception at 768px × 1024px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > webkit M1C/Reception at 844px × 390px (light)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > webkit M1C/Reception at 647px × 900px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > webkit M1C/Reception at 768px × 1024px (dark)
+ FAIL  tests/unit/dashboard/m1c-reception-compatibility.test.tsx > webkit M1C/Reception at 844px × 390px (dark)
+AssertionError: expected 'hidden' to be '' // Object.is equality
+
+- Expected
++ Received
+
++ hidden
+
+ ❯ tests/unit/dashboard/m1c-reception-compatibility.test.tsx:244:73
+    242|         await page.setViewportSize({ width: 1024, height });
+    243|         await expect.poll(() => page.getByRole("dialog").count()).toBe…
+    244|         expect(await page.evaluate(() => document.body.style.overflow)…
+       |                                                                         ^
+    245|         expect(await avatar.evaluate((element) => element === document…
+    246|         await page.setViewportSize({ width, height });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  20 failed | 62 passed (82)
+   Start at  20:24:57
+   Duration  121.40s (transform 159ms, setup 256ms, import 849ms, tests 166.15s, environment 0ms)

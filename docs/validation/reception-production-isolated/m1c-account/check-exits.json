@@ -1,0 +1,50 @@
+[
+  {
+    "name": "focused-tests",
+    "command": "npx vitest run tests/unit/dashboard/mobile-account-control.test.tsx tests/unit/dashboard/portal-nav.test.ts tests/unit/dashboard/mobile-workspace-scope.test.tsx tests/unit/dashboard/workspace-scope-action.test.ts tests/unit/ui/sheet-focus-stability.test.tsx tests/unit/booking/booking-sheet-payment-submit.test.tsx tests/unit/booking/m1b-foreign-location.test.ts tests/unit/booking/m1b-scope-transport.test.tsx tests/unit/booking/m1b-location-ui.test.tsx tests/unit/booking/default-location.test.ts tests/unit/booking/location-readiness.test.ts tests/unit/booking/authenticated-create-booking-callers.test.ts tests/unit/calendar/calendar-booking-selection.test.tsx tests/unit/calendar/calendar-date-retention.test.tsx tests/unit/calendar/reception-production-compatibility.test.tsx tests/unit/calendar/operational-calendar.test.tsx tests/unit/calendar/reception-origin.test.ts tests/unit/system/preview-build-badge.test.tsx tests/unit/auth/permissions-and-validation.test.ts tests/unit/auth/password-reset-callback.test.ts tests/unit/access/operator-tenant-guard.test.ts tests/unit/api/appointment-tenant-integrity.test.ts",
+    "exit": 0,
+    "log": "focused-tests.log"
+  },
+  {
+    "name": "build",
+    "command": "npm run build",
+    "exit": 0,
+    "log": "build.log"
+  },
+  {
+    "name": "typecheck",
+    "command": "npm run typecheck",
+    "exit": 0,
+    "log": "typecheck.log"
+  },
+  {
+    "name": "changed-lint",
+    "command": "npx eslint components/dashboard/sidebar.tsx scripts/verify-reception-isolation.mjs tests/unit/dashboard/mobile-account-control.test.tsx tests/unit/dashboard/top-nav-containment.test.tsx tests/unit/dashboard/m1c-reception-compatibility.test.tsx",
+    "exit": 0,
+    "log": "changed-lint.log"
+  },
+  {
+    "name": "isolation",
+    "command": "node scripts/verify-reception-isolation.mjs",
+    "exit": 0,
+    "log": "isolation.log"
+  },
+  {
+    "name": "release-config",
+    "command": "node scripts/verify-release-control-config.mjs",
+    "exit": 0,
+    "log": "release-config.log"
+  },
+  {
+    "name": "release-tests",
+    "command": "node --test tests/release-control/assert-release-sha.test.mjs tests/release-control/verify-production-build-info.test.mjs",
+    "exit": 0,
+    "log": "release-tests.log"
+  },
+  {
+    "name": "diff-check",
+    "command": "git diff --check",
+    "exit": 0,
+    "log": "diff-check.log"
+  }
+]
