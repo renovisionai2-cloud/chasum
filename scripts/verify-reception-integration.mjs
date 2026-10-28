@@ -5,6 +5,9 @@ import { readFileSync } from "node:fs";
 
 const candidate = "9f305c2f9a377b95aa1642a3dc69f70cc0cb4573";
 const main = "80968d24dc1d87407205e54ccc949433ed39e8eb";
+const auditedMerge = "2942ac9edd29600bf05d7208526778b0d995d7e6";
+const auditedMergeTree = "3488bddb4a30c1eb43ef16c640b370e426b6ee34";
+const qualityPath = ".github/workflows/quality.yml";
 const verifierPath = "scripts/verify-reception-integration.mjs";
 const precommit = process.argv.includes("--precommit");
 const git = (...args) =>
@@ -28,21 +31,64 @@ const indexBlob = (path) => {
 };
 const finalBlob = (path) => precommit ? indexBlob(path) : blobAt("HEAD", path);
 
+const hardeningPaths = [qualityPath, verifierPath];
+const head = git("rev-parse", "HEAD");
+assert.equal(git("rev-parse", `${auditedMerge}^{tree}`), auditedMergeTree, "Audited merge tree changed");
+assert.equal(
+  git("show", "-s", "--format=%P", auditedMerge),
+  `${candidate} ${main}`,
+  "Audited integration must retain candidate first and main second",
+);
+
 if (precommit) {
-  assert.equal(git("rev-parse", "HEAD"), candidate, "Precommit merge must start at the exact candidate");
-  assert.equal(git("rev-parse", "MERGE_HEAD"), main, "Precommit merge must target exact main");
+  assert.equal(head, auditedMerge, "Precommit hardening must start at the exact audited merge");
   assert.equal(git("diff", "--name-only", "--diff-filter=U"), "", "Merge conflicts remain unresolved");
   assert.equal(git("diff", "--name-only"), "", "Precommit verifier requires no unstaged changes");
+  assert.equal(git("ls-files", "--others", "--exclude-standard"), "", "Unexpected untracked files");
 } else {
   assert.equal(
     git("show", "-s", "--format=%P", "HEAD"),
-    `${candidate} ${main}`,
-    "Integration must be one two-parent merge with candidate first and main second",
+    auditedMerge,
+    "CI hardening must have the exact audited merge as its direct and only parent",
   );
-  git("merge-base", "--is-ancestor", candidate, "HEAD");
-  git("merge-base", "--is-ancestor", main, "HEAD");
   assert.equal(git("status", "--porcelain"), "", "Integration worktree must be clean");
 }
+git("merge-base", "--is-ancestor", candidate, "HEAD");
+git("merge-base", "--is-ancestor", main, "HEAD");
+const hardeningDiff = precommit
+  ? git("diff", "--cached", "--name-only", auditedMerge)
+  : git("diff", "--name-only", auditedMerge, "HEAD");
+assert.deepEqual(
+  hardeningDiff.split("\n").filter(Boolean).sort(),
+  [...hardeningPaths].sort(),
+  "CI hardening must change exactly the two approved files",
+);
+
+function assertBuildBeforeTest(workflow, testCommand, label) {
+  const buildIndex = workflow.indexOf("run: npm run build");
+  const testIndex = workflow.indexOf(testCommand);
+  assert.notEqual(buildIndex, -1, `${label}: Build step is missing`);
+  assert.notEqual(testIndex, -1, `${label}: Test step is missing`);
+  assert(buildIndex < testIndex, `${label}: Build must occur before Test`);
+}
+
+const quality = readFileSync(qualityPath, "utf8");
+assertBuildBeforeTest(quality, "run: npm run test", "Quality");
+assert(quality.includes("name: Quality") && quality.includes("pull_request:"));
+assert(quality.includes("npx playwright install --with-deps chromium webkit"));
+assert(quality.includes("npm run test -- --maxWorkers=1"));
+
+const release = readFileSync(".github/workflows/release-production.yml", "utf8");
+assertBuildBeforeTest(release, "run: npm test", "Production release");
+for (const invariant of [
+  "workflow_dispatch:",
+  "environment: production-release",
+  'git --no-replace-objects -C control archive "$RELEASE_SHA"',
+  "rollback_hold_deployment:",
+  "verify-production-build-info.mjs",
+  "npx playwright install --with-deps chromium webkit",
+  "npm test -- --maxWorkers=1",
+]) assert(release.includes(invariant), `Missing release invariant: ${invariant}`);
 
 const manualPaths = new Set([
   "components/calendar/calendar-client.tsx",
@@ -73,7 +119,7 @@ for (const path of candidateResolutions) {
 }
 
 const reconciledBlobs = new Map([
-  [".github/workflows/quality.yml", "ffdc792b477738b81e19fe64f348c11aaa9c13d2"],
+  [".github/workflows/quality.yml", "170f0fc43aca4720257942f3d202e5478d7aeabe"],
   [".github/workflows/release-production.yml", "b169e8421a89ef31c4c00cd347199cc7a5a0f6a6"],
   ["docs/CHANGELOG.md", "2a25ea098bf843a02bfd8ae2717823d7795dc62b"],
   ["docs/CURRENT_PROJECT_STATE.md", "665287fa9cf7a3e87ab4e2cbbc3cafc0aa3cec1c"],
@@ -160,24 +206,6 @@ for (const path of mainControlParityPaths) {
   assert.equal(finalBlob(path), blobAt(main, path), `Release control diverged from main: ${path}`);
 }
 
-const quality = readFileSync(".github/workflows/quality.yml", "utf8");
-assert(quality.includes("name: Quality") && quality.includes("pull_request:"));
-assert(quality.includes("npx playwright install --with-deps chromium webkit"));
-assert(quality.includes("npm run test -- --maxWorkers=1"));
-assert(quality.indexOf("run: npm run build") < quality.indexOf("run: npm run test"));
-
-const release = readFileSync(".github/workflows/release-production.yml", "utf8");
-for (const invariant of [
-  "workflow_dispatch:",
-  "environment: production-release",
-  'git --no-replace-objects -C control archive "$RELEASE_SHA"',
-  "rollback_hold_deployment:",
-  "verify-production-build-info.mjs",
-  "npx playwright install --with-deps chromium webkit",
-  "npm test -- --maxWorkers=1",
-]) assert(release.includes(invariant), `Missing release invariant: ${invariant}`);
-assert(release.indexOf("run: npm run build") < release.indexOf("run: npm test"));
-
 const policy = JSON.parse(readFileSync("release/candidates.json", "utf8"));
 assert.equal(policy.version, 1);
 assert.deepEqual(policy.candidates, [], "Release policy must remain deny-all");
@@ -186,7 +214,11 @@ console.log(JSON.stringify({
   mode: precommit ? "precommit" : "committed",
   head: precommit ? null : git("rev-parse", "HEAD"),
   tree: precommit ? git("write-tree") : git("rev-parse", "HEAD^{tree}"),
-  parents: [candidate, main],
+  parents: [auditedMerge],
+  auditedMerge,
+  auditedMergeTree,
+  mergeParents: [candidate, main],
+  hardeningPaths,
   manualPaths: [...manualPaths],
   protectedPaths,
   candidateParityPaths,
