@@ -18,6 +18,30 @@ let server: ViteDevServer;
 let browser: Browser;
 let origin: string;
 
+// Compile the real fixture graph during setup, before navigation's load budget.
+// transformRequest propagates compilation failures; warmupRequest does not.
+async function prepareFixtureModules(vite: ViteDevServer) {
+  const prepared = new Set<string>();
+  const client = vite.environments.client;
+  const prepare = async (url: string): Promise<void> => {
+    if (prepared.has(url)) return;
+    prepared.add(url);
+    const result = await client.transformRequest(url);
+    if (!result) throw new Error("Fixture preparation returned no module: " + url);
+    const entryModule = await client.moduleGraph.getModuleByUrl(url);
+    if (!entryModule) throw new Error("Fixture preparation did not register module: " + url);
+    // CSS importedModules includes Tailwind's watched files, not just imports.
+    // Its transform already awaits PostCSS; do not execute those watched files.
+    if (entryModule.file?.endsWith(".css")) return;
+    await Promise.all([...entryModule.importedModules].map((dependency) => prepare(dependency.url)));
+  };
+  await prepare("/app/globals.css");
+  await prepare("/@vite/client");
+  await prepare("virtual:badge-entry");
+  await client.waitForRequestsIdle();
+  return prepared.size;
+}
+
 beforeAll(async () => {
   if (evidence) await mkdir(evidence, { recursive: true });
   const fontBuild = resolve(root, ".next/static");
@@ -110,6 +134,15 @@ beforeAll(async () => {
   const address = server.httpServer!.address();
   if (!address || typeof address === "string") throw new Error("Missing local port");
   origin = `http://127.0.0.1:${address.port}`;
+  const preparationStarted = Date.now();
+  const recordPreparation = (event: string, moduleCount?: number) => {
+    // Fixed fields only; diagnostic output must not replace a compilation error.
+    try { console.info("[badge-preparation] " + JSON.stringify({ event, durationMs: Date.now() - preparationStarted, moduleCount })); }
+    catch { /* Preserve the original setup outcome if the log sink fails. */ }
+  };
+  recordPreparation("PREPARATION_BEGIN");
+  try { recordPreparation("PREPARATION_COMPLETE", await prepareFixtureModules(server)); }
+  catch (error) { recordPreparation("PREPARATION_FAILED"); throw error; }
   browser = await chromium.launch();
 }, 120_000);
 
