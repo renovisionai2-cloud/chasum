@@ -13,6 +13,9 @@ const auditedDiagnostics = "127b8fc9d842829da14e98390d988da56be9bdd6";
 const auditedDiagnosticsTree = "06793a44140f2361320de813599cfd0da24bc60a";
 const auditedCorrection = "bb1baf105232eb75e4cd7ee4f159cdb54237c360";
 const auditedCorrectionTree = "a14a049acac5e90e33163182b72a06a815df59dc";
+const auditedGovernance = "2af803c7e75b5fe63aa9a048a3bede6618eb676c";
+const auditedGovernanceTree = "668d695f2020e6c299ebbc2c6305ca56d7d805b7";
+const teardownTestBlob = "06dec47bcf456f9b434b2fd199e50fd2c5cf587a";
 const footerTestPath = "tests/unit/dashboard/preview-build-badge-containment.test.tsx";
 const diagnosticTestPath = "tests/unit/dashboard/m1c-reception-compatibility.test.tsx";
 const qualityPath = ".github/workflows/quality.yml";
@@ -43,7 +46,8 @@ const finalBlob = (path) => precommit ? indexBlob(path) : blobAt("HEAD", path);
 const hardeningPaths = [qualityPath, verifierPath];
 const diagnosticPaths = [diagnosticTestPath, verifierPath];
 const correctionPaths = [diagnosticTestPath, footerTestPath, verifierPath];
-// This task permits four continuity documents plus this verifier, never source/tests.
+// Preserve the accepted governance scope independently of this diagnostic child.
+const teardownPaths = [diagnosticTestPath, verifierPath];
 const documentationPaths = [
   "docs/CURRENT_PROJECT_STATE.md",
   "docs/handoffs/LATEST_HANDOFF.md",
@@ -77,7 +81,7 @@ assert.deepEqual(
   "Historical diagnostics must retain exactly their two approved existing files",
 );
 
-// Freeze the accepted browser correction before admitting one documentation child.
+// Freeze the accepted browser correction independently of subsequent children.
 assert.equal(git("rev-parse", `${auditedCorrection}^{tree}`), auditedCorrectionTree, "Audited browser-correction tree changed");
 assert.equal(git("show", "-s", "--format=%P", auditedCorrection), auditedDiagnostics, "Audited browser-correction parent changed");
 assert.deepEqual(
@@ -86,35 +90,46 @@ assert.deepEqual(
   "Historical browser correction must retain exactly its three approved existing files",
 );
 
+// Freeze the accepted governance child before admitting one passive diagnostic child.
+assert.equal(git("rev-parse", `${auditedGovernance}^{tree}`), auditedGovernanceTree, "Audited governance tree changed");
+assert.equal(git("show", "-s", "--format=%P", auditedGovernance), auditedCorrection, "Audited governance parent changed");
+assert.deepEqual(
+  git("diff", "--no-renames", "--name-status", auditedCorrection, auditedGovernance).split("\n").filter(Boolean).sort(),
+  documentationPaths.map((path) => `M\t${path}`).sort(),
+  "Historical governance must retain exactly its five approved existing files",
+);
+assert.equal(git("diff", "--no-renames", "--summary", auditedCorrection, auditedGovernance), "", "Historical governance file metadata changed");
+
 if (precommit) {
-  assert.equal(head, auditedCorrection, "Precommit documentation must start at the exact audited browser correction");
+  assert.equal(head, auditedGovernance, "Precommit diagnostics must start at the exact audited governance child");
   assert.equal(git("diff", "--name-only", "--diff-filter=U"), "", "Merge conflicts remain unresolved");
   assert.equal(git("diff", "--name-only"), "", "Precommit verifier requires no unstaged changes");
   assert.equal(git("ls-files", "--others", "--exclude-standard"), "", "Unexpected untracked files");
 } else {
   assert.equal(
     git("show", "-s", "--format=%P", "HEAD"),
-    auditedCorrection,
-    "Documentation child must have the exact audited browser correction as its direct and only parent",
+    auditedGovernance,
+    "Passive diagnostic child must have the exact audited governance child as its direct and only parent",
   );
-  assert.equal(git("rev-list", "--count", `${auditedCorrection}..HEAD`), "1", "Exactly one documentation child is allowed");
+  assert.equal(git("rev-list", "--count", `${auditedGovernance}..HEAD`), "1", "Exactly one passive diagnostic child is allowed");
   assert.equal(git("status", "--porcelain", "--untracked-files=all"), "", "Integration worktree must be clean");
 }
-for (const ancestor of [candidate, main, auditedMerge, auditedHardening, auditedDiagnostics, auditedCorrection]) {
+for (const ancestor of [candidate, main, auditedMerge, auditedHardening, auditedDiagnostics, auditedCorrection, auditedGovernance]) {
   git("merge-base", "--is-ancestor", ancestor, "HEAD");
 }
-const documentationDiff = precommit
-  ? git("diff", "--cached", "--no-renames", "--name-status", auditedCorrection)
-  : git("diff", "--no-renames", "--name-status", auditedCorrection, "HEAD");
+const teardownDiff = precommit
+  ? git("diff", "--cached", "--no-renames", "--name-status", auditedGovernance)
+  : git("diff", "--no-renames", "--name-status", auditedGovernance, "HEAD");
 assert.deepEqual(
-  documentationDiff.split("\n").filter(Boolean).sort(),
-  documentationPaths.map((path) => `M\t${path}`).sort(),
-  "Documentation child must modify exactly the five approved existing files",
+  teardownDiff.split("\n").filter(Boolean).sort(),
+  teardownPaths.map((path) => `M\t${path}`).sort(),
+  "Passive diagnostic child must modify exactly the two approved existing files",
 );
 const metadataDiff = precommit
-  ? git("diff", "--cached", "--no-renames", "--summary", auditedCorrection)
-  : git("diff", "--no-renames", "--summary", auditedCorrection, "HEAD");
-assert.equal(metadataDiff, "", "Documentation child must not add/delete/rename paths or change file modes");
+  ? git("diff", "--cached", "--no-renames", "--summary", auditedGovernance)
+  : git("diff", "--no-renames", "--summary", auditedGovernance, "HEAD");
+assert.equal(metadataDiff, "", "Passive diagnostic child must not add/delete/rename paths or change file modes");
+assert.equal(finalBlob(diagnosticTestPath), teardownTestBlob, "Unapproved passive teardown instrumentation");
 
 function assertBuildBeforeTest(workflow, testCommand, label) {
   const buildIndex = workflow.indexOf("run: npm run build");
@@ -185,7 +200,7 @@ for (const [path, blob] of reconciledBlobs) {
   assert.equal(blobAt(auditedHardening, path), blob, `Historical reconciled blob changed: ${path}`);
 }
 
-// Historical continuity remains pinned above; only these exact reviewed new blobs pass.
+// Historical and final continuity must retain these exact accepted governance blobs.
 const documentationBlobs = new Map([
   ["docs/CURRENT_PROJECT_STATE.md", "c6b0f3b9811c6663e873638cb68d7603a034f175"],
   ["docs/handoffs/LATEST_HANDOFF.md", "82502f503db1c06c2c93a2e023152f57ead8ec46"],
@@ -193,6 +208,7 @@ const documentationBlobs = new Map([
   ["docs/product/14_DECISION_LOG.md", "094a8eef3e8f117b14566ccc74ef24b28a0c3a94"],
 ]);
 for (const [path, blob] of documentationBlobs) {
+  assert.equal(blobAt(auditedGovernance, path), blob, `Historical governance documentation changed: ${path}`);
   assert.equal(finalBlob(path), blob, `Unapproved documentation content: ${path}`);
 }
 
@@ -213,11 +229,16 @@ for (const path of inheritedPaths) {
   }
 }
 const correctionFileSet = pathSet(auditedCorrection);
-assert.deepEqual([...finalPaths].sort(), [...correctionFileSet].sort(), "Documentation child must not add or remove paths");
+const governanceFileSet = pathSet(auditedGovernance);
+assert.deepEqual([...governanceFileSet].sort(), [...correctionFileSet].sort(), "Historical governance must not add or remove paths");
+assert.deepEqual([...finalPaths].sort(), [...governanceFileSet].sort(), "Passive diagnostic child must not add or remove paths");
 for (const path of finalPaths) {
   if (!inheritedPaths.has(path)) assert.equal(path, verifierPath, `Unexpected integration-only path: ${path}`);
   if (!documentationPaths.includes(path)) {
-    assert.equal(finalBlob(path), blobAt(auditedCorrection, path), `Unexpected documentation-child change: ${path}`);
+    assert.equal(blobAt(auditedGovernance, path), blobAt(auditedCorrection, path), `Unexpected historical governance change: ${path}`);
+  }
+  if (!teardownPaths.includes(path)) {
+    assert.equal(finalBlob(path), blobAt(auditedGovernance, path), `Unexpected passive diagnostic change: ${path}`);
   }
 }
 
@@ -284,7 +305,11 @@ console.log(JSON.stringify({
   mode: precommit ? "precommit" : "committed",
   head: precommit ? null : git("rev-parse", "HEAD"),
   tree: precommit ? git("write-tree") : git("rev-parse", "HEAD^{tree}"),
-  parents: [auditedCorrection],
+  parents: [auditedGovernance],
+  auditedGovernance,
+  auditedGovernanceTree,
+  teardownPaths,
+  teardownTestBlob,
   auditedCorrection,
   auditedCorrectionTree,
   documentationPaths,

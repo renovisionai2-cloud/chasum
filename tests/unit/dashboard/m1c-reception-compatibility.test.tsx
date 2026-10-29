@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
+import { writeSync } from "node:fs";
 import { resolve } from "node:path";
 import { performance } from "node:perf_hooks";
 import { createLogger, createServer, type ViteDevServer } from "vite";
@@ -85,6 +86,15 @@ function emitDiagnostic(payload: Record<string, unknown>) {
   } catch {
     try { process.stderr.write('[m1c-navigation] {"event":"DIAGNOSTIC_COLLECTION_FAILED","phase":"emit"}\n'); } catch { /* Keep the original error. */ }
   }
+}
+type TeardownEvent =
+  | "FIXTURE_TEARDOWN_BEGIN" | "FIXTURE_TEARDOWN_COMPLETE"
+  | `${"CHROMIUM" | "WEBKIT" | "VITE"}_CLOSE_${"BEGIN" | "COMPLETE" | "ERROR"}`;
+function emitTeardown(event: TeardownEvent) {
+  // Bypass reporter buffering so a stalled close still leaves its BEGIN visible.
+  try {
+    writeSync(2, "[m1c-teardown] " + JSON.stringify({ event, atMs: elapsed() }) + "\n");
+  } catch { /* A diagnostic sink failure must not replace the original error. */ }
 }
 const lifecycle = diagnosticBuffer(24);
 const serverRequests = diagnosticBuffer(32);
@@ -372,12 +382,29 @@ beforeAll(async () => {
 
 afterAll(async () => {
   lifecycle.add("FIXTURE_TEARDOWN_BEGIN");
+  emitTeardown("FIXTURE_TEARDOWN_BEGIN");
   const cleanupErrors: unknown[] = [];
-  for (const browser of Object.values(browsers)) {
-    try { await browser.close(); } catch (error) { cleanupErrors.push(error); }
+  for (const [engine, browser] of Object.entries(browsers)) {
+    const component = engine === "chromium" ? "CHROMIUM" : "WEBKIT";
+    emitTeardown(`${component}_CLOSE_BEGIN`);
+    try {
+      await browser.close();
+      emitTeardown(`${component}_CLOSE_COMPLETE`);
+    } catch (error) {
+      emitTeardown(`${component}_CLOSE_ERROR`);
+      cleanupErrors.push(error);
+    }
   }
-  try { await server?.close(); } catch (error) { cleanupErrors.push(error); }
+  emitTeardown("VITE_CLOSE_BEGIN");
+  try {
+    await server?.close();
+    emitTeardown("VITE_CLOSE_COMPLETE");
+  } catch (error) {
+    emitTeardown("VITE_CLOSE_ERROR");
+    cleanupErrors.push(error);
+  }
   lifecycle.add("FIXTURE_TEARDOWN_COMPLETE", { cleanupErrors: cleanupErrors.length });
+  emitTeardown("FIXTURE_TEARDOWN_COMPLETE");
   emitDiagnostic({ event: "FIXTURE_LIFECYCLE", lifecycle: lifecycle.snapshot() });
   if (cleanupErrors.length) throw new AggregateError(cleanupErrors, "M1C fixture cleanup failed");
   if (evidence) await writeFile(resolve(evidence, "browser-results.json"), JSON.stringify(results, null, 2) + "\n");
