@@ -11,11 +11,14 @@ const auditedHardening = "bd0e9fc73528373f304dbc9fb8c259bd9b7daa93";
 const auditedHardeningTree = "095577e81096ef0ecedccb5f3d9ac7f73c5ec8cd";
 const auditedDiagnostics = "127b8fc9d842829da14e98390d988da56be9bdd6";
 const auditedDiagnosticsTree = "06793a44140f2361320de813599cfd0da24bc60a";
+const auditedCorrection = "bb1baf105232eb75e4cd7ee4f159cdb54237c360";
+const auditedCorrectionTree = "a14a049acac5e90e33163182b72a06a815df59dc";
 const footerTestPath = "tests/unit/dashboard/preview-build-badge-containment.test.tsx";
 const diagnosticTestPath = "tests/unit/dashboard/m1c-reception-compatibility.test.tsx";
 const qualityPath = ".github/workflows/quality.yml";
 const verifierPath = "scripts/verify-reception-integration.mjs";
-const precommit = process.argv.includes("--precommit");
+assert(process.argv.length === 2 || (process.argv.length === 3 && process.argv[2] === "--precommit"), "Only committed mode or --precommit is supported");
+const precommit = process.argv[2] === "--precommit";
 const git = (...args) =>
   execFileSync("git", ["--no-replace-objects", ...args], {
     encoding: "utf8",
@@ -40,6 +43,14 @@ const finalBlob = (path) => precommit ? indexBlob(path) : blobAt("HEAD", path);
 const hardeningPaths = [qualityPath, verifierPath];
 const diagnosticPaths = [diagnosticTestPath, verifierPath];
 const correctionPaths = [diagnosticTestPath, footerTestPath, verifierPath];
+// This task permits four continuity documents plus this verifier, never source/tests.
+const documentationPaths = [
+  "docs/CURRENT_PROJECT_STATE.md",
+  "docs/handoffs/LATEST_HANDOFF.md",
+  "docs/CHANGELOG.md",
+  "docs/product/14_DECISION_LOG.md",
+  verifierPath,
+];
 const head = git("rev-parse", "HEAD");
 assert.equal(git("rev-parse", `${auditedMerge}^{tree}`), auditedMergeTree, "Audited merge tree changed");
 assert.equal(
@@ -66,32 +77,44 @@ assert.deepEqual(
   "Historical diagnostics must retain exactly their two approved existing files",
 );
 
+// Freeze the accepted browser correction before admitting one documentation child.
+assert.equal(git("rev-parse", `${auditedCorrection}^{tree}`), auditedCorrectionTree, "Audited browser-correction tree changed");
+assert.equal(git("show", "-s", "--format=%P", auditedCorrection), auditedDiagnostics, "Audited browser-correction parent changed");
+assert.deepEqual(
+  git("diff", "--no-renames", "--name-status", auditedDiagnostics, auditedCorrection).split("\n").filter(Boolean).sort(),
+  correctionPaths.map((path) => `M\t${path}`).sort(),
+  "Historical browser correction must retain exactly its three approved existing files",
+);
+
 if (precommit) {
-  assert.equal(head, auditedDiagnostics, "Precommit correction must start at the exact audited diagnostics");
+  assert.equal(head, auditedCorrection, "Precommit documentation must start at the exact audited browser correction");
   assert.equal(git("diff", "--name-only", "--diff-filter=U"), "", "Merge conflicts remain unresolved");
   assert.equal(git("diff", "--name-only"), "", "Precommit verifier requires no unstaged changes");
   assert.equal(git("ls-files", "--others", "--exclude-standard"), "", "Unexpected untracked files");
 } else {
   assert.equal(
     git("show", "-s", "--format=%P", "HEAD"),
-    auditedDiagnostics,
-    "Correction must have the exact audited diagnostics as its direct and only parent",
+    auditedCorrection,
+    "Documentation child must have the exact audited browser correction as its direct and only parent",
   );
-  assert.equal(git("rev-list", "--count", `${auditedDiagnostics}..HEAD`), "1", "Exactly one correction child is allowed");
-  assert.equal(git("status", "--porcelain"), "", "Integration worktree must be clean");
+  assert.equal(git("rev-list", "--count", `${auditedCorrection}..HEAD`), "1", "Exactly one documentation child is allowed");
+  assert.equal(git("status", "--porcelain", "--untracked-files=all"), "", "Integration worktree must be clean");
 }
-git("merge-base", "--is-ancestor", candidate, "HEAD");
-git("merge-base", "--is-ancestor", main, "HEAD");
-git("merge-base", "--is-ancestor", auditedHardening, "HEAD");
-git("merge-base", "--is-ancestor", auditedDiagnostics, "HEAD");
-const correctionDiff = precommit
-  ? git("diff", "--cached", "--no-renames", "--name-status", auditedDiagnostics)
-  : git("diff", "--no-renames", "--name-status", auditedDiagnostics, "HEAD");
+for (const ancestor of [candidate, main, auditedMerge, auditedHardening, auditedDiagnostics, auditedCorrection]) {
+  git("merge-base", "--is-ancestor", ancestor, "HEAD");
+}
+const documentationDiff = precommit
+  ? git("diff", "--cached", "--no-renames", "--name-status", auditedCorrection)
+  : git("diff", "--no-renames", "--name-status", auditedCorrection, "HEAD");
 assert.deepEqual(
-  correctionDiff.split("\n").filter(Boolean).sort(),
-  correctionPaths.map((path) => `M\t${path}`).sort(),
-  "Correction must modify exactly the three approved existing files",
+  documentationDiff.split("\n").filter(Boolean).sort(),
+  documentationPaths.map((path) => `M\t${path}`).sort(),
+  "Documentation child must modify exactly the five approved existing files",
 );
+const metadataDiff = precommit
+  ? git("diff", "--cached", "--no-renames", "--summary", auditedCorrection)
+  : git("diff", "--no-renames", "--summary", auditedCorrection, "HEAD");
+assert.equal(metadataDiff, "", "Documentation child must not add/delete/rename paths or change file modes");
 
 function assertBuildBeforeTest(workflow, testCommand, label) {
   const buildIndex = workflow.indexOf("run: npm run build");
@@ -159,7 +182,18 @@ const reconciledBlobs = new Map([
 ]);
 for (const [path, blob] of reconciledBlobs) {
   assert(manualPaths.has(path), `Reconciled path is outside manual boundary: ${path}`);
-  assert.equal(finalBlob(path), blob, `Unexpected reconciled blob: ${path}`);
+  assert.equal(blobAt(auditedHardening, path), blob, `Historical reconciled blob changed: ${path}`);
+}
+
+// Historical continuity remains pinned above; only these exact reviewed new blobs pass.
+const documentationBlobs = new Map([
+  ["docs/CURRENT_PROJECT_STATE.md", "c6b0f3b9811c6663e873638cb68d7603a034f175"],
+  ["docs/handoffs/LATEST_HANDOFF.md", "82502f503db1c06c2c93a2e023152f57ead8ec46"],
+  ["docs/CHANGELOG.md", "0359a58bed23536757dadfe7827bbea1154b48da"],
+  ["docs/product/14_DECISION_LOG.md", "094a8eef3e8f117b14566ccc74ef24b28a0c3a94"],
+]);
+for (const [path, blob] of documentationBlobs) {
+  assert.equal(finalBlob(path), blob, `Unapproved documentation content: ${path}`);
 }
 
 const pathSet = (ref) => new Set(git("ls-tree", "-r", "--name-only", ref).split("\n").filter(Boolean));
@@ -178,12 +212,12 @@ for (const path of inheritedPaths) {
     assert.equal(reconciledBlobs.get(path), resolvedBlob, `Non-parent blob outside reviewed reconciliation: ${path}`);
   }
 }
-const diagnosticFileSet = pathSet(auditedDiagnostics);
-assert.deepEqual([...finalPaths].sort(), [...diagnosticFileSet].sort(), "Correction child must not add or remove paths");
+const correctionFileSet = pathSet(auditedCorrection);
+assert.deepEqual([...finalPaths].sort(), [...correctionFileSet].sort(), "Documentation child must not add or remove paths");
 for (const path of finalPaths) {
   if (!inheritedPaths.has(path)) assert.equal(path, verifierPath, `Unexpected integration-only path: ${path}`);
-  if (!correctionPaths.includes(path)) {
-    assert.equal(finalBlob(path), blobAt(auditedDiagnostics, path), `Unexpected correction change: ${path}`);
+  if (!documentationPaths.includes(path)) {
+    assert.equal(finalBlob(path), blobAt(auditedCorrection, path), `Unexpected documentation-child change: ${path}`);
   }
 }
 
@@ -250,7 +284,11 @@ console.log(JSON.stringify({
   mode: precommit ? "precommit" : "committed",
   head: precommit ? null : git("rev-parse", "HEAD"),
   tree: precommit ? git("write-tree") : git("rev-parse", "HEAD^{tree}"),
-  parents: [auditedDiagnostics],
+  parents: [auditedCorrection],
+  auditedCorrection,
+  auditedCorrectionTree,
+  documentationPaths,
+  documentationBlobs: Object.fromEntries(documentationBlobs),
   auditedDiagnostics,
   auditedDiagnosticsTree,
   correctionPaths,
