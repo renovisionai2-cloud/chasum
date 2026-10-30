@@ -1,0 +1,12 @@
+{
+  "typecheck": 0,
+  "changedLint": 0,
+  "releaseTests": 0,
+  "releaseConfig": 0,
+  "isolation": 0,
+  "build": 0,
+  "badgeUnitFinal": 0,
+  "containmentFinal": 0,
+  "focusedTests": 0,
+  "diffCheck": 0
+}

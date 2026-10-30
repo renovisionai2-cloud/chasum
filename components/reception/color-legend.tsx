@@ -16,11 +16,9 @@ export function ColorLegend({
     colorMode === "staff"
       ? staff
           .filter((s) => s.is_active)
-          .slice(0, 8)
           .map((s) => ({ id: s.id, name: s.name, color: s.color }))
       : services
           .filter((s) => s.is_active)
-          .slice(0, 8)
           .map((s) => ({ id: s.id, name: s.name, color: s.color }));
 
   if (items.length === 0) return null;

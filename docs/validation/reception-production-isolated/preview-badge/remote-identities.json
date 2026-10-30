@@ -1,0 +1,80 @@
+{
+  "observedAt": "2026-10-27T15:18:03.586Z",
+  "main": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+  "prs": [
+    {
+      "number": 173,
+      "head": "feda74b59f283ed4715d2b77b048d7367e87a286",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "mergeable": false,
+      "mergeable_state": "dirty",
+      "url": "https://github.com/renovisionai2-cloud/chasum/pull/173"
+    },
+    {
+      "number": 171,
+      "head": "7eca5899abc1d44d65205f144dc7e32307008f79",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "url": "https://github.com/renovisionai2-cloud/chasum/pull/171"
+    },
+    {
+      "number": 172,
+      "head": "b440f053fbb521ab414bea6e937071f1a9e3e7ed",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "mergeable_state": "clean",
+      "url": "https://github.com/renovisionai2-cloud/chasum/pull/172"
+    },
+    {
+      "number": 164,
+      "head": "e76839182e5255102fe15e1bd9b0085d2b382057",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "mergeable_state": "behind",
+      "url": "https://github.com/renovisionai2-cloud/chasum/pull/164"
+    },
+    {
+      "number": 128,
+      "head": "b352729c2a0c3106989aed7ecfde36ec667866a1",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "mergeable": true,
+      "mergeable_state": "behind",
+      "url": "https://github.com/renovisionai2-cloud/chasum/pull/128"
+    }
+  ],
+  "publishedCandidateChecks": {
+    "count": 2,
+    "runs": [
+      {
+        "name": "Vercel Preview Comments",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "competitive-product-gate",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "publishedCandidateStatuses": {
+    "state": "success",
+    "statuses": [
+      {
+        "context": "Vercel",
+        "state": "success"
+      }
+    ]
+  }
+}

@@ -1,10 +1,34 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-13 (America/Toronto), K-1–K-7 independent acceptance closeout; fresh GitHub baseline, no new runtime/database/financial observation.
-**Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.  
+**Updated:** 2026-10-29 (America/Toronto), local Reception #174 governance/documentation reconciliation; no remote, hosted, runtime, database or financial mutation.
+**Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — K-1–K-7 accepted; documentation closeout only
+## Current continuation — local governance child, manual delta audit next
+
+Reception integration [PR #174](https://github.com/renovisionai2-cloud/chasum/pull/174), branch `cursor/reception-main-integration-local`, is OPEN / DRAFT / UNMERGED at accepted engineering HEAD `bb1baf105232eb75e4cd7ee4f159cdb54237c360`, tree `a14a049acac5e90e33163182b72a06a815df59dc`. Independent audits and the browser-harness correction are accepted. Genuine [Quality 40810221078](https://github.com/renovisionai2-cloud/chasum/actions/runs/40810221078), Ubuntu / Node 22, passed: 2,385 tests / 0 failures / 36 historical PostgreSQL skips; required browser cases 86/86 PASS (64 M1C, 20 footer, 2 top-navigation; Chromium and WebKit). Build/typecheck, Vercel and Competitive Product Gate passed. Exact integration Preview `https://chasum-p6to8kcq7-renovisionappcom.vercel.app`, deployment `dpl_3Anj16Spw3fN7hVxKmYQ9yM5EaNy`, is READY; physical-device/operator acceptance is incomplete.
+
+Historical chain is unchanged: candidate `9f305c2f9a377b95aa1642a3dc69f70cc0cb4573` first and main `80968d24dc1d87407205e54ccc949433ed39e8eb` second in original merge `2942ac9edd29600bf05d7208526778b0d995d7e6`; hardening `bd0e9fc73528373f304dbc9fb8c259bd9b7daa93` → diagnostics `127b8fc9d842829da14e98390d988da56be9bdd6` → accepted browser correction `bb1baf105232eb75e4cd7ee4f159cdb54237c360`. The original candidate remains the Reception-only potential release source; the combined integration tip retains newer main backend/financial history and is not a substitute release artifact.
+
+Current task permits exactly one LOCAL direct child of bb1baf10, changing only four continuity documents and `scripts/verify-reception-integration.mjs`. Its independent audit and GitHub checks are **NOT YET ACCEPTED**; parent CI must not be attributed to this child. Required sequence: local documentation correction → independent Claude delta audit manually dispatched by Darshan → separate PO publication approval → genuine exact-head GitHub checks → separate PO merge approval. No remote PR-description update is authorized; the complete proposal belongs only in the delivery report. Preserve completed Reception audits and browser evidence.
+
+Approved exception: Quality total job budget **15 → 30 minutes**. Navigation remains 30 seconds, setup 120 seconds, teardown 10 seconds; no coverage/assertion weakening or new skip/bypass. This supersedes the blanket “no timeout is increased” wording in the historical continuation below. October 26 Morning Brief wording is restored from authoritative history; a separate October 29 decision clarifies Production-compatible financial isolation versus integration/main parity without granting new financial acceptance.
+
+Protected Production still serves `664fbc734c4103d78484c6b3828849a6605a562f`; main remains `80968d24dc1d87407205e54ccc949433ed39e8eb`. No merge, release registration or deployment is authorized. Issue #136 exact-SHA checks, trusted controls, deny-all registry, protected Environment, source/build identity and rollback remain required. The older Reception-only candidate lacks the newer browser preparation fixes; exact release-test evidence needs separate reconciliation without substituting main or silently changing the candidate.
+
+A future true merge of #174 can indirectly mark #173 merged/closed through shared ancestry. Exact source/audit preservation does not guarantee an OPEN/UNMERGED GitHub status. **Darshan has NOT approved this consequence; obtain an explicit disposition before any main merge.** Neither PR state nor branch may change in this local task.
+
+Remaining gates: physical iPhone/iPad and operator workflow acceptance, intermittent Safari zoom, inherited global sign-out/returned-error risk (no logout without separate approval), canonical financial-display acceptance and Issue #109 dependency launch triage. Morning Brief remains nonfinancial; no new financial truth is established for other surfaces. CAD $50 GVM deposit collection remains HELD. N06 #172 isolated acceptance, financial #164 and N01/N02 remain separate; #173/#171/#128 stay protected. Chasum HQ/GVM remain ordinary tenants and Platform Admin remains separate. Production acceptance and deployment follow separate later approvals.
+
+## Historical continuation — October 28 local integration, then independent audit next
+
+Darshan authorized one local-only true merge from exact audited Reception/M1C candidate `9f305c2f9a377b95aa1642a3dc69f70cc0cb4573` into exact current-main source `80968d24dc1d87407205e54ccc949433ed39e8eb`. The local integration branch is `cursor/reception-main-integration-local`; its required parent order is candidate first and main second. The audited candidate remains immutable and must remain a genuine ancestor. Existing Draft PR #173 remains at `9f305c2f` and is not the integration publication vehicle.
+
+The integration preserves accepted Calendar-first Reception, selected-date retention, CAL01 context, Issue #135 duplicate-submit protection, Booking Notes focus, neutral “Payment information not verified” Morning Brief, Preview footer, M1C Account Sheet and mobile Sign out access. Current-main financial/SQL/backend/Auth/tenant history remains authoritative. Quality and governed release workflows build before asset-dependent tests, install Chromium plus WebKit and run Vitest with one worker after reproduced concurrent local-server startup timeouts; no test is skipped and no timeout is increased. Issue #136 exact-SHA archive, Environment approval, deny-all policy, rollback and canonical identity controls remain unchanged.
+
+This integration is not a Reception-only Production artifact. Any future governed Reception release remains exact audited SHA `9f305c2f` unless a separately approved correction is independently audited. No push, PR update, release registration, Preview/Production deployment, hosted SQL, Auth action or customer/financial write is authorized here. Next gate is Darshan’s manual dispatch of the completed local merge candidate to Claude for independent integration audit. GitHub Quality, main merge, physical iPhone/iPad acceptance, intermittent Safari zoom, and real Sign out reliability remain open.
+
+## Historical continuation — K-1–K-7 accepted; documentation closeout only
 
 [Amended D1 contract](../reviews/issue-134-slice2b-d1-lifecycle-sql-contract-freeze.md)
 

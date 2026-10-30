@@ -1,0 +1,122 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/dashboard/preview-build-badge-containment.test.tsx
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:37410) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx (20 tests | 16 failed) 17504ms
+   × contains the footer and application controls at 390px × 844px (light) 11155ms
+   × contains the footer and application controls at 639px × 900px (light) 267ms
+   × contains the footer and application controls at 640px × 900px (light) 244ms
+   × contains the footer and application controls at 767px × 900px (light) 238ms
+   × contains the footer and application controls at 768px × 900px (light) 231ms
+   × contains the footer and application controls at 1024px × 900px (light) 237ms
+   × contains the footer and application controls at 1366px × 768px (light) 275ms
+   × contains the footer and application controls at 1440px × 900px (light) 274ms
+   × contains the footer and application controls at 390px × 844px (dark) 275ms
+   × contains the footer and application controls at 639px × 900px (dark) 233ms
+   × contains the footer and application controls at 640px × 900px (dark) 251ms
+   × contains the footer and application controls at 767px × 900px (dark) 235ms
+   × contains the footer and application controls at 768px × 900px (dark) 236ms
+   × contains the footer and application controls at 1024px × 900px (dark) 241ms
+   × contains the footer and application controls at 1366px × 768px (dark) 289ms
+   × contains the footer and application controls at 1440px × 900px (dark) 290ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 16 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 390px × 844px (light)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 767px × 900px (light)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 1366px × 768px (light)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 1440px × 900px (light)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 390px × 844px (dark)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 639px × 900px (dark)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 640px × 900px (dark)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 1024px × 900px (dark)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:188:31
+    186|       expect(metrics.height).toBeLessThanOrEqual(80); expect(metrics.a…
+    187|       expect(metrics.overflow).toBe(0); expect(metrics.linkHeight).toB…
+    188|       expect(metrics.linkHit).toBe(true); expect(metrics.linkFocused).…
+       |                               ^
+    189|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    190|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/16]⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 639px × 900px (light)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 640px × 900px (light)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 1024px × 900px (light)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 767px × 900px (dark)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 1366px × 768px (dark)
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 1440px × 900px (dark)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:188:31
+    186|       expect(metrics.height).toBeLessThanOrEqual(80); expect(metrics.a…
+    187|       expect(metrics.overflow).toBe(0); expect(metrics.linkHeight).toB…
+    188|       expect(metrics.linkHit).toBe(true); expect(metrics.linkFocused).…
+       |                               ^
+    189|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    190|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/16]⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 768px × 900px (light)
+AssertionError: {"position":"static","zIndex":"auto","height":53,"marginBottom":"32px","bottom":863,"navTop":851,"scrollY":0,"scrollHeight":923,"afterContent":true,"overflow":0,"linkHeight":44,"linkFocused":true,"linkHit":true,"focusVisible":true,"focusShadow":"rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(241, 245, 249) 0px 0px 0px 2px, rgb(37, 99, 235) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px","textContrast":9.451924418631656,"linkContrast":16.921013965262773,"navVisible":true,"navOverlap":true,"obscuredNavLabels":[]}: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:191:106
+    189|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    190|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+    191|       expect(metrics.navVisible).toBe(width < 1024); expect(metrics.na…
+       |                                                                                                          ^
+    192|       expect(metrics.obscuredNavLabels).toEqual([]);
+    193|       if (metrics.navVisible) expect(metrics.navTop - metrics.bottom).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/16]⎯
+
+ FAIL  tests/unit/dashboard/preview-build-badge-containment.test.tsx > contains the footer and application controls at 768px × 900px (dark)
+AssertionError: {"position":"static","zIndex":"auto","height":53,"marginBottom":"32px","bottom":863,"navTop":851,"scrollY":0,"scrollHeight":923,"afterContent":true,"overflow":0,"linkHeight":44,"linkFocused":true,"linkHit":true,"focusVisible":true,"focusShadow":"rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(8, 19, 36) 0px 0px 0px 2px, rgb(59, 130, 246) 0px 0px 0px 4px, rgba(0, 0, 0, 0) 0px 0px 0px 0px","textContrast":7.254709960333394,"linkContrast":17.20355679457858,"navVisible":true,"navOverlap":true,"obscuredNavLabels":[]}: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/unit/dashboard/preview-build-badge-containment.test.tsx:191:106
+    189|       expect(metrics.focusVisible).toBe(true); expect(metrics.focusSha…
+    190|       expect(metrics.textContrast).toBeGreaterThanOrEqual(4.5); expect…
+    191|       expect(metrics.navVisible).toBe(width < 1024); expect(metrics.na…
+       |                                                                                                          ^
+    192|       expect(metrics.obscuredNavLabels).toEqual([]);
+    193|       if (metrics.navVisible) expect(metrics.navTop - metrics.bottom).…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/16]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  16 failed | 4 passed (20)
+   Start at  11:20:05
+   Duration  17.99s (transform 53ms, setup 108ms, import 283ms, tests 17.50s, environment 0ms)

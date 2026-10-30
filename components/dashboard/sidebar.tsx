@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { LocationSwitcher } from "@/components/dashboard/location-switcher";
 import { MobileWorkspaceScope } from "@/components/dashboard/mobile-workspace-scope";
 import { Button } from "@/components/ui/button";
+import { Sheet } from "@/components/ui/sheet";
 import { Logo } from "@/components/brand/logo";
 import {
   DASHBOARD_NAV_GROUPS,
@@ -48,7 +49,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal, useFormStatus } from "react-dom";
 
 export { getPageTitle };
 
@@ -269,24 +271,115 @@ export function DashboardSidebar({
   );
 }
 
-function UserBadge({ email }: { email?: string }) {
+// Observe the canonical form's lifecycle without wrapping or replacing its action.
+function AccountSignOut({ submitting, release }: { submitting: boolean; release: () => void }) {
+  const { pending } = useFormStatus();
+  const wasPending = useRef(false);
+  useEffect(() => {
+    if (wasPending.current && !pending) release();
+    wasPending.current = pending;
+  }, [pending, release]);
+  return (
+    <>
+      <Button type="submit" disabled={submitting || pending} className="min-h-11 w-full gap-2">
+        <LogOut className="h-4 w-4" aria-hidden="true" />
+        {submitting || pending ? "Signing out…" : "Sign out"}
+      </Button>
+      <p role="status" className="text-sm text-muted-foreground">
+        {submitting || pending ? "Signing out. Please wait…" : ""}
+      </p>
+    </>
+  );
+}
+
+function AccountControl({ email }: { email?: string }) {
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const claimed = useRef(false);
+  const accountForm = useRef<HTMLFormElement>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const release = useCallback(() => {
+    claimed.current = false;
+    setSubmitting(false);
+  }, []);
+  useEffect(() => {
+    const containPendingFocus = (event: KeyboardEvent) => {
+      // The unchanged Sheet includes disabled controls in its Tab endpoints.
+      // While submitting, Close is the Account panel's only enabled endpoint.
+      if (claimed.current && event.key === "Tab") {
+        event.preventDefault();
+        event.stopPropagation();
+        accountForm.current?.closest('[role="dialog"]')
+          ?.querySelector<HTMLButtonElement>('button[aria-label="Close"]')?.focus({ preventScroll: true });
+      }
+    };
+    document.addEventListener("keydown", containPendingFocus, true);
+    return () => document.removeEventListener("keydown", containPendingFocus, true);
+  }, []);
   const initial = email?.charAt(0).toUpperCase() ?? "?";
+  const close = useCallback(() => {
+    // Keep this form mounted while pending so its lifecycle and guard cannot
+    // be reset by closing/reopening the panel. The Auth action is unchanged.
+    if (claimed.current) return;
+    setOpen(false);
+    trigger.current?.focus({ preventScroll: true });
+  }, []);
 
   return (
-    <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted/40">
-      <div className="hidden text-right md:block">
-        <p className="text-sm font-medium leading-tight text-foreground">Account</p>
-        <p className="max-w-[160px] truncate text-[11px] text-muted-foreground">
-          {email}
-        </p>
-      </div>
-      <div
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20"
-        aria-hidden="true"
+    <>
+      <button
+        ref={trigger}
+        type="button"
+        className="ds-focus-ring flex min-h-11 min-w-11 shrink-0 items-center gap-2.5 rounded-[var(--radius-md)] border border-transparent px-1.5 py-1 transition-colors hover:border-border hover:bg-muted/40 touch-manipulation"
+        aria-label={email ? `Account, signed in as ${email}` : "Account"}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        onClick={() => setOpen(true)}
       >
-        {initial}
-      </div>
-    </div>
+        <span className="hidden text-right md:block">
+          <span className="block text-sm font-medium leading-tight text-foreground">Account</span>
+          <span className="block max-w-[160px] truncate text-[11px] text-muted-foreground">
+            {email}
+          </span>
+        </span>
+        <span
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/20"
+          aria-hidden="true"
+        >
+          {initial}
+        </span>
+      </button>
+      {/* Escape the header's backdrop-filter containing block and stacking context. */}
+      {open && createPortal(
+        <Sheet open={open} onClose={close} title="Account" className="md:max-w-sm">
+          <div className="space-y-5">
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Signed in as</p>
+              <p className="break-all text-sm font-medium text-foreground">
+                {email || "Signed-in account identity is unavailable."}
+              </p>
+            </div>
+            <form ref={accountForm} action={signOut} onPointerDownCapture={(event) => {
+              // A second pointer press must not blur focus onto a disabled submit.
+              if (claimed.current) event.preventDefault();
+            }} onSubmit={(event) => {
+              // Claim synchronously: a second submit in the same event turn
+              // must not get ahead of React's pending render.
+              if (claimed.current) {
+                event.preventDefault();
+                return;
+              }
+              claimed.current = true;
+              setSubmitting(true);
+              event.currentTarget.closest('[role="dialog"]')
+                ?.querySelector<HTMLButtonElement>('button[aria-label="Close"]')?.focus({ preventScroll: true });
+            }}>
+              <AccountSignOut submitting={submitting} release={release} />
+            </form>
+          </div>
+        </Sheet>, document.body,
+      )}
+    </>
   );
 }
 
@@ -354,7 +447,7 @@ export function DashboardTopNav({
           </Button>
         </Link>
         <ThemeToggle />
-        <UserBadge email={userEmail} />
+        <AccountControl email={userEmail} />
       </div>
     </header>
   );
@@ -375,30 +468,102 @@ export function MobileSidebar({
   showDeveloper = true,
   onClose,
 }: MobileSidebarProps) {
+  const layer = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLDivElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+
+  useEffect(() => {
+    // Safari touch activation need not focus a button. Record either existing
+    // trigger before the unchanged shell opens this drawer.
+    const rememberTrigger = (event: Event) => {
+      const target = event.target instanceof Element ? event.target.closest<HTMLElement>(
+        'button[aria-label="Open menu"], button[aria-label="More navigation"]',
+      ) : null;
+      if (target) opener.current = target;
+    };
+    document.addEventListener("click", rememberTrigger, true);
+    return () => document.removeEventListener("click", rememberTrigger, true);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+    const previousFocus = opener.current ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    const previousOverflow = document.body.style.overflow;
+    const inertSiblings: Array<[HTMLElement, boolean]> = [];
+    // Isolate only this modal's background, preserving existing inert values.
+    let branch: HTMLElement | null = layer.current;
+    while (branch?.parentElement) {
+      const parent: HTMLElement = branch.parentElement;
+      for (const sibling of Array.from(parent.children)) {
+        if (sibling !== branch && sibling instanceof HTMLElement) {
+          inertSiblings.push([sibling, sibling.inert]);
+          sibling.inert = true;
+        }
+      }
+      if (parent === document.body) break;
+      branch = parent;
     }
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    closeButton.current?.focus({ preventScroll: true });
+    const focusable = () => Array.from(panel.current?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    ) ?? []).filter((element) => element.tabIndex >= 0 && !element.closest('[hidden], [inert]') && getComputedStyle(element).display !== "none");
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onCloseRef.current();
+      }
+      if (event.key === "Tab") {
+        const items = focusable();
+        const first = items[0], last = items[items.length - 1];
+        if (!first || !last) { event.preventDefault(); return; }
+        if (!panel.current?.contains(document.activeElement) || (event.shiftKey && document.activeElement === first)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus({ preventScroll: true });
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first.focus({ preventScroll: true });
+        }
+      }
+    };
+    const containFocus = (event: FocusEvent) => {
+      if (event.target instanceof Node && !panel.current?.contains(event.target)) closeButton.current?.focus({ preventScroll: true });
+    };
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const onResize = () => { if (desktop.matches) onCloseRef.current(); };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("focusin", containFocus);
+    desktop.addEventListener("change", onResize);
+    onResize();
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
+      document.removeEventListener("focusin", containFocus);
+      desktop.removeEventListener("change", onResize);
+      for (const [element, previous] of inertSiblings) element.inert = previous;
+      document.body.style.overflow = previousOverflow;
+      opener.current = null;
+      // A mobile trigger disappears at desktop widths; use the visible Account
+      // trigger instead of restoring focus to a hidden control.
+      const target = desktop.matches
+        ? document.querySelector<HTMLElement>('button[aria-label^="Account"][aria-haspopup="dialog"]')
+        : previousFocus;
+      if (target?.isConnected) target.focus({ preventScroll: true });
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden" id="portal-mobile-nav">
+    <div ref={layer} className="fixed inset-x-0 top-0 z-[55] h-screen supports-[height:100dvh]:h-dvh lg:hidden" id="portal-mobile-nav">
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
       <div
+        ref={panel}
         role="dialog"
         aria-modal="true"
         aria-label="Dashboard navigation"
@@ -408,9 +573,10 @@ export function MobileSidebar({
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 w-9 p-0"
+            className="h-9 w-9 p-0 text-slate-200 hover:bg-white/10 hover:text-white focus-visible:ring-white"
             onClick={onClose}
             aria-label="Close menu"
+            ref={closeButton}
           >
             <X className="h-5 w-5" />
           </Button>
@@ -420,6 +586,7 @@ export function MobileSidebar({
           showHq={showHq}
           showDeveloper={showDeveloper}
           onNavigate={onClose}
+          className="min-h-0 w-full pb-[env(safe-area-inset-bottom)] [&>div]:shrink-0 [&>nav]:min-h-0"
         />
       </div>
     </div>

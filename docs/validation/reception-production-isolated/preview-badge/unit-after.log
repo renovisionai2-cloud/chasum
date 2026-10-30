@@ -1,0 +1,14 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/system/preview-build-badge.test.tsx
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:37713) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  11:21:40
+   Duration  910ms (transform 28ms, setup 123ms, import 103ms, tests 83ms, environment 482ms)

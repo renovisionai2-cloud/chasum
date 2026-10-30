@@ -1,0 +1,48 @@
+{
+  "startingHead": "feda74b59f283ed4715d2b77b048d7367e87a286",
+  "startingTree": "677c0cf042d196461d432415b7caa5199db5bf77",
+  "directParent": "2d9b78fff3abb18f675c049d1ac0f2e49d6751ad",
+  "branch": "codex/reception-production-isolated-release",
+  "origin": "https://github.com/renovisionai2-cloud/chasum.git",
+  "worktree": "/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum",
+  "acceptedDirectAncestry": [
+    "664fbc734c4103d78484c6b3828849a6605a562f",
+    "ab972feb946e264f2a669841efc2ab78ece35cec",
+    "2d9b78fff3abb18f675c049d1ac0f2e49d6751ad",
+    "feda74b59f283ed4715d2b77b048d7367e87a286"
+  ],
+  "runtimeDelta": [
+    "components/system/preview-build-badge.tsx"
+  ],
+  "badgeBlob": "13213b0bf8873c3fe87b2a9ea13e4884a1d78031",
+  "protectedPathsIdenticalToParentAndProduction": [
+    "lib",
+    "supabase",
+    "providers",
+    "app/api",
+    "app/auth",
+    "hooks",
+    "middleware.ts",
+    "proxy.ts",
+    "package.json",
+    "package-lock.json"
+  ],
+  "unchangedParentBlobs": {
+    "app/(dashboard)/layout.tsx": "91b46f6c8271354e89658e142e272694af98f1a5",
+    "app/api/build-info/route.ts": "ffdc68c2462cba0160eb57be6a18da39de180aaf",
+    "components/dashboard/sidebar.tsx": "c473cd2205ec0f4ab6c3eb0941001223b2723e0a",
+    "components/dashboard/mobile-bottom-nav.tsx": "addae52c6ea553753948d8ac5d5c9ca965a1a37c",
+    "components/dashboard/shell.tsx": "a6d2c00be1c400d4e7fbfaad6f3eb517e988b0a4",
+    "components/ui/sheet.tsx": "f4a1ee4c6379d70fceca568a2584061cc41f6f86",
+    "components/booking-sheet/booking-sheet.tsx": "eddeb96020f74598c20c63ce6db3c5e48766f13f",
+    "components/calendar/calendar-client.tsx": "5e07c8f4551775d44c3ea2966d7bb4fab0b2c076",
+    "components/day-view/morning-brief.tsx": "eb0f397f0ee8bb9fbc964a8d7e2e56c5a524e4d6"
+  },
+  "oldEvidenceFilesVerifiedUnchanged": 88,
+  "existingTrackedTestsUnchanged": true,
+  "releaseControlsUnchangedFromParent": true,
+  "releasePolicy": {
+    "version": 1,
+    "candidates": []
+  }
+}

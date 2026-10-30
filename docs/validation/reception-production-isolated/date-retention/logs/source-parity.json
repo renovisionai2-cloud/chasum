@@ -1,0 +1,36 @@
+{
+  "base": "2d9b78fff3abb18f675c049d1ac0f2e49d6751ad",
+  "baseTree": "4ba84b5b5651ab01fcaf2c6f8718f404ead9eaa2",
+  "productionBaseline": "664fbc734c4103d78484c6b3828849a6605a562f",
+  "applicationDelta": [
+    "components/calendar/calendar-client.tsx"
+  ],
+  "calendarClientBlob": "5e07c8f4551775d44c3ea2966d7bb4fab0b2c076",
+  "preservedBlobs": {
+    "components/booking-sheet/booking-sheet.tsx": "eddeb96020f74598c20c63ce6db3c5e48766f13f",
+    "components/ui/sheet.tsx": "f4a1ee4c6379d70fceca568a2584061cc41f6f86",
+    "components/day-view/morning-brief.tsx": "eb0f397f0ee8bb9fbc964a8d7e2e56c5a524e4d6",
+    "app/(dashboard)/dashboard/calendar/page.tsx": "de25d3aaead39922cbf637f5516138275f5fe0d0",
+    "components/calendar/calendar-toolbar.tsx": "942fadc4df9607b303809de2cacd53fabbe15160",
+    "components/calendar/calendar-views.tsx": "f67e875d6875a4bc7c75ff6adf94afb779ca9b74",
+    "components/calendar/calendar-views-extended.tsx": "0453ddf9faf125459be2e4a1b9ca3c2eba7b8d82",
+    "components/reception/reception-workspace.tsx": "dc794566288a514269ca44b4bdea06fb4df41663"
+  },
+  "historicalEvidenceFilesUnchanged": 52,
+  "productionProtectedPathsUnchanged": [
+    "lib",
+    "supabase",
+    "providers",
+    "app/api",
+    "app/auth",
+    "middleware.ts",
+    "proxy.ts",
+    "package.json",
+    "package-lock.json",
+    "app/globals.css",
+    "app/layout.tsx"
+  ],
+  "releaseControlsUnchanged": true,
+  "existingFilterInitializationUnchanged": true,
+  "newCandidateRegisteredForRelease": false
+}

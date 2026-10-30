@@ -1,0 +1,20 @@
+desktop: date-retention fixture loading
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Error: strict mode violation: getByRole('dialog').getByRole('button', { name: 'Close', exact: true }) resolved to 2 elements:
+    1) <button type="button" aria-label="Close" class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 hover:bg-muted text-foreground active:scale-[0.98] min-h-10 text-sm rounded-[var(--radius-sm)] h-10 w-10 p-0 touch-manipulation">…</button> aka getByLabel('Close', { exact: true })
+    2) <button type="button" class="inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 aria-busy:pointer-events-none aria-busy:opacity-70 border border-border bg-card/60 hover:bg-muted text-foreground shadow-xs active:scale-[0.98] h-10 min-h-10 px-3.5 text-sm rounded-[var(--radius-sm)] touch…>Close</button> aka getByText('Close')
+
+Call log:
+[2m  - waiting for getByRole('dialog').getByRole('button', { name: 'Close', exact: true })[22m
+
+    at runDateRetentionValidation (/Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/tests/unit/calendar/isolated-browser/date-retention.mjs:147:84)
+    at async file:///Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum/tests/unit/calendar/isolated-browser/run.mjs:85:21 {
+  log: [
+    "  - waiting for getByRole('dialog').getByRole('button', { name: 'Close', exact: true })"
+  ]
+}
+
+Node.js v26.7.0

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "desktop",
+    "width": 1366,
+    "height": 768,
+    "syntheticCreateCalls": 3,
+    "correctedFormData": {
+      "customer_id": "cust",
+      "service_id": "svc",
+      "staff_id": "staff",
+      "location_id": "loc",
+      "start_time": "2026-10-26T16:30:00.000Z",
+      "duration_minutes": "30",
+      "status": "confirmed",
+      "notes": "Corrected synthetic notes",
+      "package_id": "",
+      "package_name": "",
+      "price_cents": "22000",
+      "tax_cents": "2860",
+      "deposit_cents": "5000",
+      "payment_idempotency_key": "bs-1793016000000-8up1yk",
+      "payment_mode": "deposit",
+      "payment_amount_cents": "5000",
+      "payment_method": "e_transfer",
+      "payment_note": "",
+      "payment_send_receipt": "0"
+    },
+    "errors": [],
+    "unapprovedWrites": [],
+    "externalRequests": []
+  },
+  {
+    "name": "tablet-touch",
+    "width": 834,
+    "height": 1112,
+    "syntheticCreateCalls": 3,
+    "correctedFormData": {
+      "customer_id": "cust",
+      "service_id": "svc",
+      "staff_id": "staff",
+      "location_id": "loc",
+      "start_time": "2026-10-26T16:30:00.000Z",
+      "duration_minutes": "30",
+      "status": "confirmed",
+      "notes": "Corrected synthetic notes",
+      "package_id": "",
+      "package_name": "",
+      "price_cents": "22000",
+      "tax_cents": "2860",
+      "deposit_cents": "5000",
+      "payment_idempotency_key": "bs-1793016000000-ckds8b",
+      "payment_mode": "deposit",
+      "payment_amount_cents": "5000",
+      "payment_method": "e_transfer",
+      "payment_note": "",
+      "payment_send_receipt": "0"
+    },
+    "errors": [],
+    "unapprovedWrites": [],
+    "externalRequests": []
+  }
+]

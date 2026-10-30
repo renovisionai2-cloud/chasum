@@ -2,64 +2,55 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * Highly visible Preview commit fingerprint for authenticated portal testing.
- * Hidden in production.
- */
+/** Quiet, verified non-Production identity within the existing dashboard flow. */
 export function PreviewBuildBadge() {
   const [info, setInfo] = useState<{
-    commitShort: string | null;
-    env: string | null;
+    commitShort: string;
+    env: "preview" | "development";
   } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     fetch("/api/build-info")
-      .then((r) => r.json())
-      .then(
-        (data: {
-          env?: string;
-          commitShort?: string | null;
-          production?: boolean;
-        }) => {
-          if (cancelled) return;
-          if (data.production || data.env === "production") {
-            setInfo(null);
-            return;
-          }
-          setInfo({
-            commitShort: data.commitShort ?? null,
-            env: data.env ?? "preview",
-          });
-        },
-      )
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data: unknown = await response.json();
+        if (!data || typeof data !== "object" || Array.isArray(data)) return;
+        const identity = data as Record<string, unknown>;
+        // A short label is trustworthy only when it agrees with the full SHA.
+        if (
+          cancelled ||
+          identity.production !== false ||
+          (identity.env !== "preview" && identity.env !== "development") ||
+          typeof identity.commit !== "string" ||
+          !/^[a-f0-9]{40}$/i.test(identity.commit) ||
+          identity.commitShort !== identity.commit.slice(0, 7)
+        ) return;
+        setInfo({ commitShort: identity.commit.slice(0, 7), env: identity.env });
+      })
       .catch(() => {
-        if (!cancelled) {
-          setInfo({ commitShort: null, env: "development" });
-        }
+        // Unavailable identity stays hidden; never invent a local build label.
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   if (!info) return null;
 
   return (
-    <div
-      className="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg"
-      role="status"
-      aria-label="Preview build identity"
+    <footer
+      aria-label="Build information"
+      className="mt-4 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-border pt-2 text-xs text-muted-foreground md:mb-[calc(2rem+env(safe-area-inset-bottom))] lg:mb-0"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-200">
-        Preview build
+      <p>
+        {info.env === "preview" ? "Preview" : "Development"} ·{" "}
+        <span className="font-mono">{info.commitShort}</span> · {info.env}
       </p>
-      <p className="mt-0.5 font-mono text-xs font-bold text-white">
-        {info.commitShort ?? "local"} · {info.env}
-      </p>
-      <p className="mt-0.5 text-[10px] text-amber-100/80">
-        Confirm /api/build-info matches this commit before testing.
-      </p>
-    </div>
+      <a
+        href="/api/build-info"
+        className="ds-focus-ring inline-flex min-h-11 shrink-0 items-center rounded-md px-2 font-medium text-foreground underline underline-offset-4"
+      >
+        Build details
+      </a>
+    </footer>
   );
 }

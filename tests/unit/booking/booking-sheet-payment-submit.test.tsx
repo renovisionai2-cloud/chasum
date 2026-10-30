@@ -8,6 +8,8 @@ import type { ActionState, AppointmentWithRelations, Customer, Location, StaffWi
 
 const mocks = vi.hoisted(() => ({
   create: vi.fn(),
+  retainSessionAfterActionError: false,
+  actionErrors: [] as unknown[],
   update: vi.fn(),
   preview: vi.fn().mockResolvedValue({
     slots: [{ start: "2026-10-10T16:00:00.000Z", end: "2026-10-10T16:30:00.000Z" }],
@@ -19,6 +21,26 @@ const mocks = vi.hoisted(() => ({
   refresh: vi.fn(),
   prefs: { locationId: "loc", serviceId: "svc", staffId: "staff" },
 }));
+
+// Probe the actual action wrapper while preventing React's normal error-boundary
+// unmount in these failure-only tests. This proves the ref stays claimed even if
+// the same session were retained; it does not add an application recovery path.
+vi.mock("react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react")>();
+  return {
+    ...actual,
+    useActionState: (
+      action: (state: unknown, payload: unknown) => unknown,
+      initial: unknown,
+      permalink?: string,
+    ) => actual.useActionState(mocks.retainSessionAfterActionError
+      ? async (state: unknown, payload: unknown) => {
+        try { return await action(state, payload); }
+        catch (error) { mocks.actionErrors.push(error); return state; }
+      }
+      : action, initial, permalink),
+  };
+});
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({
@@ -191,6 +213,8 @@ function renderSheet(appointment?: AppointmentWithRelations) {
 describe("Booking Sheet payment submission integrity", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.retainSessionAfterActionError = false;
+    mocks.actionErrors.length = 0;
     mocks.create.mockReset();
     mocks.update.mockReset();
     mocks.eligible.mockResolvedValue([staff]);
@@ -323,6 +347,44 @@ describe("Booking Sheet payment submission integrity", () => {
     }
     expect(mocks.create).not.toHaveBeenCalled();
   });
+
+  it("does not queue a duplicate after ordinary successful creation closes the session", async () => {
+    let finish!: (result: ActionState) => void;
+    mocks.create.mockReturnValueOnce(new Promise<ActionState>(resolve => { finish = resolve; }));
+    const { onClose, onSuccess } = renderSheet();
+    const submit = screen.getByRole("button", { name: "Confirm appointment" });
+    await waitFor(() => expect(submit).toBeEnabled());
+    const form = submit.closest("form")!;
+    act(() => { form.requestSubmit(); fireEvent.submit(form); });
+    expect(mocks.create).toHaveBeenCalledOnce();
+    await act(async () => finish({ appointmentId: "synthetic-success", success: "Appointment confirmed.", payment: { status: "skipped" } }));
+    expect(onSuccess).toHaveBeenCalledOnce();
+    expect(onClose).toHaveBeenCalledOnce();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mocks.create).toHaveBeenCalledOnce();
+  });
+
+  it.each(["throw", "undefined", "null"] as const)(
+    "retains the same-session guard after an ambiguous %s outcome", async (outcome) => {
+      mocks.retainSessionAfterActionError = true;
+      if (outcome === "throw") mocks.create.mockRejectedValue(new Error("Connection lost after possible commit"));
+      else mocks.create.mockResolvedValue(outcome === "null" ? null : undefined);
+      renderSheet();
+      const submit = screen.getByRole("button", { name: "Confirm appointment" });
+      await waitFor(() => expect(submit).toBeEnabled());
+      const form = submit.closest("form")!;
+      await act(async () => form.requestSubmit());
+      expect(mocks.actionErrors).toHaveLength(1);
+      expect(mocks.create).toHaveBeenCalledOnce();
+      // The test-only error observer retains the session after the action queue
+      // settles, so this checks the ref rather than a disabled pending button.
+      expect(submit).toBeEnabled();
+      await act(async () => { fireEvent.submit(form); form.requestSubmit(); submit.click(); });
+      expect(mocks.create).toHaveBeenCalledOnce();
+      expect(mocks.actionErrors).toHaveLength(1);
+      expect(mocks.update).not.toHaveBeenCalled();
+    },
+  );
 
   it("includes selected deposit fields in the actual footer form FormData", async () => {
     const user = userEvent.setup();

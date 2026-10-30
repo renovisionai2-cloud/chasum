@@ -1,0 +1,303 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/system/preview-build-badge.test.tsx
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:34353) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/unit/system/preview-build-badge.test.tsx (26 tests | 21 failed) 32ms
+     × shows only returned preview identity and the real details link 15ms
+     × shows only returned development identity and the real details link 2ms
+     × hides missing production flag without fabricating identity 1ms
+     × hides missing environment without fabricating identity 1ms
+     × hides unknown environment without fabricating identity 1ms
+     × hides missing full SHA without fabricating identity 1ms
+     × hides invalid full SHA without fabricating identity 0ms
+     × hides short SHA as full SHA without fabricating identity 0ms
+     × hides oversized SHA without fabricating identity 0ms
+     × hides missing short SHA without fabricating identity 0ms
+     × hides mismatched short SHA without fabricating identity 1ms
+     × hides full SHA as short SHA without fabricating identity 1ms
+     × hides local development without build identity without fabricating identity 0ms
+     × hides empty object without fabricating identity 0ms
+     × hides null without fabricating identity 0ms
+     × hides array without fabricating identity 0ms
+     × hides string without fabricating identity 0ms
+     × hides an unsuccessful HTTP response even when its JSON resembles an identity 0ms
+     × hides a network failure without fallback labels 0ms
+     × hides a JSON failure without fallback labels 0ms
+     × keeps one footer and one read across parent rerenders 1ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 21 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > shows only returned preview identity and the real details link
+TestingLibraryElementError: Unable to find a label with the text of: Build information
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33maria-label[39m=[32m"Preview build identity"[39m
+      [33mclass[39m=[32m"pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg"[39m
+      [33mrole[39m=[32m"status"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-[10px] font-semibold uppercase tracking-wide text-amber-200"[39m
+      [36m>[39m
+        [0mPreview build[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"mt-0.5 font-mono text-xs font-bold text-white"[39m
+      [36m>[39m
+        [0m0123456[0m
+        [0m · [0m
+        [0mpreview[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"mt-0.5 text-[10px] text-amber-100/80"[39m
+      [36m>[39m
+        [0mConfirm /api/build-info matches this commit before testing.[0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/system/preview-build-badge.test.tsx:25:27
+     23|   it.each(["preview", "development"])("shows only returned %s identity…
+     24|     await mountResponse({ ...preview, env, ref: "private-branch", emai…
+     25|     const footer = screen.getByLabelText("Build information");
+       |                           ^
+     26|     expect(footer.tagName).toBe("FOOTER");
+     27|     expect(footer).toHaveTextContent(`${env === "preview" ? "Preview" …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > shows only returned development identity and the real details link
+TestingLibraryElementError: Unable to find a label with the text of: Build information
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33maria-label[39m=[32m"Preview build identity"[39m
+      [33mclass[39m=[32m"pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg"[39m
+      [33mrole[39m=[32m"status"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-[10px] font-semibold uppercase tracking-wide text-amber-200"[39m
+      [36m>[39m
+        [0mPreview build[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"mt-0.5 font-mono text-xs font-bold text-white"[39m
+      [36m>[39m
+        [0m0123456[0m
+        [0m · [0m
+        [0mdevelopment[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"mt-0.5 text-[10px] text-amber-100/80"[39m
+      [36m>[39m
+        [0mConfirm /api/build-info matches this commit before testing.[0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ tests/unit/system/preview-build-badge.test.tsx:25:27
+     23|   it.each(["preview", "development"])("shows only returned %s identity…
+     24|     await mountResponse({ ...preview, env, ref: "private-branch", emai…
+     25|     const footer = screen.getByLabelText("Build information");
+       |                           ^
+     26|     expect(footer.tagName).toBe("FOOTER");
+     27|     expect(footer).toHaveTextContent(`${env === "preview" ? "Preview" …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides missing production flag without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides missing environment without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides missing full SHA without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides invalid full SHA without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides short SHA as full SHA without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides oversized SHA without fabricating identity
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">0123456 · preview</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:57:23
+     55|   it.each(invalid)("hides %s without fabricating identity", async (_la…
+     56|     const { container } = await mountResponse(data);
+     57|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides unknown environment without fabricating identity
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">0123456 · staging</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:57:23
+     55|   it.each(invalid)("hides %s without fabricating identity", async (_la…
+     56|     const { container } = await mountResponse(data);
+     57|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides missing short SHA without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides empty object without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides array without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides string without fabricating identity
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">local · preview</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:57:23
+     55|   it.each(invalid)("hides %s without fabricating identity", async (_la…
+     56|     const { container } = await mountResponse(data);
+     57|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides mismatched short SHA without fabricating identity
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">abcdef0 · preview</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:57:23
+     55|   it.each(invalid)("hides %s without fabricating identity", async (_la…
+     56|     const { container } = await mountResponse(data);
+     57|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides full SHA as short SHA without fabricating identity
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">0123456789abcdef0123456789abcdef01234567 · preview</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:57:23
+     55|   it.each(invalid)("hides %s without fabricating identity", async (_la…
+     56|     const { container } = await mountResponse(data);
+     57|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides local development without build identity without fabricating identity
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides null without fabricating identity
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">local · development</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:57:23
+     55|   it.each(invalid)("hides %s without fabricating identity", async (_la…
+     56|     const { container } = await mountResponse(data);
+     57|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     58|   });
+     59|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides an unsuccessful HTTP response even when its JSON resembles an identity
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">0123456 · preview</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:62:23
+     60|   it("hides an unsuccessful HTTP response even when its JSON resembles…
+     61|     const { container } = await mountResponse(preview, false);
+     62|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     63|   });
+     64|   it.each(["network", "JSON"])("hides a %s failure without fallback la…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides a network failure without fallback labels
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > hides a JSON failure without fallback labels
+Error: expect(element).toBeEmptyDOMElement()
+
+Received:
+  "<div class="pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg" role="status" aria-label="Preview build identity"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-200">Preview build</p><p class="mt-0.5 font-mono text-xs font-bold text-white">local · development</p><p class="mt-0.5 text-[10px] text-amber-100/80">Confirm /api/build-info matches this commit before testing.</p></div>"
+ ❯ tests/unit/system/preview-build-badge.test.tsx:69:23
+     67|     const { container } = render(<PreviewBuildBadge />);
+     68|     await act(async () => {});
+     69|     expect(container).toBeEmptyDOMElement();
+       |                       ^
+     70|     expect(fetchMock).toHaveBeenCalledTimes(1);
+     71|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/21]⎯
+
+ FAIL  tests/unit/system/preview-build-badge.test.tsx > verified build footer > keeps one footer and one read across parent rerenders
+TestingLibraryElementError: Unable to find a label with the text of: Build information
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33maria-label[39m=[32m"Preview build identity"[39m
+      [33mclass[39m=[32m"pointer-events-none fixed bottom-3 left-3 z-[80] max-w-[min(100vw-1.5rem,20rem)] rounded-md border border-amber-400/50 bg-amber-950 px-3 py-2 shadow-lg"[39m
+      [33mrole[39m=[32m"status"[39m
+    [36m>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-[10px] font-semibold uppercase tracking-wide text-amber-200"[39m
+      [36m>[39m
+        [0mPreview build[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"mt-0.5 font-mono text-xs font-bold text-white"[39m
+      [36m>[39m
+        [0m0123456[0m
+        [0m · [0m
+        [0mpreview[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"mt-0.5 text-[10px] text-amber-100/80"[39m
+      [36m>[39m
+        [0mConfirm /api/build-info matches this commit before testing.[0m
+      [36m</p>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:111:38
+ ❯ node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+ ❯ tests/unit/system/preview-build-badge.test.tsx:75:19
+     73|     const { rerender } = await mountResponse(preview);
+     74|     for (let i = 0; i < 4; i++) rerender(<PreviewBuildBadge />);
+     75|     expect(screen.getAllByLabelText("Build information")).toHaveLength…
+       |                   ^
+     76|     expect(fetchMock).toHaveBeenCalledTimes(1);
+     77|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/21]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  21 failed | 5 passed (26)
+   Start at  11:12:32
+   Duration  791ms (transform 26ms, setup 137ms, import 74ms, tests 32ms, environment 425ms)

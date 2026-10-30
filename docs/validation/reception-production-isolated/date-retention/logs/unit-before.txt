@@ -1,0 +1,246 @@
+
+> chasum@0.2.0 test
+> vitest run tests/unit/calendar/calendar-date-retention.test.tsx
+
+
+ RUN  v4.1.10 /Users/darshan/.codex/worktrees/reception-production-isolated-release/chasum
+
+(node:91469) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx (22 tests | 12 failed) 636ms
+   × retains Today through repeated Day/Week/Day server responses and keyed remounts 121ms
+   × retains the selected date through month and back to Day 20ms
+   × retains the selected date through agenda and back to Day 14ms
+   × honors Today and explicit date selection in week 56ms
+   × honors Today and explicit date selection in month 28ms
+   × honors Today and explicit date selection in agenda 9ms
+   × retains the weekday when stepping weeks across DST and the year boundary 45ms
+   × keeps date-fns month-end clamping and intentional Month day selection 25ms
+   × retains boundary civil date 2026-10-25 through every range view 31ms
+   × retains boundary civil date 2026-12-31 through every range view 15ms
+   × retains boundary civil date 2027-01-01 through every range view 14ms
+   × retains boundary civil date 2026-03-08 through every range view 31ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains Today through repeated Day/Week/Day server responses and keyed remounts
+AssertionError: expected '/dashboard/calendar?view=week&date=20…' to be '/dashboard/calendar?view=week&date=20…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=week&date=2026-10-26"
+Received: "/dashboard/calendar?view=week&date=2026-10-25"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.switchTo tests/unit/calendar/calendar-date-retention.test.tsx:82:47
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:94:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains the selected date through month and back to Day
+AssertionError: expected '/dashboard/calendar?view=month&date=2…' to be '/dashboard/calendar?view=month&date=2…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=month&date=2026-10-26"
+Received: "/dashboard/calendar?view=month&date=2026-10-01"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.switchTo tests/unit/calendar/calendar-date-retention.test.tsx:82:47
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:105:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains the selected date through agenda and back to Day
+AssertionError: expected '/dashboard/calendar?view=agenda&date=…' to be '/dashboard/calendar?view=agenda&date=…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=agenda&date=2026-10-26"
+Received: "/dashboard/calendar?view=agenda&date=2026-10-25"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.switchTo tests/unit/calendar/calendar-date-retention.test.tsx:82:47
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:105:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > honors Today and explicit date selection in week
+AssertionError: expected '/dashboard/calendar?view=week&date=20…' to be '/dashboard/calendar?view=week&date=20…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=week&date=2026-10-26"
+Received: "/dashboard/calendar?view=week&date=2026-10-25"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.today tests/unit/calendar/calendar-date-retention.test.tsx:83:30
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:111:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > honors Today and explicit date selection in month
+AssertionError: expected '/dashboard/calendar?view=month&date=2…' to be '/dashboard/calendar?view=month&date=2…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=month&date=2026-10-26"
+Received: "/dashboard/calendar?view=month&date=2026-10-01"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.today tests/unit/calendar/calendar-date-retention.test.tsx:83:30
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:111:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > honors Today and explicit date selection in agenda
+AssertionError: expected '/dashboard/calendar?view=agenda&date=…' to be '/dashboard/calendar?view=agenda&date=…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=agenda&date=2026-10-26"
+Received: "/dashboard/calendar?view=agenda&date=2026-10-25"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.today tests/unit/calendar/calendar-date-retention.test.tsx:83:30
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:111:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains the weekday when stepping weeks across DST and the year boundary
+AssertionError: expected '/dashboard/calendar?view=week&date=20…' to be '/dashboard/calendar?view=week&date=20…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=week&date=2026-11-02"
+Received: "/dashboard/calendar?view=week&date=2026-11-01"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.step tests/unit/calendar/calendar-date-retention.test.tsx:85:75
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:117:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > keeps date-fns month-end clamping and intentional Month day selection
+AssertionError: expected '/dashboard/calendar?view=month&date=2…' to be '/dashboard/calendar?view=month&date=2…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=month&date=2026-02-28"
+Received: "/dashboard/calendar?view=month&date=2026-02-01"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.step tests/unit/calendar/calendar-date-retention.test.tsx:85:75
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:125:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains boundary civil date 2026-10-25 through every range view
+AssertionError: expected '/dashboard/calendar?view=month&date=2…' to be '/dashboard/calendar?view=month&date=2…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=month&date=2026-10-25"
+Received: "/dashboard/calendar?view=month&date=2026-10-01"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.switchTo tests/unit/calendar/calendar-date-retention.test.tsx:82:47
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:132:73
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains boundary civil date 2026-12-31 through every range view
+AssertionError: expected '/dashboard/calendar?view=week&date=20…' to be '/dashboard/calendar?view=week&date=20…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=week&date=2026-12-31"
+Received: "/dashboard/calendar?view=week&date=2026-12-27"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.switchTo tests/unit/calendar/calendar-date-retention.test.tsx:82:47
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:132:73
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains boundary civil date 2027-01-01 through every range view
+AssertionError: expected '/dashboard/calendar?view=week&date=20…' to be '/dashboard/calendar?view=week&date=20…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=week&date=2027-01-01"
+Received: "/dashboard/calendar?view=week&date=2026-12-27"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.switchTo tests/unit/calendar/calendar-date-retention.test.tsx:82:47
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:132:73
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/12]⎯
+
+ FAIL  tests/unit/calendar/calendar-date-retention.test.tsx > retains boundary civil date 2026-03-08 through every range view
+AssertionError: expected '/dashboard/calendar?view=month&date=2…' to be '/dashboard/calendar?view=month&date=2…' // Object.is equality
+
+Expected: "/dashboard/calendar?view=month&date=2026-03-08"
+Received: "/dashboard/calendar?view=month&date=2026-03-01"
+
+ ❯ settle tests/unit/calendar/calendar-date-retention.test.tsx:72:17
+     70|     expect(boundary[method]).toHaveBeenCalledOnce();
+     71|     url = boundary[method].mock.calls[0][0];
+     72|     expect(url).toBe(`/dashboard/calendar?view=${expectedView}&date=${…
+       |                 ^
+     73|     if (method === "replace") expect(boundary.replace).toHaveBeenLastC…
+     74|     // Actual server component consumes the serialized URL and supplie…
+ ❯ Object.switchTo tests/unit/calendar/calendar-date-retention.test.tsx:82:47
+ ❯ tests/unit/calendar/calendar-date-retention.test.tsx:132:73
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 10 passed (22)
+   Start at  22:14:18
+   Duration  2.02s (transform 136ms, setup 129ms, import 763ms, tests 636ms, environment 427ms)

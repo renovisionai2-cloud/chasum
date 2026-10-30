@@ -1,5 +1,21 @@
 # Chasum Changelog
 
+## 2026-10-29 — Reception #174 engineering acceptance and LOCAL governance reconciliation
+
+- Published engineering HEAD `bb1baf105232eb75e4cd7ee4f159cdb54237c360`, tree `a14a049acac5e90e33163182b72a06a815df59dc`: independent audits and browser-harness correction accepted; [Linux / Node 22 Quality 40810221078](https://github.com/renovisionai2-cloud/chasum/actions/runs/40810221078) PASS with 2,385 passed / 0 failed / 36 historical PostgreSQL skips and 86/86 required browser cases passed. Build/typecheck, Vercel and Competitive Product Gate passed; protected integration Preview READY. PR #174 remains OPEN / DRAFT / UNMERGED.
+- Recorded the PO-approved Quality total job timeout exception from 15 to 30 minutes. Browser navigation 30 seconds, setup 120 seconds and teardown 10 seconds remain unchanged, as do Chromium/WebKit coverage and assertions; no new skip/bypass manufactured a pass. This dated correction supersedes the earlier blanket “no timeout is increased” statement without editing workflow code or erasing the historical entry.
+- Authorized one LOCAL documentation/verifier child, pending manual independent Claude delta audit, separate publication approval and future exact-head GitHub checks. Parent acceptance does not certify that unpublished child. Restored the original October 26 Morning Brief decision verbatim and added separate October 29 clarification; documented possible indirect #173 merged/closed status, which Darshan has NOT approved.
+- No Production release or financial activation. Production remains `664fbc734c4103d78484c6b3828849a6605a562f`; Reception-only potential release source remains `9f305c2f9a377b95aa1642a3dc69f70cc0cb4573`, distinct from integration/main. Physical iPhone/iPad/operator, Safari zoom, sign-out/session, exact-candidate release-test, canonical financial-display, dependency-security and Issue #136 approval gates remain separate. N06 isolation and financial #164 remain separate; GVM CAD $50 deposits remain HELD.
+
+Earlier entries below retain their dated scope. Their unpublished/audit-pending wording describes historical work, not the current published engineering head.
+
+## 2026-10-28 — Reception #173 local integration candidate
+
+- Composed exact audited Reception/M1C candidate `9f305c2f9a377b95aa1642a3dc69f70cc0cb4573` with exact current main `80968d24dc1d87407205e54ccc949433ed39e8eb` as a true two-parent local merge, preserving the candidate as a genuine ancestor.
+- Retained the accepted Calendar-first Reception, date retention, CAL01 context, Issue #135 submit guard, neutral “Payment information not verified” Morning Brief, Preview footer and Account/mobile-drawer control while preserving current-main financial, SQL, tenant, Auth and backend history.
+- Reconciled the Morning Brief compatibility fixture to canonical `EXACT` / `HELD` / `UNKNOWN` financial types. Quality and governed release workflows now build before asset-dependent tests, install both Chromium and WebKit, and run Vitest with one worker after reproduced concurrent local-server startup timeouts; no assertions are skipped and no timeout is increased. All Issue #136 exact-source, approval, rollback and release-policy controls remain intact.
+- This is a local integration candidate for independent audit only. It is not published, merged to GitHub main, registered for release, deployed or Production accepted. Exact audited Reception SHA `9f305c2f` remains the only potential Reception-only release artifact unless separately superseded and audited.
+
 ## 2026-10-13 — D1 canonical recovery addendum independently accepted; docs closeout
 
 - Recorded supplied Claude verdict `D1_CANONICAL_RECOVERY_ADDENDUM_ACCEPTED_FOR_PO_GATE`, K-1–K-7 PASS, accepted PR #163 head `826e92d6026e531ff4270c2e2a0a41720683fa0f` / tree `e20759980d677d22eafec3c0a945ea10c677c023`. Accepted D1 SHA-256 `0caf4f79ce43088520313728b4d3cd77758b0aa066f8f2f776f4714f9ebff6ed` and technical bytes remain unchanged; earlier proposed status is historical.

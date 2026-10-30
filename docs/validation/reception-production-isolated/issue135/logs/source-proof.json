@@ -1,0 +1,35 @@
+{
+  "auditedParent": "ab972feb946e264f2a669841efc2ab78ece35cec",
+  "auditedTree": "f2f0043369a1ce30eb880d8b05b30b3cf5f56ccb",
+  "accepted135SourceBlobs": {
+    "c45513c8cc3b7d4ab1a1188dc02c596558f60ff0": "e9d743f32da93216161975ba9b94ce8674218169",
+    "e5bcf398654cc3bed949707e5115c8bdb22b3585": "e9d743f32da93216161975ba9b94ce8674218169",
+    "34dbd1518e1fe364cecaa5ad46576e93e9ed1afa": "e9d743f32da93216161975ba9b94ce8674218169"
+  },
+  "backportApplicationBlob": "eddeb96020f74598c20c63ce6db3c5e48766f13f",
+  "matchesAccepted135PlusCAL01Source": "80968d24dc1d87407205e54ccc949433ed39e8eb",
+  "onlyApplicationChange": [
+    "components/booking-sheet/booking-sheet.tsx"
+  ],
+  "unchangedPathsVsParent": [
+    "components/ui/sheet.tsx",
+    "components/day-view/morning-brief.tsx",
+    ".github",
+    "release",
+    "scripts/assert-release-sha.mjs",
+    "scripts/release-guard.mjs",
+    "scripts/verify-release-control-config.mjs",
+    "scripts/verify-production-build-info.mjs",
+    "vercel.json",
+    "lib",
+    "supabase",
+    "app",
+    "providers",
+    "hooks",
+    "middleware.ts",
+    "proxy.ts",
+    "package.json",
+    "package-lock.json"
+  ],
+  "isolationVerifierChange": "Two test paths only; protected application paths and release controls unchanged"
+}
