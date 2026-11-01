@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
+import { writeSync } from "node:fs";
 import { resolve } from "node:path";
+import { performance } from "node:perf_hooks";
 import { createServer, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import ts from "typescript";
@@ -141,9 +143,36 @@ beforeAll(async () => {
   browsers.webkit = await webkit.launch();
 }, 120_000);
 
+type TeardownEvent = `${"CHROMIUM" | "WEBKIT" | "VITE"}_CLOSE_${"BEGIN" | "COMPLETE" | "ERROR"}`;
+function emitTeardown(event: TeardownEvent, startedAt: number) {
+  // Synchronous output keeps BEGIN visible even when the following close stalls.
+  try {
+    const atMs = Math.round((performance.now() - startedAt) * 10) / 10;
+    writeSync(2, "[m1c-teardown] " + JSON.stringify({ event, atMs }) + "\n");
+  } catch { /* Diagnostics must not replace the original cleanup outcome. */ }
+}
+
 afterAll(async () => {
-  for (const browser of Object.values(browsers)) await browser.close();
-  await server?.close();
+  const startedAt = performance.now();
+  for (const [engine, browser] of Object.entries(browsers)) {
+    const component = engine === "chromium" ? "CHROMIUM" : "WEBKIT";
+    emitTeardown(`${component}_CLOSE_BEGIN`, startedAt);
+    try {
+      await browser.close();
+    } catch (error) {
+      emitTeardown(`${component}_CLOSE_ERROR`, startedAt);
+      throw error;
+    }
+    emitTeardown(`${component}_CLOSE_COMPLETE`, startedAt);
+  }
+  emitTeardown("VITE_CLOSE_BEGIN", startedAt);
+  try {
+    await server?.close();
+  } catch (error) {
+    emitTeardown("VITE_CLOSE_ERROR", startedAt);
+    throw error;
+  }
+  emitTeardown("VITE_CLOSE_COMPLETE", startedAt);
   if (evidence) await writeFile(resolve(evidence, "browser-results.json"), JSON.stringify(results, null, 2) + "\n");
 });
 
