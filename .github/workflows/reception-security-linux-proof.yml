@@ -3,7 +3,7 @@ name: Reception security Linux exact-source proof
 on:
   pull_request:
     branches: [codex/reception-production-isolated-release]
-    types: [opened]
+    types: [synchronize]
 
 permissions:
   contents: read
@@ -12,6 +12,9 @@ jobs:
   reception-security-linux-proof:
     if: >-
       github.repository == 'renovisionai2-cloud/chasum' &&
+      github.event.number == 179 &&
+      github.event.before == '286c073ac49b348a5c5f9130dc32a83f4cba57e6' &&
+      github.run_attempt == 1 &&
       github.event.pull_request.head.repo.full_name == 'renovisionai2-cloud/chasum' &&
       github.event.pull_request.head.ref == 'codex/reception-security-linux-proof' &&
       github.event.pull_request.base.ref == 'codex/reception-production-isolated-release' &&
@@ -144,8 +147,11 @@ jobs:
           "$RUNNER_TEMP/reception-command" download npm ci --ignore-scripts --no-audit --no-fund
           echo 'EXIT npm ci = 0'
           "$RUNNER_TEMP/reception-command" offline node - <<'JS'
+          const fs = require('node:fs');
+          const path = require('node:path');
           for (const name of ['vite', 'vitest', 'playwright-core']) {
-            console.log(`${name}=${require(`${name}/package.json`).version}`);
+            const metadata = JSON.parse(fs.readFileSync(path.resolve('node_modules', name, 'package.json'), 'utf8'));
+            console.log(`${name}=${metadata.version}`);
           }
           JS
 
@@ -163,7 +169,9 @@ jobs:
               next: '16.4.3', 'eslint-config-next': '16.4.3',
               '@next/swc-linux-x64-gnu': '16.4.3', sharp: '0.35.5', zod: '4.6.6'
             })) {
-              const actual = require(name + '/package.json').version;
+              const metadata = JSON.parse(fs.readFileSync(path.resolve('node_modules', name, 'package.json'), 'utf8'));
+              assert.equal(metadata.name, name);
+              const actual = metadata.version;
               assert.equal(actual, expected);
               console.log(name + '=' + actual);
             }
@@ -285,7 +293,7 @@ jobs:
           const fs = require('node:fs');
           const path = require('node:path');
           const engines = require('playwright-core');
-          const catalog = JSON.parse(fs.readFileSync(path.join(path.dirname(require.resolve('playwright-core/package.json')), 'browsers.json'), 'utf8'));
+          const catalog = JSON.parse(fs.readFileSync(path.resolve('node_modules', 'playwright-core', 'browsers.json'), 'utf8'));
           for (const name of ['chromium', 'webkit']) {
             const binary = engines[name].executablePath();
             fs.accessSync(binary, fs.constants.X_OK);
