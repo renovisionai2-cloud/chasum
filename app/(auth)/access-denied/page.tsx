@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/actions/auth";
+import { AccessDeniedSignOut } from "@/components/auth/access-denied-sign-out";
 import { getSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
@@ -35,11 +34,7 @@ export default async function AccessDeniedPage() {
       <p className="mt-2 text-sm text-muted-foreground">
         Signed in as {user.email ?? "this account"}.
       </p>
-      <form action={signOut} className="mt-8">
-        <Button type="submit" variant="outline">
-          Sign out
-        </Button>
-      </form>
+      <AccessDeniedSignOut />
     </main>
   );
 }
