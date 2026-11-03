@@ -1,0 +1,96 @@
+{
+  "classification": "SOURCE-PROVEN reviewed fixed dependency bodies; lexical inventory is supporting evidence, not a general SQL security parser",
+  "perform_statement": "get_available_slots contains PERFORM 1 placeholder only",
+  "dependencies": {
+    "is_staff_on_vacation": {
+      "source": "supabase/migrations/005_phase4_scheduling_engine.sql",
+      "source_sha256": "82527e50d6274b16ac0cab42c26a975a7949356c02e5748b24b42cfd6bc7d081",
+      "body_md5": "b50c2c223d3a096ba12681ccf5185aea",
+      "lexical_calls": [
+        "exists"
+      ],
+      "mutation_keywords": []
+    },
+    "get_available_slots": {
+      "source": "supabase/migrations/20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql",
+      "source_sha256": "82d1a480f604833b38d89da5792e63db0cc3c061ec485580f4bd5df7b544ba6d",
+      "body_md5": "d3f0f20c81a56b5e70fe3850e7b357f7",
+      "lexical_calls": [
+        "and",
+        "availability_block_reason",
+        "coalesce",
+        "count",
+        "exists",
+        "extract",
+        "greatest",
+        "if",
+        "in",
+        "is_location_holiday",
+        "is_staff_on_vacation",
+        "least",
+        "make_interval",
+        "now",
+        "nullif",
+        "resolve_location_id"
+      ],
+      "mutation_keywords": []
+    },
+    "validate_appointment_slot": {
+      "source": "supabase/migrations/20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql",
+      "source_sha256": "82d1a480f604833b38d89da5792e63db0cc3c061ec485580f4bd5df7b544ba6d",
+      "body_md5": "ba820a872e7ae4082cc66ce02dc03b52",
+      "lexical_calls": [
+        "and",
+        "availability_block_reason",
+        "coalesce",
+        "count",
+        "exists",
+        "get_available_slots",
+        "greatest",
+        "in",
+        "is_location_holiday",
+        "is_staff_on_vacation",
+        "least",
+        "make_interval",
+        "now",
+        "nullif",
+        "resolve_location_id"
+      ],
+      "mutation_keywords": []
+    },
+    "resolve_location_id": {
+      "source": "supabase/migrations/008_phase5_multi_location.sql",
+      "source_sha256": "82398d6cc29c8a0678555b979f54481f1ab4c159ce197ccb7ad70b0589fd09b2",
+      "body_md5": "f8cae8e103e3df570f5d2c0f6526ef35",
+      "lexical_calls": [
+        "coalesce"
+      ],
+      "mutation_keywords": []
+    },
+    "is_location_holiday": {
+      "source": "supabase/migrations/008_phase5_multi_location.sql",
+      "source_sha256": "82398d6cc29c8a0678555b979f54481f1ab4c159ce197ccb7ad70b0589fd09b2",
+      "body_md5": "9e2e6baf8eb03b48980fc0cdf403682d",
+      "lexical_calls": [
+        "and",
+        "exists",
+        "extract",
+        "or"
+      ],
+      "mutation_keywords": []
+    },
+    "availability_block_reason": {
+      "source": "supabase/migrations/026_availability_engine.sql",
+      "source_sha256": "37b19fb00c95994b5c8c05d143b7fc668b1d032c665ed3ce43aba8a33caea0a8",
+      "body_md5": "d69e69be3b7b59e383bd7e10ebac4e2a",
+      "lexical_calls": [
+        "and",
+        "coalesce",
+        "exists",
+        "in",
+        "or"
+      ],
+      "mutation_keywords": []
+    }
+  }
+}

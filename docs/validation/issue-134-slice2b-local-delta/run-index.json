@@ -1,0 +1,428 @@
+{
+  "final_run": "20fe24d4-c538-40f4-846c-332a6303b0a4",
+  "archive_format": "ZIP lossless; every original member byte verified against MEMBER_SHA256.json before removing duplicate loose copy",
+  "runs": [
+    {
+      "run_id": "0351ade9-7856-498f-8337-e5c53ef339fd",
+      "archive": "runs/0351ade9-7856-498f-8337-e5c53ef339fd.zip",
+      "bytes": 55664,
+      "sha256": "9ba168b46d2b35a79e825b8ff70fd8ad71cdbd44def0fe4de5d579af462c4270",
+      "member_count": 144,
+      "original_bytes": 81923,
+      "status": "INITIAL_SMOKE_ONLY",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "f39329a483982597489090610dfcc290686ef2cfcdec920e08e9ef2c45685c1c"
+    },
+    {
+      "run_id": "07efd262-a5c5-4687-aafd-de6d679e6aa9",
+      "archive": "runs/07efd262-a5c5-4687-aafd-de6d679e6aa9.zip",
+      "bytes": 90385,
+      "sha256": "c556678ba0dfdeb288d64acf64a866f18240a97ef9949e067c949d4bea108fe4",
+      "member_count": 83,
+      "original_bytes": 569523,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0023-money-digest: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "fc82645166dfdea7d2cdc85033b401cfb91a8fe497deb570773f5d442dc09d6d"
+    },
+    {
+      "run_id": "0ba5a735-58f4-4187-b845-795c9e4997fe",
+      "archive": "runs/0ba5a735-58f4-4187-b845-795c9e4997fe.zip",
+      "bytes": 19821,
+      "sha256": "caa4fd83a707c11592531d039a58aaff110369a37b0cd7b3d357bfc545349f62",
+      "member_count": 43,
+      "original_bytes": 40975,
+      "status": "PREREQUISITE_BASELINE_ONLY",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": null
+    },
+    {
+      "run_id": "0d43c118-894a-4b34-b704-02089e70e1af",
+      "archive": "runs/0d43c118-894a-4b34-b704-02089e70e1af.zip",
+      "bytes": 444508,
+      "sha256": "ce5868a4ba17a31e538e965c625d3850f57bcdea7594de1663e13b96600470e1",
+      "member_count": 732,
+      "original_bytes": 3408338,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "5d04139ce51fc6af1d8cd3f9a7f81e48ffb8b98b1102c9b6561ff592846b503c"
+    },
+    {
+      "run_id": "18ea5e1e-ba0f-410d-af2e-e6156d325167",
+      "archive": "runs/18ea5e1e-ba0f-410d-af2e-e6156d325167.zip",
+      "bytes": 213139,
+      "sha256": "54aae41d923677876e1b6fa94ce84471d178c6b4a6f7ad50f0bdd17e18102bcf",
+      "member_count": 444,
+      "original_bytes": 792321,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0380-unlinked-business-fixture: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "2138e1194d747fd3d5056d937174ba08810552d481c83eef4e8ac6527a26fe81"
+    },
+    {
+      "run_id": "199262f5-2e6f-43f9-9e0f-f2bdf691b5c3",
+      "archive": "runs/199262f5-2e6f-43f9-9e0f-f2bdf691b5c3.zip",
+      "bytes": 424060,
+      "sha256": "d0da422d770f39fc345da0d6d606d1e527adf6d66ae95053ce32b69147c5d00b",
+      "member_count": 672,
+      "original_bytes": 3377568,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "0184988b4e5cb39c9aa0adb2f378247f1a7e2c2fefbd7fa0b26e2cc8325dbe58"
+    },
+    {
+      "run_id": "1ebb89bb-6ea2-4340-935a-af1731f29de6",
+      "archive": "runs/1ebb89bb-6ea2-4340-935a-af1731f29de6.zip",
+      "bytes": 159534,
+      "sha256": "a169c9121235a21472d8f4dd2cd928b3412e329da759c1af364b927576338a0d",
+      "member_count": 294,
+      "original_bytes": 1216856,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "f39329a483982597489090610dfcc290686ef2cfcdec920e08e9ef2c45685c1c"
+    },
+    {
+      "run_id": "20fe24d4-c538-40f4-846c-332a6303b0a4",
+      "archive": "runs/20fe24d4-c538-40f4-846c-332a6303b0a4.zip",
+      "bytes": 519745,
+      "sha256": "7870d514d06f496e454857f9b3f9dcdd7d0f8b9ccff07c4d9152518bbc85efdc",
+      "member_count": 923,
+      "original_bytes": 3725187,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "36d197d50dfa9560f58457cc65c7bfe7df39b97cbd8e584598b57f117b90ffe6"
+    },
+    {
+      "run_id": "2142c99d-f834-46fe-a850-17bc49d68aa7",
+      "archive": "runs/2142c99d-f834-46fe-a850-17bc49d68aa7.zip",
+      "bytes": 430580,
+      "sha256": "89d158a44c250ff117fd1ee72957073196f2a09c137da844d37d9ec6e4c3e7f6",
+      "member_count": 690,
+      "original_bytes": 3384377,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "0184988b4e5cb39c9aa0adb2f378247f1a7e2c2fefbd7fa0b26e2cc8325dbe58"
+    },
+    {
+      "run_id": "24c30bdc-8cca-41ff-bccf-23e5c00556cd",
+      "archive": "runs/24c30bdc-8cca-41ff-bccf-23e5c00556cd.zip",
+      "bytes": 43174,
+      "sha256": "fd1ed0d6111b960ef1ee1e2d5536b8be715ec2479e892ca749107b635ef423a2",
+      "member_count": 104,
+      "original_bytes": 68976,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0053-commit: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "f39329a483982597489090610dfcc290686ef2cfcdec920e08e9ef2c45685c1c"
+    },
+    {
+      "run_id": "31ea8de6-d704-4e92-a65a-e8d928bb10db",
+      "archive": "runs/31ea8de6-d704-4e92-a65a-e8d928bb10db.zip",
+      "bytes": 196984,
+      "sha256": "b961165bc16c2145e3e99848f60b8c881d7e29b1b12e444f2f4c0671fc88c226",
+      "member_count": 415,
+      "original_bytes": 685529,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "buffer bypass"
+      ],
+      "stopped": true,
+      "migration_sha256": "6d6c92afeeccb4cfb7d3e8202cc1843b9c8b0e09a84b96523889b4777c5529d8"
+    },
+    {
+      "run_id": "3f46b4ca-30cf-4ded-ac1f-711913eaf043",
+      "archive": "runs/3f46b4ca-30cf-4ded-ac1f-711913eaf043.zip",
+      "bytes": 23378,
+      "sha256": "2b6eef9aa19b8c6faf9438f8d82a45227c77e7555c2cb1d822d1b44d1477b50d",
+      "member_count": 50,
+      "original_bytes": 48310,
+      "status": "MIGRATION_COMPILE_ONLY",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "4b6f342683d74e2dd00ad9ca39022d0fbe00fdc6a6c216c9535c216de25caa82"
+    },
+    {
+      "run_id": "4d8b658d-9b0d-4193-a871-f1bd40cefec7",
+      "archive": "runs/4d8b658d-9b0d-4193-a871-f1bd40cefec7.zip",
+      "bytes": 193373,
+      "sha256": "2fd8b579eaf075ad23f4e656ba5f9c7791b05599106f02daa58aa415d25694a2",
+      "member_count": 403,
+      "original_bytes": 682057,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0343-foreign-refund-witness: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "6d6c92afeeccb4cfb7d3e8202cc1843b9c8b0e09a84b96523889b4777c5529d8"
+    },
+    {
+      "run_id": "5371c9e9-c638-4642-8909-fca897f491e8",
+      "archive": "runs/5371c9e9-c638-4642-8909-fca897f491e8.zip",
+      "bytes": 457643,
+      "sha256": "b709d6a4167686976796b2e6b3ff4a774585a06d653f58f01fa656494146be6f",
+      "member_count": 777,
+      "original_bytes": 3421855,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "5d04139ce51fc6af1d8cd3f9a7f81e48ffb8b98b1102c9b6561ff592846b503c"
+    },
+    {
+      "run_id": "62991e02-bdf9-4c99-8467-d78094c9b388",
+      "archive": "runs/62991e02-bdf9-4c99-8467-d78094c9b388.zip",
+      "bytes": 517534,
+      "sha256": "8637dec42185c228ffd1bd392ca0e8f61ba2c6963d3199fe93b9c0624ff40b3e",
+      "member_count": 916,
+      "original_bytes": 3723020,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "36d197d50dfa9560f58457cc65c7bfe7df39b97cbd8e584598b57f117b90ffe6"
+    },
+    {
+      "run_id": "640c9cf9-0e9e-44df-843c-aa83b0996ff3",
+      "archive": "runs/640c9cf9-0e9e-44df-843c-aa83b0996ff3.zip",
+      "bytes": 385256,
+      "sha256": "d90dc2fea3011ed62eea07f071b8e9b797c58d6c8a23349a3313b307b157fd8f",
+      "member_count": 567,
+      "original_bytes": 3881611,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "C09-downgrade expected real lock wait not observed"
+      ],
+      "stopped": true,
+      "migration_sha256": "4203b22f7f5c3c6f2bf2497c0d9244b7c6bc8b10d4d51fa96bcc1b48723eb6b7"
+    },
+    {
+      "run_id": "7062e9cc-457b-4250-ae82-ab5186954b6b",
+      "archive": "runs/7062e9cc-457b-4250-ae82-ab5186954b6b.zip",
+      "bytes": 200776,
+      "sha256": "87bfc35dc39be8f7b4464f252d5f9f2692444704d1143efefefec4c8821f5e95",
+      "member_count": 426,
+      "original_bytes": 689401,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0362-DST-persisted: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "6d6c92afeeccb4cfb7d3e8202cc1843b9c8b0e09a84b96523889b4777c5529d8"
+    },
+    {
+      "run_id": "787bb17f-ea12-4384-a46e-c29ebd0d3a2d",
+      "archive": "runs/787bb17f-ea12-4384-a46e-c29ebd0d3a2d.zip",
+      "bytes": 26458,
+      "sha256": "538a134e7007b762aa6074a23f7f2564dbff92f38f9a2ba21ef8d67dc4b41211",
+      "member_count": 53,
+      "original_bytes": 58782,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "expected-migration-final-assertion: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": null
+    },
+    {
+      "run_id": "87364446-a419-4599-b805-a55c732ed285",
+      "archive": "runs/87364446-a419-4599-b805-a55c732ed285.zip",
+      "bytes": 136905,
+      "sha256": "d78757c0c3f3678a1a88dd02406ea8a695256cffbe42e5059acc9a72bc5c9d5e",
+      "member_count": 231,
+      "original_bytes": 1185993,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "C11-A exited 0/null"
+      ],
+      "stopped": true,
+      "migration_sha256": "f39329a483982597489090610dfcc290686ef2cfcdec920e08e9ef2c45685c1c"
+    },
+    {
+      "run_id": "8fdce371-10e3-42c6-a8be-f135b7a3b694",
+      "archive": "runs/8fdce371-10e3-42c6-a8be-f135b7a3b694.zip",
+      "bytes": 23768,
+      "sha256": "f381bfc78ac0e036edbb23e384d3d4e64fa4feccd9cc111d7cab1d046040474c",
+      "member_count": 51,
+      "original_bytes": 48711,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0001-tenants: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "13801685ff08f88f2aa89999d3b043163f9d43bfb3e7908724e4f887babd97ed"
+    },
+    {
+      "run_id": "a192c139-9914-4f3c-9b76-3d339d109827",
+      "archive": "runs/a192c139-9914-4f3c-9b76-3d339d109827.zip",
+      "bytes": 293129,
+      "sha256": "ce14ddcf733f06a31701c81d2ed7e69ef483359e633bdff48090062cd0f87a3d",
+      "member_count": 481,
+      "original_bytes": 2293756,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "4203b22f7f5c3c6f2bf2497c0d9244b7c6bc8b10d4d51fa96bcc1b48723eb6b7"
+    },
+    {
+      "run_id": "a30c577c-69cc-4cce-b0e6-07917286465a",
+      "archive": "runs/a30c577c-69cc-4cce-b0e6-07917286465a.zip",
+      "bytes": 202447,
+      "sha256": "e42a63c6867b13d571719534c4de36237e10ed1b2f040b2e319784d68208f0be",
+      "member_count": 354,
+      "original_bytes": 1756412,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "4203b22f7f5c3c6f2bf2497c0d9244b7c6bc8b10d4d51fa96bcc1b48723eb6b7"
+    },
+    {
+      "run_id": "a6076d71-e20c-4714-94fb-b0ef4ac482e8",
+      "archive": "runs/a6076d71-e20c-4714-94fb-b0ef4ac482e8.zip",
+      "bytes": 146088,
+      "sha256": "7482da8520012f2590e92fd75bf5c801ecb22cf9fb156fbd05bf5aa2f5a86380",
+      "member_count": 244,
+      "original_bytes": 635177,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "v1 repeated no-parent fence"
+      ],
+      "stopped": true,
+      "migration_sha256": "fc82645166dfdea7d2cdc85033b401cfb91a8fe497deb570773f5d442dc09d6d"
+    },
+    {
+      "run_id": "b7b115c8-f4f4-447a-ae75-303491110727",
+      "archive": "runs/b7b115c8-f4f4-447a-ae75-303491110727.zip",
+      "bytes": 160399,
+      "sha256": "1ebde2558848980e921cdcdfd24e72dc8ee43f55593d5590a13a41cc0c5f1892",
+      "member_count": 294,
+      "original_bytes": 1243778,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "4203b22f7f5c3c6f2bf2497c0d9244b7c6bc8b10d4d51fa96bcc1b48723eb6b7"
+    },
+    {
+      "run_id": "ba3a8b52-dee7-4b10-b215-4f215ce03347",
+      "archive": "runs/ba3a8b52-dee7-4b10-b215-4f215ce03347.zip",
+      "bytes": 386841,
+      "sha256": "0925458bb64d664c927aedcd9e6480c2e445ac20443db5f0865b7bb3e17636ee",
+      "member_count": 647,
+      "original_bytes": 3054334,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "6d6c92afeeccb4cfb7d3e8202cc1843b9c8b0e09a84b96523889b4777c5529d8"
+    },
+    {
+      "run_id": "c446b2de-32b0-4ebe-807b-f12b3c3a322c",
+      "archive": "runs/c446b2de-32b0-4ebe-807b-f12b3c3a322c.zip",
+      "bytes": 343509,
+      "sha256": "4d24a9071deeae81d4f11e4ed060a0301e4f31ed0b6fde341a75ba8866ee3cf7",
+      "member_count": 559,
+      "original_bytes": 2784175,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "4203b22f7f5c3c6f2bf2497c0d9244b7c6bc8b10d4d51fa96bcc1b48723eb6b7"
+    },
+    {
+      "run_id": "c628a3c7-e6c7-4c4e-a6ea-5f16489e8edf",
+      "archive": "runs/c628a3c7-e6c7-4c4e-a6ea-5f16489e8edf.zip",
+      "bytes": 434090,
+      "sha256": "f7fea7affdabde25fc44501facaca4da1505f78b706a22a78b57407467d779a5",
+      "member_count": 701,
+      "original_bytes": 3385718,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "226db2934c2990fa414a89fd361c7c7815e0a4fcfc2c12cf7226a30af5f4bfeb"
+    },
+    {
+      "run_id": "c9de69e1-5867-4c74-b74d-510f91a183c3",
+      "archive": "runs/c9de69e1-5867-4c74-b74d-510f91a183c3.zip",
+      "bytes": 503744,
+      "sha256": "11b01f085cbf9bb0518065d4e8069fcc357f0410e6c3619d6d604982a23c8d2a",
+      "member_count": 900,
+      "original_bytes": 3605181,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "36d197d50dfa9560f58457cc65c7bfe7df39b97cbd8e584598b57f117b90ffe6"
+    },
+    {
+      "run_id": "d33a6b41-8d44-4680-a333-51b1a1e0abcf",
+      "archive": "runs/d33a6b41-8d44-4680-a333-51b1a1e0abcf.zip",
+      "bytes": 44486,
+      "sha256": "9a529bd848d459fb6e205fb0019f242a13b0f292a303a6599415c7ec149c0294",
+      "member_count": 108,
+      "original_bytes": 70648,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0057-bootstrap: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "f39329a483982597489090610dfcc290686ef2cfcdec920e08e9ef2c45685c1c"
+    },
+    {
+      "run_id": "da06eddc-bcc6-4f27-a742-0b82219d150d",
+      "archive": "runs/da06eddc-bcc6-4f27-a742-0b82219d150d.zip",
+      "bytes": 200783,
+      "sha256": "120b365f3c98eed06b53b719bd5e07fcaabd379dd891a075771afa12414bb6d7",
+      "member_count": 426,
+      "original_bytes": 689401,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [
+        "case-0362-DST-persisted: exit 3"
+      ],
+      "stopped": true,
+      "migration_sha256": "6d6c92afeeccb4cfb7d3e8202cc1843b9c8b0e09a84b96523889b4777c5529d8"
+    },
+    {
+      "run_id": "dbcb73e0-8bc8-4163-94fb-c989ec5e253c",
+      "archive": "runs/dbcb73e0-8bc8-4163-94fb-c989ec5e253c.zip",
+      "bytes": 458276,
+      "sha256": "c05039e034d26cbb6df059f1c51ce0f84c7cc3765923b5602b38fdb3e29cbe88",
+      "member_count": 778,
+      "original_bytes": 3422833,
+      "status": "LOCAL_PROOF_INCOMPLETE",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "2138e1194d747fd3d5056d937174ba08810552d481c83eef4e8ac6527a26fe81"
+    },
+    {
+      "run_id": "f9d8b0c7-2836-47bf-a2c9-877c3cd4afcf",
+      "archive": "runs/f9d8b0c7-2836-47bf-a2c9-877c3cd4afcf.zip",
+      "bytes": 29553,
+      "sha256": "21df8d1688b5b73fffb7d3e65743f824e6cf0bc029139c7b507c7d9da8084c8a",
+      "member_count": 66,
+      "original_bytes": 55782,
+      "status": "INITIAL_SMOKE_ONLY",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": "13801685ff08f88f2aa89999d3b043163f9d43bfb3e7908724e4f887babd97ed"
+    },
+    {
+      "run_id": "fe52a9bd-244c-46eb-881f-0e7f9d7d410d",
+      "archive": "runs/fe52a9bd-244c-46eb-881f-0e7f9d7d410d.zip",
+      "bytes": 23008,
+      "sha256": "b4799652320b2adda9f960e504abfdc7bf795b30ec483ee3f2c347f851799d70",
+      "member_count": 49,
+      "original_bytes": 47591,
+      "status": "PREREQUISITE_BASELINE_ONLY",
+      "failures": [],
+      "stopped": true,
+      "migration_sha256": null
+    }
+  ]
+}

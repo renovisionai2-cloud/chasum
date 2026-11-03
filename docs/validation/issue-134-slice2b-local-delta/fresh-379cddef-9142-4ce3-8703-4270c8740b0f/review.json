@@ -1,0 +1,1166 @@
+{
+  "verdict": "LOCAL_IMPLEMENTATION_OR_HARNESS_CORRECTION_REQUIRED",
+  "reason": "New capability-evidence parser incorrectly compares JSON OID string to numeric zero; no lifecycle migration defect demonstrated.",
+  "run_id": "379cddef-9142-4ce3-8703-4270c8740b0f",
+  "runner_exit_code": 1,
+  "invocations": 1,
+  "no_rerun": true,
+  "tested_source": {
+    "head": "9c0d53686288ff0cfbf86810f29b9c3e9a530c4a",
+    "tree": "1435cd48083b2a9c4ad1e9d4eb55587c24d3083e"
+  },
+  "starting": {
+    "head": "67cda2d0b5eae7207a9f6b1174feddd0f2baca6f",
+    "tree": "0bb70e7ef6fc2a107f53bd0b677503321f0402fa",
+    "parent": "7b11effee5539df93cbd35da5431a0207103edc7",
+    "main": "35dd307986c36bb9a5c3a4847e4a212e8dce9fde",
+    "main_tree": "aaaf5be03e16a23265af2f0bd8e8fb9b27fdbb99"
+  },
+  "source_hashes": {
+    "scripts/proofs/issue-134-slice2b-lifecycle/availability-cases.mjs": "80f7ed3e898f4576c7e576bd9a3939fc09506724bedc6c080c4f1a35eeb931f4",
+    "scripts/proofs/issue-134-slice2b-lifecycle/capability-evidence.mjs": "37b10fff5cb219ea093127f215312076c270f44c573b3a183a404c99cdab49bf",
+    "scripts/verify-issue134-slice2b-lifecycle-disposable-postgres.mjs": "ab6072820eb16dd63d6227badf6c2d109076da652dca420b14066576a1326b6b"
+  },
+  "protected": {
+    "docs/reviews/issue-134-slice2b-d1-lifecycle-sql-contract-freeze.md": "0caf4f79ce43088520313728b4d3cd77758b0aa066f8f2f776f4714f9ebff6ed",
+    "docs/reviews/issue-134-slice2b-lifecycle-readiness-addendum.md": "89ac66c67e85f2cb53973ce7f9e30d9f44e71b9661d0658a48d339a70a2282db",
+    "docs/reviews/issue-134-durable-booking-deposit-contract.md": "29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d",
+    "docs/reviews/issue-133-slice2-canonical-financial-wiring-design.md": "1f1a966c8466d6f124adab76a2bb188497c363a30d1f104df42c663d7eba029a",
+    "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+    "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+    "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+    "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql": "01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b",
+    "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql": "ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56",
+    "supabase/migrations/026_availability_engine.sql": "37b19fb00c95994b5c8c05d143b7fc668b1d032c665ed3ce43aba8a33caea0a8",
+    "sql/recovery/A_production_availability_engine_realign.sql": "84863ad305bd98b01e817a43153f3344e816c5994c32f7b8452e2c09aac94fdf",
+    "supabase/migrations/20261013201608_issue_134_slice2b_lifecycle_amendment.sql": "3c5179f29f53678ec51798d6fb2929448cba98cf64bd7c44a1d6c796e56eb3a1"
+  },
+  "static_gate": "PASS",
+  "isolation": {
+    "version": "postgres (PostgreSQL) 17.11 (Homebrew)",
+    "identity": {
+      "database": "d1_lifecycle",
+      "user": "darshan",
+      "version_num": "170011",
+      "data": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+      "port": "55473",
+      "listen": "",
+      "server_addr": null,
+      "public_tables": 0
+    },
+    "postmaster": {
+      "pid": 33928,
+      "data": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+      "port": "55473",
+      "socket": "/private/tmp/chasum-d1-pg17-qoECbx/socket",
+      "listen": ""
+    },
+    "work": "/private/tmp/chasum-d1-pg17-qoECbx",
+    "data": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+    "socket": "/private/tmp/chasum-d1-pg17-qoECbx/socket",
+    "start": "2026-10-14T21:21:30.333Z",
+    "end": "2026-10-14T21:21:32.324Z",
+    "stopped": true
+  },
+  "stopped_verification": {
+    "99_stop_log": "server stopped",
+    "postmaster_pid_file_absent": true,
+    "socket_absent": true,
+    "process_absent": true
+  },
+  "availability_matrix": [
+    {
+      "case": "existing service before buffer",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "existing service after buffer",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "existing staff before buffer",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "existing staff after buffer",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "greatest(service,staff), not sum",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "existing service cleanup",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "combined after buffer plus cleanup",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "half-open boundaries",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "self-exclusion on reschedule",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "cancelled appointment exclusion",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "configured double booking / physical exclusion distinction",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "missing service metadata constructibility",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "missing staff metadata constructibility",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "foreign Business metadata isolation",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "normal named-staff conflict",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "staff/location/service duration and qualification",
+      "result": "NOT_RUN"
+    },
+    {
+      "case": "timezone/DST elapsed duration",
+      "result": "NOT_RUN"
+    }
+  ],
+  "cases": {
+    "D01": "NOT_RUN",
+    "D02": "NOT_RUN",
+    "D03": "NOT_RUN",
+    "D04": "NOT_RUN",
+    "D05": "NOT_RUN",
+    "D06": "NOT_RUN",
+    "D07": "NOT_RUN",
+    "D08": "NOT_RUN",
+    "D09": "NOT_RUN",
+    "D10": "NOT_RUN",
+    "D11": "NOT_RUN",
+    "D12": "NOT_RUN",
+    "D13": "NOT_RUN",
+    "D14": "NOT_RUN",
+    "D15": "NOT_RUN",
+    "C01": "NOT_RUN",
+    "C02": "NOT_RUN",
+    "C03": "NOT_RUN",
+    "C04": "NOT_RUN",
+    "C05": "NOT_RUN",
+    "C06": "NOT_RUN",
+    "C07": "NOT_RUN",
+    "C08": "NOT_RUN",
+    "C09": "NOT_RUN",
+    "C10": "NOT_RUN",
+    "C11": "NOT_RUN",
+    "D12-E": "NOT_RUN",
+    "D12-F": "NOT_RUN",
+    "D14-E": "NOT_RUN",
+    "D14-F": "NOT_RUN",
+    "D14-G": "NOT_RUN"
+  },
+  "security_cases": [
+    {
+      "name": "unsafe-anon-appointments-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16385",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-anon-appointments-truncate",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "anon",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34047,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1613",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-anon-appointments-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-anon-appointments-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16385",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-anon-appointments-trigger",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "anon",
+        "privilege": "TRIGGER",
+        "backend_pid": 34053,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1614",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-anon-appointments-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-anon-appointment_resources-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16385",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-anon-appointment_resources-truncate",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "anon",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34059,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1615",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-anon-appointment_resources-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-anon-appointment_resources-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16385",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-anon-appointment_resources-trigger",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "anon",
+        "privilege": "TRIGGER",
+        "backend_pid": 34065,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1616",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-anon-appointment_resources-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticated-appointments-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16386",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-authenticated-appointments-truncate",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticated",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34071,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1617",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticated-appointments-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticated-appointments-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16386",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-authenticated-appointments-trigger",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticated",
+        "privilege": "TRIGGER",
+        "backend_pid": 34077,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1618",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticated-appointments-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticated-appointment_resources-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16386",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-authenticated-appointment_resources-truncate",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticated",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34083,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1619",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticated-appointment_resources-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticated-appointment_resources-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16386",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-authenticated-appointment_resources-trigger",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticated",
+        "privilege": "TRIGGER",
+        "backend_pid": 34089,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1620",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticated-appointment_resources-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticator-appointments-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16388",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-authenticator-appointments-truncate",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticator",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34095,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1621",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticator-appointments-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticator-appointments-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16388",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-authenticator-appointments-trigger",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticator",
+        "privilege": "TRIGGER",
+        "backend_pid": 34101,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1622",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticator-appointments-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticator-appointment_resources-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16388",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-authenticator-appointment_resources-truncate",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticator",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34107,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1623",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticator-appointment_resources-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-authenticator-appointment_resources-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16388",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-authenticator-appointment_resources-trigger",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "authenticator",
+        "privilege": "TRIGGER",
+        "backend_pid": 34113,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1624",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-authenticator-appointment_resources-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-service_role-appointments-truncate",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16387",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-service_role-appointments-truncate",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "service_role",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34119,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1625",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-service_role-appointments-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-service_role-appointments-trigger",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16387",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-service_role-appointments-trigger",
+        "mode": "direct",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "service_role",
+        "privilege": "TRIGGER",
+        "backend_pid": 34125,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1626",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-service_role-appointments-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-service_role-appointment_resources-truncate",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16387",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-service_role-appointment_resources-truncate",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "service_role",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34131,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1627",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-service_role-appointment_resources-truncate-evidence.json"
+    },
+    {
+      "name": "unsafe-service_role-appointment_resources-trigger",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "PASS",
+      "refusal": "PASS",
+      "rollback": "PASS",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "16387",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRIGGER"
+          }
+        ],
+        "case": "unsafe-service_role-appointment_resources-trigger",
+        "mode": "direct",
+        "table": "public.appointment_resources",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "service_role",
+        "privilege": "TRIGGER",
+        "backend_pid": 34137,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1628",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-service_role-appointment_resources-trigger-evidence.json"
+    },
+    {
+      "name": "unsafe-public-appointments-truncate",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "SQL_WITNESS_PRESENT_JS_PARSER_FAILED",
+      "refusal": "PASS",
+      "rollback": "NOT_OBSERVED",
+      "witness": {
+        "acl": [
+          {
+            "grantee": "0",
+            "grantor": "10",
+            "is_grantable": false,
+            "privilege_type": "TRUNCATE"
+          }
+        ],
+        "case": "unsafe-public-appointments-truncate",
+        "mode": "public",
+        "table": "public.appointments",
+        "database": "d1_assertion_rollback",
+        "assertion": true,
+        "principal": "service_role",
+        "privilege": "TRUNCATE",
+        "backend_pid": 34143,
+        "server_addr": null,
+        "current_user": "darshan",
+        "session_user": "darshan",
+        "set_reachable": null,
+        "data_directory": "/private/tmp/chasum-d1-pg17-qoECbx/pgdata",
+        "transaction_id": "1629",
+        "membership_chain": [],
+        "inherit_reachable": null,
+        "effective_privilege": true,
+        "leaf_effective_privilege": null
+      },
+      "evidence_file": "gate-unsafe-public-appointments-truncate.log"
+    },
+    {
+      "name": "unsafe-public-appointments-trigger",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-public-appointment_resources-truncate",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-public-appointment_resources-trigger",
+      "expected_refusal": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-anon-inherited-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-anon-inherited-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-anon-set-role-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-anon-set-role-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-authenticator-inherited-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-authenticator-inherited-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-authenticator-set-role-truncate",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    },
+    {
+      "name": "unsafe-authenticator-set-role-trigger",
+      "expected_refusal": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "preimage": "NOT_RUN",
+      "refusal": "NOT_RUN",
+      "rollback": "NOT_RUN",
+      "witness": null,
+      "evidence_file": null
+    }
+  ],
+  "security_counts": {
+    "completed": 16,
+    "sql_witness_and_refusal_but_parser_failed": 1,
+    "not_run": 11
+  },
+  "migration_assertion_rollback": {
+    "db": "d1_assertion_rollback",
+    "journal_schema": null,
+    "revision_columns": 0,
+    "v2_count": 0
+  },
+  "sql_diagnostics": [
+    {
+      "file": "expected-migration-final-assertion.log",
+      "severity": "ERROR",
+      "sqlstate": "P0001",
+      "message": "EXPECTED_FINAL_ASSERTION_FAILURE"
+    },
+    {
+      "file": "gate-disabled-parent-guard.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-disabled-parent-guard.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_DISABLED_INTEGRITY_TRIGGER"
+    },
+    {
+      "file": "gate-unsafe-anon-appointment_resources-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-anon-appointment_resources-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-anon-appointment_resources-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-anon-appointment_resources-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-anon-appointments-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-anon-appointments-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-anon-appointments-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-anon-appointments-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointment_resources-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointment_resources-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointment_resources-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointment_resources-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointments-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointments-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointments-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticated-appointments-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointment_resources-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointment_resources-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointment_resources-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointment_resources-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointments-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointments-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointments-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-authenticator-appointments-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-parameter-grant.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-parameter-grant.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-public-appointments-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-public-appointments-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointment_resources-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointment_resources-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointment_resources-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointment_resources-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointments-trigger.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointments-trigger.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointments-truncate.log",
+      "severity": "WARNING",
+      "sqlstate": "25001",
+      "message": "there is already a transaction in progress"
+    },
+    {
+      "file": "gate-unsafe-service_role-appointments-truncate.log",
+      "severity": "ERROR",
+      "sqlstate": "55000",
+      "message": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY"
+    }
+  ],
+  "sqlstate_counts": {
+    "P0001": 1,
+    "25001": 19,
+    "55000": 19
+  },
+  "unexpected_sql_errors": [],
+  "unexpected_harness_errors": [
+    "PUBLIC is not ACL grantee zero"
+  ],
+  "financial_tenant_runtime": "NOT_RUN; stopped before synthetic domain fixtures; original_count=0/appointment_money=200 witness was NOT rerun",
+  "prior_evidence": {
+    "tracked_files_unchanged": 51,
+    "original_archives_unchanged": 33,
+    "original_tracked_files_unchanged": 47,
+    "prior_loose_raw_files_unchanged": 1011,
+    "prior_archive_sha256": "6164b3e8cf4a9d00eb3a822685914b7c60df7d66437821d906096e2d8650a11d"
+  },
+  "source_after_failure_unchanged": true,
+  "limitations": [
+    "D09 INT64_MAX source-only in previous proof; current run NOT_RUN",
+    "C09 unsupported role downgrade constrained in previous proof; current run NOT_RUN",
+    "No hosted/security-default-ACL/financial-table-ACL/PostgREST/orphan/application A1/A2 or #153 proof"
+  ],
+  "proposed_not_implemented": "Validate or explicitly encode PUBLIC ACL OID representation without weakening grantee=0/effective privilege requirements. Separate PO correction and new one-run authorization required.",
+  "archive": {
+    "name": "raw-evidence.zip",
+    "sha256": "d462a99d441043f0f2180c03683bb7ba424dfa1803495529187c5b58b3c693a2",
+    "bytes": 254989,
+    "members": 134,
+    "raw_files": 129,
+    "physical_cluster_included": false
+  }
+}
