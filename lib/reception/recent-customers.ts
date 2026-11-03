@@ -67,7 +67,7 @@ export function filterCustomersLocal(
   return customers
     .filter((c) => {
       if (c.name.toLowerCase().includes(q)) return true;
-      if (c.email.toLowerCase().includes(q)) return true;
+      if ((c.email ?? "").toLowerCase().includes(q)) return true;
       if (c.phone) {
         const phone = c.phone.toLowerCase();
         if (phone.includes(q)) return true;

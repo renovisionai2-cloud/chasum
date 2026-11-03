@@ -2,6 +2,7 @@ import type {
   CommunicationsPreferences,
   CustomerCommPreferences,
 } from "@/lib/communications/types";
+import { isEligibleCustomerEmail } from "@/lib/customers/contact-identity";
 import { logger } from "@/lib/observability/logger";
 import { captureMessage } from "@/lib/observability/sentry";
 import {
@@ -48,7 +49,7 @@ export function deriveCustomerChannelPreferences(
   options: { customerId: string; marketing: boolean },
 ): CustomerCommPreferences {
   const preferred = (row?.preferred_communication_method as string | null) ?? null;
-  const hasEmail = Boolean(String(row?.email ?? "").trim());
+  const hasEmail = isEligibleCustomerEmail(row?.email);
   const hasPhone = Boolean(String(row?.phone ?? "").trim());
   return {
     customerId: options.customerId,

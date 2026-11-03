@@ -1,6 +1,7 @@
 "use server";
 
 import { getOrCreateBusiness } from "@/lib/actions/business";
+import { isEligibleCustomerEmail } from "@/lib/customers/contact-identity";
 import { getCommunicationService } from "@/lib/communication/service";
 import type { CustomerCommunicationBundle } from "@/lib/communication/types";
 import { createClient } from "@/lib/supabase/server";
@@ -121,6 +122,12 @@ export async function sendCustomerEmailAction(
 
   if (!customerId || !email || !body) {
     return { error: "Email and message are required." };
+  }
+  if (!isEligibleCustomerEmail(email)) {
+    return {
+      error:
+        "This message was not sent. Add a real email address before emailing this customer.",
+    };
   }
 
   const business = await getOrCreateBusiness();
