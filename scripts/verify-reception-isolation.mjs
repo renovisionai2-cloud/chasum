@@ -7,21 +7,19 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
-const parent='99d5f89b8ecc08abeefb3024f6c7187530482853';
-const parentTree='7975d8cb8019e89053104bece37e86449beca1ef';
-const historicalParent='9f83b4de9c4e62ce6b1bc26e39b6356f621f8570';
+const parent='7c74b7a6c1f98e53fff4d933ac35d80487fc09ea';
+const parentTree='192c744486ebaee213d6e8486472b47f2dad4ed2';
+const historicalParent='99d5f89b8ecc08abeefb3024f6c7187530482853';
 const original='9f305c2f9a377b95aa1642a3dc69f70cc0cb4573';
 const production='664fbc734c4103d78484c6b3828849a6605a562f';
 const verifierPath='scripts/verify-reception-isolation.mjs';
-const historicalVerifierBlob='6fe847e14cfb63db722fa7e80fa82b5a943ff002';
-const verifierDigest='317359258f286acdea74df6a42eee797621301138938ef47b30a49b4d934a49e';
+const historicalVerifierBlob='94900ddb38bbe757486a79897a6ea66d170068f8';
+const verifierDigest='611eb08e2f01e0345dfa77f5d2040fa4e7e8af65f912a3d9caec6b47f3691852';
 const approvedBlobs=new Map([
- ['lib/supabase/server.ts','63f94e2eb83a9f2ef08b7aab914608c5e6362cb7'],
- ['tests/unit/auth/supabase-cookie-adapter.test.ts','1f5d75421014226f4e936b181f2598dcf181d8c9'],
+ ['tests/unit/access/operator-source-locks.test.ts','ed6727bfdb5e54e3a71775e51500e6019141ce73'],
+ ['tests/unit/dashboard/mobile-account-control.test.tsx','0b7e48162af6feee131019d3f739608de0056765'],
 ]);
-const added=new Set([
- 'tests/unit/auth/supabase-cookie-adapter.test.ts',
-]);
+const added=new Set();
 const allowed=[...approvedBlobs.keys(),verifierPath].sort();
 const existingAllowed=allowed.filter(path=>!added.has(path));
 const precommit=process.argv.length===3 && process.argv[2]==='--check-worktree';
@@ -38,8 +36,8 @@ assert.equal(git('rev-parse','--is-shallow-repository'),'false','Complete histor
 assert.equal(git('for-each-ref','refs/replace'),'','Replacement refs are forbidden');
 assert(!existsSync(git('rev-parse','--git-path','info/grafts')),'Grafted history is forbidden');
 assert.equal(git('rev-parse',parent+'^{tree}'),parentTree,'Immutable parent tree changed');
-assert.equal(git('show','-s','--format=%P',parent),historicalParent,'Historical sign-out ancestry changed');
-assert.equal(git('rev-list','--count',historicalParent+'..'+parent),'1','Historical sign-out correction must remain one child');
+assert.equal(git('show','-s','--format=%P',parent),historicalParent,'Historical cookie-cleanup ancestry changed');
+assert.equal(git('rev-list','--count',historicalParent+'..'+parent),'1','Cookie-cleanup correction must remain one child');
 assert.equal(git('rev-parse',parent+':'+verifierPath),historicalVerifierBlob,'Historical verifier source changed');
 git('merge-base','--is-ancestor',production,parent);
 const head=git('rev-parse','HEAD');
@@ -109,8 +107,9 @@ if(!precommit) {
 assert.equal(JSON.parse(readFileSync('release/candidates.json','utf8')).candidates.length,0,'Registry must remain deny-all');
 
 // Preserve ALL historical assertions without rewriting them for new dependencies.
-// Execute the pinned sign-out verifier against its clean immutable source. It
-// retains the diagnostic, security and harness chain behind this correction.
+// Execute the pinned cookie-cleanup verifier against its clean immutable source.
+// It retains the sign-out, diagnostic, security and harness chain behind this
+// regression-only correction.
 // Only a disposable detached worktree is written and then removed. Sharing the
 // existing object database preserves unreachable objects required by historical
 // proofs without adding another alternate-object-store nesting level.
@@ -124,11 +123,11 @@ try {
  assert.equal(gitAt(checkout,'rev-parse','HEAD'),parent);
  assert.equal(gitAt(checkout,'hash-object',verifierPath),historicalVerifierBlob);
  historicalProof=JSON.parse(execFileSync(process.execPath,[verifierPath],{cwd:checkout,env,encoding:'utf8',stdio:'pipe'}));
- assert.equal(historicalProof.head,parent,'Historical proof must verify the exact sign-out parent');
+ assert.equal(historicalProof.head,parent,'Historical proof must verify the exact cookie-cleanup parent');
  assert.equal(historicalProof.parent,historicalParent,'Historical proof ancestry changed');
  assert.equal(historicalProof.historicalVerification,'PASS','Historical harness verification must pass');
 } finally {
  if(worktreeAdded) gitAt(root,'worktree','remove','--force',join(historicalRoot,'parent'));
  rmSync(historicalRoot,{recursive:true,force:true});
 }
-console.log(JSON.stringify({mode:precommit?'PRECOMMIT_ONLY':'COMMITTED_COOKIE_CLEANUP_CHILD',head,parent,parentTree,original,historicalVerifierBlob,historicalVerification:'PASS',historicalProof,changedFiles:allowed,protectedSourceFiles:parentFiles.size-existingAllowed.length,registry:'DENY_ALL'}));
+console.log(JSON.stringify({mode:precommit?'PRECOMMIT_ONLY':'COMMITTED_REGRESSION_CHILD',head,parent,parentTree,original,historicalVerifierBlob,historicalVerification:'PASS',historicalProof,changedFiles:allowed,protectedSourceFiles:parentFiles.size-existingAllowed.length,registry:'DENY_ALL'}));
