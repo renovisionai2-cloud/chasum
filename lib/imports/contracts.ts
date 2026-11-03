@@ -44,7 +44,9 @@ export type CanonicalPayload = z.infer<typeof payloadSchema>;
 export const mappingSchema = z.object({
     version: key,
     statusMapping: z.record(z.string(), z.enum(statuses)),
-    links: z.array(z.object({ entityType: z.enum(idEntityTypes), sourceRowKey: key, existingId: z.uuid() }).strict()),
+    // At most one usable explicit link per source row; payload/CSV imports cap rows at 5000.
+    // Zod >=4.6.6 rejects this size bound before collecting per-element errors.
+    links: z.array(z.object({ entityType: z.enum(idEntityTypes), sourceRowKey: key, existingId: z.uuid() }).strict()).max(5000),
 }).strict();
 export type MappingConfig = z.infer<typeof mappingSchema>;
 export const assignmentSchema = z.discriminatedUnion("entityType", [

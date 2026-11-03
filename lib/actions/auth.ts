@@ -16,6 +16,8 @@ export type AuthState = {
   success?: string;
 };
 
+const SIGN_OUT_ERROR = "We couldn't sign you out. Please try again.";
+
 function supabaseNotConfiguredState(): AuthState {
   return {
     error:
@@ -207,10 +209,30 @@ export async function updatePassword(
   redirect("/dashboard");
 }
 
-export async function signOut() {
-  if (getSupabaseEnv()) {
-    const supabase = await createClient();
-    await supabase.auth.signOut();
+export async function signOut(
+  _prevState: AuthState,
+  _formData: FormData,
+): Promise<AuthState> {
+  void _prevState;
+  void _formData;
+
+  try {
+    if (getSupabaseEnv()) {
+      const supabase = await createClient();
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.warn("[auth.signOut] sign_out_failed", {
+          code: error.code,
+          status: error.status,
+        });
+        return { error: SIGN_OUT_ERROR };
+      }
+    }
+  } catch {
+    // Keep provider details and credentials out of the client-visible state.
+    console.error("[auth.signOut] unexpected_failure");
+    return { error: SIGN_OUT_ERROR };
   }
+
   redirect("/login");
 }
