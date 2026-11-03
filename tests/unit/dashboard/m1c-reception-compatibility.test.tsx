@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
+import { writeSync } from "node:fs";
 import { resolve } from "node:path";
+import { performance } from "node:perf_hooks";
 import { createServer, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import ts from "typescript";
@@ -17,6 +19,30 @@ const results: unknown[] = [];
 let server: ViteDevServer;
 const browsers: Record<string, Browser> = {};
 let origin: string;
+
+// Compile the real fixture graph during setup, before navigation's load budget.
+// transformRequest propagates compilation failures; warmupRequest does not.
+async function prepareFixtureModules(vite: ViteDevServer) {
+  const prepared = new Set<string>();
+  const client = vite.environments.client;
+  const prepare = async (url: string): Promise<void> => {
+    if (prepared.has(url)) return;
+    prepared.add(url);
+    const result = await client.transformRequest(url);
+    if (!result) throw new Error("Fixture preparation returned no module: " + url);
+    const entryModule = await client.moduleGraph.getModuleByUrl(url);
+    if (!entryModule) throw new Error("Fixture preparation did not register module: " + url);
+    // CSS importedModules includes Tailwind's watched files, not just imports.
+    // Its transform already awaits PostCSS; do not execute those watched files.
+    if (entryModule.file?.endsWith(".css")) return;
+    await Promise.all([...entryModule.importedModules].map((dependency) => prepare(dependency.url)));
+  };
+  await prepare("/app/globals.css");
+  await prepare("/@vite/client");
+  await prepare("virtual:badge-entry");
+  await client.waitForRequestsIdle();
+  return prepared.size;
+}
 
 beforeAll(async () => {
   if (evidence) await mkdir(evidence, { recursive: true });
@@ -112,13 +138,41 @@ beforeAll(async () => {
   const address = server.httpServer!.address();
   if (!address || typeof address === "string") throw new Error("Missing local port");
   origin = `http://127.0.0.1:${address.port}`;
+  await prepareFixtureModules(server);
   browsers.chromium = await chromium.launch();
   browsers.webkit = await webkit.launch();
 }, 120_000);
 
+type TeardownEvent = `${"CHROMIUM" | "WEBKIT" | "VITE"}_CLOSE_${"BEGIN" | "COMPLETE" | "ERROR"}`;
+function emitTeardown(event: TeardownEvent, startedAt: number) {
+  // Synchronous output keeps BEGIN visible even when the following close stalls.
+  try {
+    const atMs = Math.round((performance.now() - startedAt) * 10) / 10;
+    writeSync(2, "[m1c-teardown] " + JSON.stringify({ event, atMs }) + "\n");
+  } catch { /* Diagnostics must not replace the original cleanup outcome. */ }
+}
+
 afterAll(async () => {
-  for (const browser of Object.values(browsers)) await browser.close();
-  await server?.close();
+  const startedAt = performance.now();
+  for (const [engine, browser] of Object.entries(browsers)) {
+    const component = engine === "chromium" ? "CHROMIUM" : "WEBKIT";
+    emitTeardown(`${component}_CLOSE_BEGIN`, startedAt);
+    try {
+      await browser.close();
+    } catch (error) {
+      emitTeardown(`${component}_CLOSE_ERROR`, startedAt);
+      throw error;
+    }
+    emitTeardown(`${component}_CLOSE_COMPLETE`, startedAt);
+  }
+  emitTeardown("VITE_CLOSE_BEGIN", startedAt);
+  try {
+    await server?.close();
+  } catch (error) {
+    emitTeardown("VITE_CLOSE_ERROR", startedAt);
+    throw error;
+  }
+  emitTeardown("VITE_CLOSE_COMPLETE", startedAt);
   if (evidence) await writeFile(resolve(evidence, "browser-results.json"), JSON.stringify(results, null, 2) + "\n");
 });
 

@@ -15,7 +15,7 @@ import {
   type DashboardNavItem,
 } from "@/lib/dashboard/nav";
 import { cn } from "@/lib/utils";
-import { signOut } from "@/lib/actions/auth";
+import { signOut, type AuthState } from "@/lib/actions/auth";
 import type { LocationScope } from "@/lib/location/constants";
 import type { Location, SubscriptionPlan } from "@/lib/types/booking";
 import {
@@ -49,10 +49,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { createPortal, useFormStatus } from "react-dom";
 
 export { getPageTitle };
+
+const initialSignOutState: AuthState = {};
 
 function initialAdvancedOpen(pathname: string): boolean {
   return pathname.startsWith("/dashboard/developer");
@@ -137,6 +139,29 @@ type SidebarProps = {
   className?: string;
   onNavigate?: () => void;
 };
+
+function SidebarSignOut() {
+  const [state, action, pending] = useActionState(signOut, initialSignOutState);
+
+  return (
+    <form action={action}>
+      <Button
+        type="submit"
+        variant="ghost"
+        disabled={pending}
+        className="w-full justify-start gap-3 text-slate-300 hover:bg-white/5 hover:text-white"
+      >
+        <LogOut className="h-4 w-4" aria-hidden="true" />
+        {pending ? "Signing out…" : "Sign out"}
+      </Button>
+      {state.error ? (
+        <p role="alert" className="px-3 pt-2 text-xs text-red-200">
+          {state.error}
+        </p>
+      ) : null}
+    </form>
+  );
+}
 
 export function DashboardSidebar({
   userEmail,
@@ -256,23 +281,22 @@ export function DashboardSidebar({
             <p className="mt-0.5 truncate text-xs text-slate-200">{userEmail}</p>
           </div>
         )}
-        <form action={signOut}>
-          <Button
-            type="submit"
-            variant="ghost"
-            className="w-full justify-start gap-3 text-slate-300 hover:bg-white/5 hover:text-white"
-          >
-            <LogOut className="h-4 w-4" aria-hidden="true" />
-            Sign out
-          </Button>
-        </form>
+        <SidebarSignOut />
       </div>
     </aside>
   );
 }
 
 // Observe the canonical form's lifecycle without wrapping or replacing its action.
-function AccountSignOut({ submitting, release }: { submitting: boolean; release: () => void }) {
+function AccountSignOut({
+  submitting,
+  error,
+  release,
+}: {
+  submitting: boolean;
+  error?: string;
+  release: () => void;
+}) {
   const { pending } = useFormStatus();
   const wasPending = useRef(false);
   useEffect(() => {
@@ -285,8 +309,18 @@ function AccountSignOut({ submitting, release }: { submitting: boolean; release:
         <LogOut className="h-4 w-4" aria-hidden="true" />
         {submitting || pending ? "Signing out…" : "Sign out"}
       </Button>
-      <p role="status" className="text-sm text-muted-foreground">
-        {submitting || pending ? "Signing out. Please wait…" : ""}
+      <p
+        role={error && !submitting && !pending ? "alert" : "status"}
+        className={cn(
+          "text-sm",
+          error && !submitting && !pending
+            ? "text-destructive"
+            : "text-muted-foreground",
+        )}
+      >
+        {submitting || pending
+          ? "Signing out. Please wait…"
+          : error ?? ""}
       </p>
     </>
   );
@@ -298,6 +332,10 @@ function AccountControl({ email }: { email?: string }) {
   const claimed = useRef(false);
   const accountForm = useRef<HTMLFormElement>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [signOutState, signOutAction] = useActionState(
+    signOut,
+    initialSignOutState,
+  );
   const release = useCallback(() => {
     claimed.current = false;
     setSubmitting(false);
@@ -359,7 +397,7 @@ function AccountControl({ email }: { email?: string }) {
                 {email || "Signed-in account identity is unavailable."}
               </p>
             </div>
-            <form ref={accountForm} action={signOut} onPointerDownCapture={(event) => {
+            <form ref={accountForm} action={signOutAction} onPointerDownCapture={(event) => {
               // A second pointer press must not blur focus onto a disabled submit.
               if (claimed.current) event.preventDefault();
             }} onSubmit={(event) => {
@@ -374,7 +412,11 @@ function AccountControl({ email }: { email?: string }) {
               event.currentTarget.closest('[role="dialog"]')
                 ?.querySelector<HTMLButtonElement>('button[aria-label="Close"]')?.focus({ preventScroll: true });
             }}>
-              <AccountSignOut submitting={submitting} release={release} />
+              <AccountSignOut
+                submitting={submitting}
+                error={signOutState.error}
+                release={release}
+              />
             </form>
           </div>
         </Sheet>, document.body,
