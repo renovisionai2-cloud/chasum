@@ -1,4 +1,10 @@
 {
   "version": 1,
-  "candidates": []
+  "candidates": [
+    {
+      "sha": "ab4e41f530d2a2da65bda429407e0f84446f9fac",
+      "status": "approved",
+      "expiresAt": "2026-11-05T15:00:00Z"
+    }
+  ]
 }
