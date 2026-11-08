@@ -1,0 +1,485 @@
+name: N06 exact-source Linux validation
+
+on:
+  pull_request:
+    branches: [codex/reception-production-isolated-release]
+    types: [opened]
+
+permissions:
+  contents: read
+
+jobs:
+  n06-exact-source-linux-validation:
+    if: >-
+      github.repository == 'renovisionai2-cloud/chasum' &&
+      github.event.action == 'opened' &&
+      github.run_attempt == 1 &&
+      github.event.pull_request.head.repo.full_name == 'renovisionai2-cloud/chasum' &&
+      github.event.pull_request.head.ref == 'cursor/n06-exact-source-linux-validation' &&
+      github.event.pull_request.base.ref == 'codex/reception-production-isolated-release' &&
+      github.event.pull_request.base.sha == '9f305c2f9a377b95aa1642a3dc69f70cc0cb4573' &&
+      github.event.pull_request.draft == true
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+    defaults:
+      run:
+        shell: bash
+        working-directory: candidate
+    steps:
+      - name: Check out immutable N06 source, not the workflow commit or PR merge
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: renovisionai2-cloud/chasum
+          ref: f8c836370967473a2c46a08be8f4abfb750dae85
+          path: candidate
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select preinstalled Node 22 without a download or token
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          node_bins=("$RUNNER_TOOL_CACHE"/node/22.*/x64/bin)
+          test "${#node_bins[@]}" -gt 0
+          node_bin=$(printf '%s\n' "${node_bins[@]}" | sort -V | tail -n 1)
+          test -x "$node_bin/node"
+          test "$("$node_bin/node" -p 'process.versions.node.split(".")[0]')" = 22
+          printf '%s\n' "$node_bin" >> "$GITHUB_PATH"
+
+      - name: Verify source, runner and credential boundary
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = f8c836370967473a2c46a08be8f4abfb750dae85
+          test "$(git rev-parse 'HEAD^{tree}')" = c57de273620a81ecdcbc7dcdc7b0483ede7e6724
+          test "$(git show -s --format=%P HEAD)" = ab4e41f530d2a2da65bda429407e0f84446f9fac
+          test "$(git hash-object lib/actions/appointments.ts)" = e7febd39a1ce24885c016f02b674b0bc0ffa7f81
+          test "$(git hash-object lib/booking-engine/mutations/update.ts)" = f63a6fd5d6596a993c86b93aff35f7dce6d16c1e
+          test "$(git hash-object lib/booking-engine/types.ts)" = 7a3f564879c7bc536a1a785d2dd123ffb270bbd4
+          test "$(git hash-object scripts/verify-reception-isolation.mjs)" = 00f0c4c53888affd583cbe16a0ddfe5000297a29
+          test "$(git hash-object tests/unit/actions/set-appointment-status-only.test.ts)" = 8343d2811d77d980775f1c11537fdf83d694db09
+          test "$(git hash-object tests/unit/booking/reception-status-only-completion.test.tsx)" = 6df070c802c2721e3425308337afa44c8c27ee29
+          test "$(git hash-object tests/unit/booking/status-only-completion-effects.test.ts)" = 486dd72dba5efd75512520219f0720ab87acf910
+          test "$(git hash-object tests/unit/booking/update-booking-status-only.test.ts)" = 3466546e17e736f292b392996220ae3cac08934e
+          test "$(git hash-object tests/unit/dashboard/m1c-reception-compatibility.test.tsx)" = e850e10e88d4fc4e9558561c483497b2723ff8ab
+          test "$(git hash-object tests/unit/access/operator-source-locks.test.ts)" = ed6727bfdb5e54e3a71775e51500e6019141ce73
+          test "$(git hash-object tests/unit/dashboard/mobile-account-control.test.tsx)" = 0b7e48162af6feee131019d3f739608de0056765
+          test "$(git hash-object lib/supabase/server.ts)" = 63f94e2eb83a9f2ef08b7aab914608c5e6362cb7
+          test "$(git hash-object tests/unit/auth/supabase-cookie-adapter.test.ts)" = 1f5d75421014226f4e936b181f2598dcf181d8c9
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          test "$(git rev-parse --is-shallow-repository)" = false
+          test -z "$(git for-each-ref refs/replace)"
+          test ! -e "$(git rev-parse --git-path info/grafts)"
+          if git config --name-only --get-regexp 'http\..*extraheader|credential\..*|core\.sshCommand'; then
+            echo 'Unexpected persisted checkout credentials'; exit 1
+          fi
+          for name in .env*; do
+            if test "$name" != .env.example; then test ! -e "$name"; fi
+          done
+          test "$(uname -s)" = Linux
+          test "$(uname -m)" = x86_64
+          test "$(node -p 'process.versions.node.split(".")[0]')" = 22
+          cat /etc/os-release
+          printf 'ImageOS=%s ImageVersion=%s\n' "$ImageOS" "$ImageVersion"
+          uname -a
+          node --version
+          npm --version
+          git show -s --format='HEAD=%H%nTREE=%T%nPARENT=%P'
+          printf 'CHECKOUT=%s\n' "$PWD"
+          git for-each-ref --format='%(refname) %(objectname)' > "$RUNNER_TEMP/n06-refs.before"
+
+      - name: Prepare built-in network isolation and sanitized command wrappers
+        run: |
+          set -euo pipefail
+          for tool in ip iptables ip6tables setpriv python3; do command -v "$tool"; done
+          # Only ephemeral runner networking changes. No new software is installed.
+          sudo ip netns add reception-offline
+          sudo ip -n reception-offline link set lo up
+          sudo ip netns add reception-fonts
+          sudo ip link add rcproof-host type veth peer name rcproof-build
+          sudo ip link set rcproof-build netns reception-fonts
+          sudo ip addr add 192.0.2.1/30 dev rcproof-host
+          sudo ip link set rcproof-host up
+          sudo ip -n reception-fonts addr add 192.0.2.2/30 dev rcproof-build
+          sudo ip -n reception-fonts link set rcproof-build up
+          sudo ip -n reception-fonts link set lo up
+          # No default route or DNS path. The only non-loopback connection is the font proxy.
+          sudo ip netns exec reception-fonts iptables -P OUTPUT DROP
+          sudo ip netns exec reception-fonts iptables -A OUTPUT -o lo -j ACCEPT
+          sudo ip netns exec reception-fonts iptables -A OUTPUT -d 192.0.2.1 -p tcp --dport 8080 -j ACCEPT
+          sudo ip netns exec reception-fonts ip6tables -P OUTPUT DROP
+          sudo ip netns exec reception-fonts ip6tables -A OUTPUT -o lo -j ACCEPT
+          sudo ip -n reception-offline addr show
+          sudo ip -n reception-offline route show table all
+          sudo ip -n reception-fonts route show table all
+          sudo ip netns exec reception-fonts iptables -S OUTPUT
+          sudo ip netns exec reception-fonts ip6tables -S OUTPUT
+          cat > "$RUNNER_TEMP/reception-command" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          mode=$1; shift
+          # The application never inherits the Actions environment or its credentials.
+          clean=(env -i "PATH=$PATH" "HOME=$HOME" "LANG=C.UTF-8" "CI=true"
+            "NEXT_TELEMETRY_DISABLED=1" "npm_config_userconfig=/dev/null")
+          case "$mode" in
+            download) exec "${clean[@]}" "$@" ;;
+            offline) namespace=reception-offline ;;
+            fonts)
+              namespace=reception-fonts
+              clean+=("HTTPS_PROXY=http://192.0.2.1:8080" "https_proxy=http://192.0.2.1:8080") ;;
+            *) exit 64 ;;
+          esac
+          exec sudo ip netns exec "$namespace" setpriv --reuid="$(id -u)" --regid="$(id -g)" \
+            --init-groups --no-new-privs --bounding-set=-all "${clean[@]}" "$@"
+          SH
+          chmod 700 "$RUNNER_TEMP/reception-command"
+          "$RUNNER_TEMP/reception-command" offline python3 - <<'PY'
+          import errno, socket
+          assert socket.if_nameindex() == [(1, 'lo')], socket.if_nameindex()
+          with socket.socket() as s:
+              try:
+                  s.connect(('198.51.100.1', 443))
+              except OSError as e:
+                  assert e.errno == errno.ENETUNREACH, e
+              else:
+                  raise AssertionError('Offline namespace unexpectedly has an external route')
+          print('PASS: loopback-only namespace; external route unavailable; no external packet sent')
+          PY
+
+      - name: Verify exact N06 source before dependency installation
+        run: |
+          "$RUNNER_TEMP/reception-command" offline node scripts/verify-reception-isolation.mjs
+          echo 'EXIT initial N06 source isolation = 0'
+
+      - name: Clean immutable dependency installation
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/reception-command" download npm ci --ignore-scripts --no-audit --no-fund
+          echo 'EXIT npm ci = 0'
+          "$RUNNER_TEMP/reception-command" offline node - <<'JS'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          for (const name of ['vite', 'vitest', 'playwright-core']) {
+            const metadata = JSON.parse(fs.readFileSync(path.resolve('node_modules', name, 'package.json'), 'utf8'));
+            console.log(`${name}=${metadata.version}`);
+          }
+          JS
+
+
+      - name: Verify corrected Next SWC Sharp and Zod runtime offline
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/reception-command" offline node - <<'JS'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const Module = require('node:module');
+          (async () => {
+            for (const [name, expected] of Object.entries({
+              next: '16.4.3', 'eslint-config-next': '16.4.3', '@supabase/ssr': '0.12.0',
+              '@next/swc-linux-x64-gnu': '16.4.3', sharp: '0.35.5', zod: '4.6.6'
+            })) {
+              const metadata = JSON.parse(fs.readFileSync(path.resolve('node_modules', name, 'package.json'), 'utf8'));
+              assert.equal(metadata.name, name);
+              const actual = metadata.version;
+              assert.equal(actual, expected);
+              console.log(name + '=' + actual);
+            }
+            const binding = await require('next/dist/build/swc').loadBindings();
+            assert.equal(binding.isWasm, false);
+            const transformed = binding.transformSync('const value: number = 1;', {
+              filename: 'synthetic-native-check.ts', jsc: { parser: { syntax: 'typescript' } }
+            });
+            assert.ok(transformed.code.includes('value'));
+            assert.ok(!transformed.code.includes(': number'));
+            console.log('PASS: Linux x64 GNU SWC native binding loaded and transformed TypeScript');
+            const sharp = require('sharp');
+            const png = await sharp({ create: { width: 2, height: 2, channels: 3, background: '#ffffff' } }).png().toBuffer();
+            const metadata = await sharp(png).metadata();
+            assert.equal(metadata.format, 'png');
+            assert.equal(metadata.width, 2);
+            assert.equal(metadata.height, 2);
+            console.log('PASS: benign in-memory Sharp PNG conversion; native libraries=' + JSON.stringify(sharp.versions));
+            // Load the immutable pure contract locally; no hosted clients or writes.
+            const filename = path.resolve('lib/imports/contracts.ts');
+            const ts = require('typescript');
+            const compiled = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
+              compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }
+            }).outputText;
+            const contract = new Module(filename, module);
+            contract.filename = filename;
+            contract.paths = Module._nodeModulePaths(path.dirname(filename));
+            contract._compile(compiled, filename);
+            const schema = contract.exports.mappingSchema;
+            const row = { entityType: 'customer', sourceRowKey: 'local-synthetic', existingId: '11111111-1111-4111-8111-111111111111' };
+            const input = links => ({ version: 'c2-mapping-v1', statusMapping: { booked: 'confirmed' }, links });
+            assert.equal(schema.parse(input(Array(5000).fill(row))).links.length, 5000);
+            const oversized = Array(5001).fill(row);
+            Object.defineProperty(oversized, 0, { get() { throw new Error('Oversized input was traversed'); } });
+            const rejected = schema.safeParse(input(oversized));
+            assert.equal(rejected.success, false);
+            assert.equal(rejected.error.issues.length, 1);
+            assert.equal(rejected.error.issues[0].code, 'too_big');
+            assert.equal(rejected.error.issues[0].maximum, 5000);
+            console.log('PASS: actual mapping contract accepts 5000 links and rejects 5001 before element traversal');
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          JS
+
+      - name: Build with only the approved Google Fonts tunnel
+        run: |
+          set -euo pipefail
+          # Python's standard library is already on the runner. This proxy cannot
+          # reach application providers: only the two exact font hosts on TLS/443.
+          # It does not decrypt TLS, cache/substitute assets, or alter Next/test code.
+          cat > "$RUNNER_TEMP/reception-font-proxy.py" <<'PY'
+          import http.server, ipaddress, select, socket, socketserver
+          ALLOWED = {'fonts.googleapis.com:443', 'fonts.gstatic.com:443'}
+          class Proxy(http.server.BaseHTTPRequestHandler):
+              timeout = 20
+              def log_message(self, *_): pass
+              def do_CONNECT(self):
+                  if self.path not in ALLOWED or any(self.headers.get(h) for h in ('Authorization', 'Proxy-Authorization', 'Cookie')):
+                      print('FONT_POLICY_DENY', flush=True)
+                      self.send_error(403)
+                      return
+                  host = self.path.split(':')[0]
+                  addresses = socket.getaddrinfo(host, 443, socket.AF_INET, socket.SOCK_STREAM)
+                  address = addresses[0][4]
+                  if not ipaddress.ip_address(address[0]).is_global:
+                      print('FONT_POLICY_DENY non-public resolution', flush=True)
+                      self.send_error(403)
+                      return
+                  with socket.create_connection(address, timeout=20) as remote:
+                      print('FONT_TLS_CONNECT ' + host, flush=True)
+                      self.send_response(200, 'Connection Established')
+                      self.end_headers()
+                      endpoints = [self.connection, remote]
+                      while True:
+                          readable, _, _ = select.select(endpoints, [], [], 30)
+                          if not readable: return
+                          for source in readable:
+                              data = source.recv(65536)
+                              if not data: return
+                              (remote if source is self.connection else self.connection).sendall(data)
+              def do_GET(self):
+                  print('FONT_POLICY_DENY plaintext request', flush=True)
+                  self.send_error(403)
+              do_POST = do_GET
+          class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
+              daemon_threads = True
+              allow_reuse_address = False
+          with Server(('192.0.2.1', 8080), Proxy) as server:
+              print('FONT_PROXY_READY', flush=True)
+              server.serve_forever()
+          PY
+          env -i "PATH=$PATH" "LANG=C.UTF-8" python3 -u "$RUNNER_TEMP/reception-font-proxy.py" > "$RUNNER_TEMP/reception-font-proxy.log" 2>&1 &
+          font_proxy_pid=$!
+          trap 'kill "$font_proxy_pid"; wait "$font_proxy_pid" || test "$?" = 143' EXIT
+          # Readiness only, no test retry and no external request.
+          for attempt in {1..50}; do
+            if grep -q '^FONT_PROXY_READY$' "$RUNNER_TEMP/reception-font-proxy.log"; then break; fi
+            kill -0 "$font_proxy_pid"
+            sleep 0.1
+          done
+          grep -q '^FONT_PROXY_READY$' "$RUNNER_TEMP/reception-font-proxy.log"
+          set +e
+          "$RUNNER_TEMP/reception-command" fonts npm run build 2>&1 | tee "$RUNNER_TEMP/reception-build.log"
+          build_status=("${PIPESTATUS[@]}")
+          build_exit=${build_status[0]}
+          set -e
+          cat "$RUNNER_TEMP/reception-font-proxy.log"
+          printf 'EXIT npm run build = %s\n' "$build_exit"
+          test "$build_exit" = 0
+          test "${build_status[1]}" = 0
+          if grep -q FONT_POLICY_DENY "$RUNNER_TEMP/reception-font-proxy.log"; then exit 1; fi
+          grep -q '^FONT_TLS_CONNECT fonts.googleapis.com$' "$RUNNER_TEMP/reception-font-proxy.log"
+          grep -q '^FONT_TLS_CONNECT fonts.gstatic.com$' "$RUNNER_TEMP/reception-font-proxy.log"
+
+      - name: Install approved Chromium and WebKit browsers and Linux prerequisites
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/reception-command" download npx --no-install playwright install --with-deps chromium webkit
+          "$RUNNER_TEMP/reception-command" offline node - <<'JS'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const engines = require('playwright-core');
+          const catalog = JSON.parse(fs.readFileSync(path.resolve('node_modules', 'playwright-core', 'browsers.json'), 'utf8'));
+          const cache = path.resolve(process.env.HOME, '.cache', 'ms-playwright') + path.sep;
+          for (const name of ['chromium', 'webkit']) {
+            const binary = engines[name].executablePath();
+            assert.ok(binary.startsWith(cache), `${name} is outside the shared Playwright cache: ${binary}`);
+            fs.accessSync(binary, fs.constants.X_OK);
+            console.log(JSON.stringify({ name, installed: catalog.browsers.find(entry => entry.name === name), executable: binary }));
+          }
+          console.log('PASS: browser installation and serialized test execution resolve the same Playwright cache ' + cache);
+          JS
+          echo 'EXIT browser installation/catalog check = 0; no browser prewarm'
+
+      - name: Typecheck exact source offline
+        run: |
+          "$RUNNER_TEMP/reception-command" offline npm run typecheck
+          echo 'EXIT npm run typecheck = 0'
+
+      - name: Run strict recursive N06 source isolation verifier offline
+        run: |
+          "$RUNNER_TEMP/reception-command" offline node scripts/verify-reception-isolation.mjs
+          echo 'EXIT recursive N06 source isolation verifier = 0'
+
+      - name: Verify release-control configuration offline
+        run: |
+          "$RUNNER_TEMP/reception-command" offline node scripts/verify-release-control-config.mjs
+          echo 'EXIT release-control config = 0'
+
+      - name: Run all original release-control tests offline
+        run: |
+          "$RUNNER_TEMP/reception-command" offline node --test tests/release-control/*.test.mjs
+          echo 'EXIT release-control tests = 0'
+
+      - name: Run focused N06 Auth and completion-effects regressions offline
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/reception-command" offline ./node_modules/.bin/vitest run --maxWorkers=1 --reporter=default tests/unit/actions/set-appointment-status-only.test.ts tests/unit/actions/set-appointment-status-cancelled-terminal.test.ts tests/unit/booking/reception-status-only-completion.test.tsx tests/unit/booking/status-only-completion-effects.test.ts tests/unit/booking/update-booking-status-only.test.ts tests/unit/auth/supabase-cookie-adapter.test.ts tests/unit/auth/sign-out-error-handling.test.ts tests/unit/access/operator-source-locks.test.ts tests/unit/dashboard/mobile-account-control.test.tsx
+          echo 'EXIT focused N06 Auth and completion-effects regressions = 0'
+
+      - name: Run the complete permitted serialized Vitest suite offline
+        run: |
+          set -euo pipefail
+          set +e
+          "$RUNNER_TEMP/reception-command" offline npm test -- --maxWorkers=1 --reporter=default --reporter=json --outputFile="$RUNNER_TEMP/reception-vitest.json" 2>&1 | tee "$RUNNER_TEMP/reception-vitest.log"
+          test_status=("${PIPESTATUS[@]}")
+          test_exit=${test_status[0]}
+          set -e
+          printf 'EXIT npm test -- --maxWorkers=1 = %s\n' "$test_exit"
+          test "$test_exit" = 0
+          test "${test_status[1]}" = 0
+
+
+      - name: Report passive M1C teardown markers from the single test run
+        if: always()
+        run: |
+          set -euo pipefail
+          if test ! -f "$RUNNER_TEMP/reception-vitest.log"; then
+            echo 'M1C teardown markers unavailable: test execution was not reached'
+            exit 0
+          fi
+          "$RUNNER_TEMP/reception-command" offline node - "$RUNNER_TEMP/reception-vitest.log" <<'JS'
+          const fs = require('node:fs');
+          const log = fs.readFileSync(process.argv[2], 'utf8');
+          const markers = [...log.matchAll(/\[m1c-teardown\] (\{[^\n]*\})/g)].map(match => JSON.parse(match[1]));
+          for (const marker of markers) console.log('[m1c-teardown-retained] ' + JSON.stringify(marker));
+          for (const component of ['CHROMIUM', 'WEBKIT', 'VITE']) {
+            const begin = markers.find(marker => marker.event === component + '_CLOSE_BEGIN');
+            const end = markers.find(marker => marker.event === component + '_CLOSE_COMPLETE' || marker.event === component + '_CLOSE_ERROR');
+            console.log(JSON.stringify({component, began: !!begin, outcome: end?.event ?? (begin ? 'NO_TERMINAL_MARKER_OBSERVED' : 'NOT_OBSERVED'), elapsedMs: begin && end ? Math.round((end.atMs - begin.atMs) * 10) / 10 : null}));
+          }
+          console.log('Diagnostic summary only; the original test exit status remains authoritative');
+          JS
+
+      - name: Verify N06 Auth browser email and mapping regressions from the single test run
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/reception-command" offline node - "$RUNNER_TEMP/reception-vitest.json" <<'JS'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          assert.equal(report.success, true);
+          assert.equal(report.numFailedTests, 0);
+          const results = report.testResults;
+          const required = [
+            ['tests/unit/dashboard/m1c-reception-compatibility.test.tsx', 64],
+            ['tests/unit/dashboard/preview-build-badge-containment.test.tsx', 20],
+            ['tests/unit/dashboard/top-nav-containment.test.tsx', 2],
+            ['tests/unit/communications/customer-location-email-mobile.test.ts', 1],
+            ['tests/unit/imports/mapping-resource-bound.test.ts', 16],
+            ['tests/unit/auth/supabase-cookie-adapter.test.ts', 5],
+            ['tests/unit/auth/sign-out-error-handling.test.ts', 6],
+            ['tests/unit/access/operator-source-locks.test.ts', 10],
+            ['tests/unit/dashboard/mobile-account-control.test.tsx', 24],
+          ];
+          for (const [file, count] of required) {
+            const suites = results.filter(result => result.name.endsWith('/' + file));
+            assert.equal(suites.length, 1, file);
+            assert.equal(suites[0].status, 'passed', file);
+            assert.equal(suites[0].assertionResults.length, count, file);
+            assert.ok(suites[0].assertionResults.every(test => test.status === 'passed'), file);
+            console.log('PASS: ' + file + ' = ' + count + '/' + count);
+          }
+          const n06Required = [
+            'tests/unit/actions/set-appointment-status-only.test.ts',
+            'tests/unit/actions/set-appointment-status-cancelled-terminal.test.ts',
+            'tests/unit/booking/reception-status-only-completion.test.tsx',
+            'tests/unit/booking/status-only-completion-effects.test.ts',
+            'tests/unit/booking/update-booking-status-only.test.ts',
+          ];
+          for (const file of n06Required) {
+            const suites = results.filter(result => result.name.endsWith('/' + file));
+            assert.equal(suites.length, 1, file);
+            assert.equal(suites[0].status, 'passed', file);
+            assert.ok(suites[0].assertionResults.length > 0, file);
+            assert.ok(suites[0].assertionResults.every(test => test.status === 'passed'), file);
+            console.log('PASS: ' + file + ' = ' + suites[0].assertionResults.length + '/' + suites[0].assertionResults.length);
+          }
+          const postgres = results.filter(result => result.name.endsWith('/tests/integration/package-a-availability-postgres.test.ts'));
+          assert.equal(postgres.length, 1);
+          assert.equal(postgres[0].assertionResults.length, 36);
+          assert.ok(postgres[0].assertionResults.every(test => test.status === 'pending' || test.status === 'skipped'));
+          console.log('PASS: all 36 opt-in PostgreSQL cases remain disabled; no shared Staging execution');
+          const historical = [
+            'chromium M1C/Reception at 320px × 740px (light)',
+            'contains the footer and application controls at 390px × 844px (light)',
+          ];
+          const assertions = results.flatMap(result => result.assertionResults);
+          for (const name of historical) {
+            const tests = assertions.filter(test => test.title === name);
+            assert.equal(tests.length, 1, name);
+            assert.equal(tests[0].status, 'passed', name);
+            console.log('PASS: historical first-navigation case: ' + name);
+          }
+          console.log('PASS: all 86 required Reception browser cases plus the customer mobile-email browser case, including both historical first navigations; assertions/timeouts unchanged');
+          console.log(JSON.stringify({
+            passed: report.numPassedTests, failed: report.numFailedTests,
+            pending: report.numPendingTests, total: report.numTotalTests,
+            files: results.length,
+            skipped: results.filter(result => result.assertionResults.every(test => test.status === 'pending' || test.status === 'skipped')).map(result => ({
+              file: result.name, cases: result.assertionResults.length
+            }))
+          }));
+          JS
+
+      - name: Verify immutable candidate integrity after execution
+        if: always()
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = f8c836370967473a2c46a08be8f4abfb750dae85
+          test "$(git rev-parse 'HEAD^{tree}')" = c57de273620a81ecdcbc7dcdc7b0483ede7e6724
+          test "$(git show -s --format=%P HEAD)" = ab4e41f530d2a2da65bda429407e0f84446f9fac
+          test "$(git hash-object lib/actions/appointments.ts)" = e7febd39a1ce24885c016f02b674b0bc0ffa7f81
+          test "$(git hash-object lib/booking-engine/mutations/update.ts)" = f63a6fd5d6596a993c86b93aff35f7dce6d16c1e
+          test "$(git hash-object lib/booking-engine/types.ts)" = 7a3f564879c7bc536a1a785d2dd123ffb270bbd4
+          test "$(git hash-object scripts/verify-reception-isolation.mjs)" = 00f0c4c53888affd583cbe16a0ddfe5000297a29
+          test "$(git hash-object tests/unit/actions/set-appointment-status-only.test.ts)" = 8343d2811d77d980775f1c11537fdf83d694db09
+          test "$(git hash-object tests/unit/booking/reception-status-only-completion.test.tsx)" = 6df070c802c2721e3425308337afa44c8c27ee29
+          test "$(git hash-object tests/unit/booking/status-only-completion-effects.test.ts)" = 486dd72dba5efd75512520219f0720ab87acf910
+          test "$(git hash-object tests/unit/booking/update-booking-status-only.test.ts)" = 3466546e17e736f292b392996220ae3cac08934e
+          test "$(git hash-object tests/unit/dashboard/m1c-reception-compatibility.test.tsx)" = e850e10e88d4fc4e9558561c483497b2723ff8ab
+          test "$(git hash-object tests/unit/access/operator-source-locks.test.ts)" = ed6727bfdb5e54e3a71775e51500e6019141ce73
+          test "$(git hash-object tests/unit/dashboard/mobile-account-control.test.tsx)" = 0b7e48162af6feee131019d3f739608de0056765
+          test "$(git hash-object lib/supabase/server.ts)" = 63f94e2eb83a9f2ef08b7aab914608c5e6362cb7
+          test "$(git hash-object tests/unit/auth/supabase-cookie-adapter.test.ts)" = 1f5d75421014226f4e936b181f2598dcf181d8c9
+          git diff --exit-code
+          git diff --cached --exit-code
+          test -z "$(git ls-files --others --exclude-standard)"
+          git for-each-ref --format='%(refname) %(objectname)' > "$RUNNER_TEMP/n06-refs.after"
+          cmp "$RUNNER_TEMP/n06-refs.before" "$RUNNER_TEMP/n06-refs.after"
+          git show -s --format='FINAL_HEAD=%H%nFINAL_TREE=%T%nFINAL_PARENT=%P'
+          test "$(git rev-parse --is-shallow-repository)" = false
+          test -z "$(git for-each-ref refs/replace)"
+          test ! -e "$(git rev-parse --git-path info/grafts)"
+          for name in .env*; do
+            if test "$name" != .env.example; then test ! -e "$name"; fi
+          done
+          "$RUNNER_TEMP/reception-command" offline node scripts/verify-reception-isolation.mjs
+          echo 'PASS: N06 source, modes, package/lock, tests, registry, credential-file boundary and refs unchanged'
