@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DashboardShell } from "@/components/dashboard/shell";
 import { DashboardSidebar, DashboardTopNav } from "@/components/dashboard/sidebar";
+import type { AuthState } from "@/lib/actions/auth";
 
 const mocks = vi.hoisted(() => ({ signOut: vi.fn(), setScope: vi.fn(), refresh: vi.fn(), push: vi.fn() }));
 vi.mock("@/lib/actions/auth", () => ({ signOut: mocks.signOut }));
@@ -20,7 +21,7 @@ const email = "Exact.Operator+mobile@example.test";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.signOut.mockResolvedValue(undefined);
+  mocks.signOut.mockResolvedValue({});
 });
 afterEach(() => cleanup());
 
@@ -66,10 +67,36 @@ describe("mobile Account control", () => {
 
     await user.click(signOut);
     await waitFor(() => expect(mocks.signOut).toHaveBeenCalledTimes(1));
-    expect(mocks.signOut.mock.calls[0][0]).toBeInstanceOf(FormData);
+    expect(mocks.signOut.mock.calls[0][0]).toEqual({});
+    expect(mocks.signOut.mock.calls[0][1]).toBeInstanceOf(FormData);
     expect(mocks.setScope).not.toHaveBeenCalled();
     expect(mocks.refresh).not.toHaveBeenCalled();
     expect(mocks.push).not.toHaveBeenCalled();
+  });
+
+  it("renders the safe returned sign-out error and releases the action state", async () => {
+    const safeError = "We couldn't sign you out. Please try again.";
+    mocks.signOut.mockResolvedValue({ error: safeError });
+    const user = userEvent.setup();
+    const trigger = renderTopNav(email);
+    await user.click(trigger);
+    const dialog = screen.getByRole("dialog", { name: "Account" });
+    const signOut = within(dialog).getByRole("button", {
+      name: "Sign out",
+      exact: true,
+    });
+
+    await user.click(signOut);
+
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      safeError,
+    );
+    await waitFor(() => expect(signOut).toBeEnabled());
+    expect(mocks.signOut).toHaveBeenCalledTimes(1);
+    expect(mocks.signOut.mock.calls[0][0]).toEqual({});
+    expect(mocks.signOut.mock.calls[0][1]).toBeInstanceOf(FormData);
+    expect(dialog).not.toHaveTextContent("SENSITIVE_PROVIDER_DETAIL");
+    expect(dialog).not.toHaveTextContent(/successfully signed out/i);
   });
 
   it.each(["Escape", "Close", "overlay"])("closes via %s, restores scrolling and returns focus", async (method) => {
@@ -175,8 +202,10 @@ describe("Reception Account submit protection", () => {
   });
 
   it.each(["submit burst", "pointer", "keyboard"])("guards %s through a deferred canonical action and restores controls after settlement", async (method) => {
-    let finish!: () => void;
-    mocks.signOut.mockImplementation(() => new Promise<void>((resolve) => { finish = resolve; }));
+    let finish!: (state: AuthState) => void;
+    mocks.signOut.mockImplementation(
+      () => new Promise<AuthState>((resolve) => { finish = resolve; }),
+    );
     const user = userEvent.setup();
     const trigger = renderTopNav(email);
     await user.click(trigger);
@@ -207,7 +236,7 @@ describe("Reception Account submit protection", () => {
     expect(screen.getByRole("dialog", { name: "Account" })).toBe(panel);
     expect(mocks.signOut).toHaveBeenCalledTimes(1);
     expect(screen.queryByText(/successfully signed out/i)).not.toBeInTheDocument();
-    await act(async () => finish());
+    await act(async () => finish({}));
     await waitFor(() => expect(button).toBeEnabled());
     expect(button).toHaveTextContent("Sign out");
     expect(screen.getByRole("status")).toBeEmptyDOMElement();

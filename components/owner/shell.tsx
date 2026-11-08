@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { OWNER_NAV, type OwnerNavIcon } from "@/lib/owner/constants";
-import { signOut } from "@/lib/actions/auth";
+import { signOut, type AuthState } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
 import {
   Activity,
@@ -22,7 +22,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useActionState, useState } from "react";
+
+const initialSignOutState: AuthState = {};
 
 const iconMap: Record<OwnerNavIcon, typeof LayoutDashboard> = {
   "layout-dashboard": LayoutDashboard,
@@ -79,6 +81,11 @@ function OwnerSidebarBody({
   userEmail?: string;
   onNavigate?: () => void;
 }) {
+  const [signOutState, signOutAction, signOutPending] = useActionState(
+    signOut,
+    initialSignOutState,
+  );
+
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-border px-4 py-4">
@@ -101,15 +108,21 @@ function OwnerSidebarBody({
         >
           Business dashboard
         </Link>
-        <form action={signOut}>
+        <form action={signOutAction}>
           <Button
             type="submit"
             variant="ghost"
+            disabled={signOutPending}
             className="w-full justify-start gap-3 text-muted-foreground"
           >
             <LogOut className="h-4 w-4" />
-            Sign out
+            {signOutPending ? "Signing out…" : "Sign out"}
           </Button>
+          {signOutState.error ? (
+            <p role="alert" className="px-2 pt-2 text-xs text-destructive">
+              {signOutState.error}
+            </p>
+          ) : null}
         </form>
       </div>
     </div>

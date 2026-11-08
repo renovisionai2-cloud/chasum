@@ -36,6 +36,9 @@ function mutationToAction(
   successMessage: string,
 ): ActionState {
   if (result.phase === "success") {
+    if (result.warning) {
+      return { error: result.warning, appointmentId: result.data?.appointmentId };
+    }
     return {
       success: successMessage,
       appointmentId: result.data?.appointmentId,
@@ -899,6 +902,7 @@ export async function setAppointmentStatus(
   }
 
   const result = await updateBooking({
+    operation: "status-only",
     channel: "staff",
     appointmentId: id,
     businessId: business.id,
@@ -915,7 +919,16 @@ export async function setAppointmentStatus(
 
   const action = mutationToAction(result, "Changes saved.");
   if (result.phase === "success") {
-    revalidateCalendar();
+    try {
+      revalidateCalendar();
+    } catch {
+      return {
+        error: result.warning
+          ? `${result.warning} The screen could not refresh.`
+          : "Appointment status saved, but the screen could not refresh. Reload to review it.",
+        appointmentId: id,
+      };
+    }
   }
   return action;
 }

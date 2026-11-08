@@ -95,11 +95,28 @@ describe("trusted operator source locks", () => {
 
   it("keeps /access-denied authenticated-safe and out of guest-route bounce", () => {
     const page = readRepo("app/(auth)/access-denied/page.tsx");
+    const signOutControl = readRepo(
+      "components/auth/access-denied-sign-out.tsx",
+    );
     const middleware = readRepo("lib/supabase/middleware.ts");
     const matcher = readRepo("middleware.ts");
     expect(page).not.toContain("getOrCreateBusiness");
     expect(page).not.toContain("ensure_business_for_owner");
-    expect(page).toContain("signOut");
+    expect(page).toContain(
+      'import { AccessDeniedSignOut } from "@/components/auth/access-denied-sign-out"',
+    );
+    expect(page).toContain("<AccessDeniedSignOut />");
+    expect(page).not.toContain('from "@/lib/actions/auth"');
+    expect(signOutControl).toContain(
+      'import { signOut, type AuthState } from "@/lib/actions/auth"',
+    );
+    expect(signOutControl).toContain(
+      "useActionState(signOut, initialState)",
+    );
+    expect(signOutControl).toContain("<form action={action}");
+    expect(signOutControl).toContain("disabled={pending}");
+    expect(signOutControl).toContain("state.error");
+    expect(signOutControl).toContain('role="alert"');
     expect(page).toContain('export const dynamic = "force-dynamic"');
     expect(page).toContain("getSupabaseEnv");
     expect(page).toContain(
