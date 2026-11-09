@@ -8,6 +8,12 @@ import react from "@vitejs/plugin-react";
 import ts from "typescript";
 import { chromium, webkit, type Browser, type BrowserContext, type Page, type Request, type Response, type ConsoleMessage } from "playwright-core";
 import { afterAll, beforeAll, expect, it } from "vitest";
+import {
+  closeFixtureResources,
+  TEARDOWN_HOOK_TIMEOUT_MS,
+  type CloseDiagnostic,
+  type CloseEvent,
+} from "./m1c-reception-teardown";
 
 // Actual Calendar/BookingSheet/dashboard/CSS, with the already accepted synthetic
 // read fixture. No fixture file or application integration is edited by this test.
@@ -89,11 +95,18 @@ function emitDiagnostic(payload: Record<string, unknown>) {
 }
 type TeardownEvent =
   | "FIXTURE_TEARDOWN_BEGIN" | "FIXTURE_TEARDOWN_COMPLETE"
-  | `${"CHROMIUM" | "WEBKIT" | "VITE"}_CLOSE_${"BEGIN" | "COMPLETE" | "ERROR"}`;
-function emitTeardown(event: TeardownEvent) {
+  | CloseEvent;
+function emitTeardown(
+  event: TeardownEvent,
+  detail: CloseDiagnostic | Record<string, unknown> = {},
+) {
   // Bypass reporter buffering so a stalled close still leaves its BEGIN visible.
   try {
-    writeSync(2, "[m1c-teardown] " + JSON.stringify({ event, atMs: elapsed() }) + "\n");
+    writeSync(2, "[m1c-teardown] " + JSON.stringify({
+      event,
+      atMs: elapsed(),
+      ...detail,
+    }) + "\n");
   } catch { /* A diagnostic sink failure must not replace the original error. */ }
 }
 const lifecycle = diagnosticBuffer(24);
@@ -384,31 +397,27 @@ afterAll(async () => {
   lifecycle.add("FIXTURE_TEARDOWN_BEGIN");
   emitTeardown("FIXTURE_TEARDOWN_BEGIN");
   const cleanupErrors: unknown[] = [];
-  for (const [engine, browser] of Object.entries(browsers)) {
-    const component = engine === "chromium" ? "CHROMIUM" : "WEBKIT";
-    emitTeardown(`${component}_CLOSE_BEGIN`);
-    try {
-      await browser.close();
-      emitTeardown(`${component}_CLOSE_COMPLETE`);
-    } catch (error) {
-      emitTeardown(`${component}_CLOSE_ERROR`);
-      cleanupErrors.push(error);
-    }
-  }
-  emitTeardown("VITE_CLOSE_BEGIN");
   try {
-    await server?.close();
-    emitTeardown("VITE_CLOSE_COMPLETE");
+    await closeFixtureResources({
+      browsers: Object.entries(browsers).map(([engine, browser]) => ({
+        component: engine === "chromium" ? "CHROMIUM" : "WEBKIT",
+        close: () => browser.close(),
+      })),
+      vite: {
+        component: "VITE",
+        close: async () => { await server?.close(); },
+      },
+      emit: (event, detail) => emitTeardown(event, detail),
+    });
   } catch (error) {
-    emitTeardown("VITE_CLOSE_ERROR");
     cleanupErrors.push(error);
   }
   lifecycle.add("FIXTURE_TEARDOWN_COMPLETE", { cleanupErrors: cleanupErrors.length });
-  emitTeardown("FIXTURE_TEARDOWN_COMPLETE");
+  emitTeardown("FIXTURE_TEARDOWN_COMPLETE", { cleanupErrors: cleanupErrors.length });
   emitDiagnostic({ event: "FIXTURE_LIFECYCLE", lifecycle: lifecycle.snapshot() });
   if (cleanupErrors.length) throw new AggregateError(cleanupErrors, "M1C fixture cleanup failed");
   if (evidence) await writeFile(resolve(evidence, "browser-results.json"), JSON.stringify(results, null, 2) + "\n");
-});
+}, TEARDOWN_HOOK_TIMEOUT_MS);
 
 const sizes = [[320, 740], [375, 812], [390, 844], [639, 900], [640, 900], [647, 900], [767, 900], [768, 1024], [834, 1112], [1023, 900], [1024, 900], [1366, 768], [1440, 900], [667, 320], [844, 390]];
 for (const engine of ["chromium", "webkit"]) for (const theme of ["light", "dark"] as const) {
