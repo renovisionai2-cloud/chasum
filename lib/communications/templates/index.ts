@@ -172,16 +172,35 @@ function contactBlock(
     </div>`;
 }
 
-function financialBlock(
+function appointmentFinancialDisplay(
   ctx: AppointmentTemplateContext,
   audience: "customer" | "business",
-): string {
-  const total =
+  total =
     ctx.appointmentTotalCents ??
     ctx.amountCents ??
     (ctx.subtotalCents != null
       ? Number(ctx.subtotalCents) + Number(ctx.taxCents ?? 0)
-      : null);
+      : null),
+) {
+  const taxDisplay = storedTaxDisplay({ ...ctx, appointmentTotalCents: total });
+  const heading = audience === "customer" ? "Appointment total" : "Amount mismatch";
+  const message = audience === "customer"
+    ? `Please contact ${ctx.businessName} to confirm the appointment total shown in this message.`
+    : "The stored subtotal and tax do not match the displayed appointment total. Review the original financial records before correcting the amount or collecting a balance.";
+  return {
+    total,
+    taxHeading: taxDisplay.heading,
+    warningHtml: taxDisplay.totalMismatch ? detailRow(heading, escapeHtml(message)) : "",
+    warningText: taxDisplay.totalMismatch ? `${heading}: ${message}` : "",
+  };
+}
+
+function financialBlock(
+  ctx: AppointmentTemplateContext,
+  audience: "customer" | "business",
+): string {
+  const display = appointmentFinancialDisplay(ctx, audience);
+  const { total } = display;
   if (total == null) return "";
 
   const subtotal = ctx.subtotalCents;
@@ -199,8 +218,7 @@ function financialBlock(
       : Math.max(0, total - depositPaid);
 
   const rows: string[] = [];
-  const taxDisplay = storedTaxDisplay({ ...ctx, appointmentTotalCents: total });
-  if (taxDisplay.warning) rows.push(detailRow("Financial review", escapeHtml(taxDisplay.warning)));
+  if (display.warningHtml) rows.push(display.warningHtml);
   if (subtotal != null) {
     rows.push(
       detailRow(
@@ -210,7 +228,7 @@ function financialBlock(
     );
   }
   if (tax != null && tax > 0) {
-    rows.push(detailRow(taxDisplay.heading, money(tax)));
+    rows.push(detailRow(display.taxHeading, money(tax)));
   }
   rows.push(detailRow("Appointment total", `<strong>${money(total)}</strong>`));
 
@@ -484,6 +502,7 @@ export function renderEmailTemplate(
           `Your appointment is confirmed.`,
           ``,
           ...customerAppointmentPlainDetails(ctx),
+          appointmentFinancialDisplay(ctx, "customer").warningText,
           total != null ? `Appointment total: ${money(total)}` : "",
           ctx.depositPaidCents
             ? `Deposit paid: ${money(ctx.depositPaidCents)}`
@@ -573,8 +592,8 @@ export function renderEmailTemplate(
       const remaining = ctx.remainingBalanceCents;
       const subtotal = ctx.subtotalCents;
       const tax = ctx.taxCents;
-      const taxDisplay = storedTaxDisplay({ ...ctx, appointmentTotalCents: total });
-      const taxHeading = taxDisplay.heading;
+      const display = appointmentFinancialDisplay(ctx, "customer", total);
+      const taxHeading = display.taxHeading;
       const supportEmail = resolveCustomerContactEmail(b);
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
@@ -582,7 +601,7 @@ export function renderEmailTemplate(
         <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
           ${detailRow("Service", escapeHtml(ctx.serviceName))}
           ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx))) : ""}
-          ${taxDisplay.warning ? detailRow("Financial review", escapeHtml(taxDisplay.warning)) : ""}
+          ${display.warningHtml}
           ${subtotal != null ? detailRow("Subtotal", money(subtotal)) : ""}
           ${taxHeading && tax != null && tax > 0 ? detailRow(taxHeading, money(tax)) : ""}
           ${total != null ? detailRow("Appointment total", `<strong>${money(total)}</strong>`) : ""}
@@ -597,7 +616,7 @@ export function renderEmailTemplate(
         ${appointmentContactCta(b, ctx)}`;
       const amountLabel = money(ctx.amountCents);
       const textLines = [
-        taxDisplay.warning,
+        display.warningText,
         `Receipt ${ctx.receiptNumber ?? ""} for ${amountLabel} from ${ctx.businessName}.`,
         `Service: ${ctx.serviceName}`,
         subtotal != null ? `Subtotal: ${money(subtotal)}` : null,
@@ -722,7 +741,10 @@ export function renderEmailTemplate(
         key,
         subject: `Staff: appointment ${action}`,
         html: layout(content, b),
-        text: `Appointment ${action}: ${ctx.serviceName} with ${ctx.customerName} on ${whenLabel(ctx)}.`,
+        text: [
+          `Appointment ${action}: ${ctx.serviceName} with ${ctx.customerName} on ${whenLabel(ctx)}.`,
+          appointmentFinancialDisplay(ctx, "business").warningText,
+        ].filter(Boolean).join("\n"),
       };
     }
     case "appointment.business": {
@@ -748,6 +770,7 @@ export function renderEmailTemplate(
         html: layout(content, b, { headline: "New appointment booked" }),
         text: [
           `New appointment booked: ${ctx.customerName} — ${ctx.serviceName} with ${ctx.staffName} on ${whenLabel(ctx)}.`,
+          appointmentFinancialDisplay(ctx, "business").warningText,
           `Total ${money(ctx.appointmentTotalCents ?? ctx.amountCents)}.`,
           depositRequired > 0
             ? `Deposit required: ${money(depositRequired)}`

@@ -21,6 +21,6 @@ export function storedTaxDisplay(input: {
       : "Tax",
     // Missing/contradictory rate metadata does not make internally consistent
     // stored amounts wrong. A neutral Tax label does not claim rate provenance.
-    warning: totalMismatch ? "Financial amounts need review." : null,
+    totalMismatch,
   };
 }
