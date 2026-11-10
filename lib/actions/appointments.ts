@@ -298,15 +298,24 @@ export async function createAppointment(
 
   const packageId = String(formData.get("package_id") ?? "").trim() || null;
   const packageName = String(formData.get("package_name") ?? "").trim() || null;
-  const priceCentsRaw = Number(formData.get("price_cents"));
+  // Missing stamps request server pricing. Existing Booking Sheet forms encode
+  // explicit zero as ""; retain that quote and compare it against server pricing.
+  // Other malformed supplied stamps must not be rounded or bypass comparison.
+  for (const key of ["price_cents", "tax_cents", "deposit_cents"]) {
+    const value = formData.get(key);
+    if (value != null && (!Number.isSafeInteger(Number(value)) || Number(value) < 0)) {
+      return { error: "Booking pricing is invalid. Refresh and review the total." };
+    }
+  }
+  const priceCentsRaw = formData.has("price_cents") ? Number(formData.get("price_cents")) : NaN;
   const priceCents =
-    Number.isFinite(priceCentsRaw) && priceCentsRaw > 0 ? priceCentsRaw : undefined;
-  const taxCentsRaw = Number(formData.get("tax_cents"));
+    Number.isFinite(priceCentsRaw) && priceCentsRaw >= 0 ? priceCentsRaw : undefined;
+  const taxCentsRaw = formData.has("tax_cents") ? Number(formData.get("tax_cents")) : NaN;
   const taxCents =
     Number.isFinite(taxCentsRaw) && taxCentsRaw >= 0
       ? Math.round(taxCentsRaw)
       : undefined;
-  const depositCentsRaw = Number(formData.get("deposit_cents"));
+  const depositCentsRaw = formData.has("deposit_cents") ? Number(formData.get("deposit_cents")) : NaN;
   const depositCents =
     Number.isFinite(depositCentsRaw) && depositCentsRaw >= 0
       ? Math.round(depositCentsRaw)

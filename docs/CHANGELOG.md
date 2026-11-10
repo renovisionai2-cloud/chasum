@@ -1,5 +1,20 @@
 # Chasum Changelog
 
+## 2026-11-09 — LOCAL P1 audit correction; fresh-session review pending
+
+- Removed the misleading Taxable control; retain existing booleans on edit and the established true create default, rejecting retired form submissions before writing. Full taxable/exempt/zero-rated policy remains a separate LAUNCH REQUIRED decision.
+- Added self-contained concurrent30-second browser/10-second Vite/45-second hook teardown with nine tests covering rejection including undefined, stalled resources, late rejection and timer cleanup. All12 service-editor cases and64 Reception cases remain.
+- Removed current-catalog and rounded-ratio receipt tax attribution while preserving monetary expressions; removed the unused permissive percent helper. Neutral Tax now suppresses rate-only warnings for consistent cents. Genuine-mismatch copy remains PO-gated.
+- Preserved the original audited patch/report/evidence; added [correction report](reviews/service-tax-audit-correction-2026-11-09.md) and revised immutable candidate manifest. Local expanded suite108 files/1,285 tests PASS, including64 Reception and12 editor cases; focused78, build/typecheck/changed-file lint and release controls PASS. Five Production column-existence facts are supplied independent observations, not repeat queries. The reused Claude session does not satisfy fresh-session review; Linux Node22/device/operator gates remain open.
+- No hosted/financial/customer/SQL/release change, commit/push/PR publication or automatic dispatch. All accepted financial and protected candidate decisions remain intact.
+
+## 2026-11-09 — Historical original LOCAL P1 service-tax candidate
+
+- Prepared an isolated uncommitted candidate on main `4a394a9f`: explicit business-rate inheritance/human percentage service input, server-side validation, tenant-scoped session quote verification, exact zero preservation and refusal to omit verified financial fields during compatibility saves.
+- Preserved stored historical financial amounts; notification/receipt rendering no longer borrows today's default rate as historical fact, and flags contradictory supplied rate/total metadata. Public RPC, durable snapshots, ledger/payment/invoice behavior and financial classifications remain protected.
+- Local1253-test/105-file suite PASS including64 unchanged Reception and12 new service-editor Chromium/WebKit responsive cases; final writer recheck45 PASS, build/typecheck/changed-file lint PASS. Full lint retains29 errors/11 warnings in unchanged baseline files. No CI/device/operator acceptance is inferred.
+- Added [root-cause/correction design](reviews/service-tax-integrity-2026-11-09.md), synthetic evidence and continuity updates. Existing taxable/zero-rate gap and broader tax-readiness concerns remain explicit gates. No hosted data change, historical correction, customer message, migration, commit/push/PR publication, merge, deployment or automatic audit dispatch. Protected PRs#190/#188/#187 and N06 are unchanged.
+
 ## 2026-10-29 — Reception #174 engineering acceptance and LOCAL governance reconciliation
 
 - Published engineering HEAD `bb1baf105232eb75e4cd7ee4f159cdb54237c360`, tree `a14a049acac5e90e33163182b72a06a815df59dc`: independent audits and browser-harness correction accepted; [Linux / Node 22 Quality 40810221078](https://github.com/renovisionai2-cloud/chasum/actions/runs/40810221078) PASS with 2,385 passed / 0 failed / 36 historical PostgreSQL skips and 86/86 required browser cases passed. Build/typecheck, Vercel and Competitive Product Gate passed; protected integration Preview READY. PR #174 remains OPEN / DRAFT / UNMERGED.

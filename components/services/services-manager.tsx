@@ -1,6 +1,7 @@
 "use client";
 
 import { ServiceLocationStatus } from "@/components/services/service-location-status";
+import { ServiceTaxFields } from "@/components/services/service-tax-fields";
 import { isServiceOfferedAtLocation, type OperatorServiceCatalogItem } from "@/lib/services/operator-catalog";
 import { ServiceCategoriesPanel } from "@/components/services/service-categories-panel";
 import { Button } from "@/components/ui/button";
@@ -309,27 +310,11 @@ function ServiceForm({
               </p>
             ) : null}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="tax_rate_bps">Tax rate (bps)</Label>
-            <Input
-              id="tax_rate_bps"
-              name="tax_rate_bps"
-              type="number"
-              min={0}
-              step={1}
-              defaultValue={service?.tax_rate_bps ?? 0}
-            />
-          </div>
+          <ServiceTaxFields rateBps={service?.tax_rate_bps ?? 0} />
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="taxable"
-            value="on"
-            defaultChecked={service?.taxable ?? true}
-          />
-          Taxable
-        </label>
+        <p className="text-xs text-muted-foreground">
+          Tax exemptions are not currently supported. The tax rate above applies.
+        </p>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"

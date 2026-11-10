@@ -53,16 +53,31 @@ export function parseTaxPercentInput(
   return { ok: true, percent, rateBps };
 }
 
-/** Legacy helper — prefer parseTaxPercentInput for validation. */
-export function bpsFromPercentInput(
-  raw: FormDataEntryValue | null | undefined,
-): number {
-  const parsed = parseTaxPercentInput(raw);
-  return parsed.ok ? parsed.rateBps : 0;
-}
-
 /** Display rate_bps as a human percent string, e.g. 1300 → "13.00%". */
 export function formatTaxRatePercent(rateBps: number | null | undefined): string {
   const bps = Math.max(0, Math.round(Number(rateBps ?? 0)));
   return `${(bps / 100).toFixed(2)}%`;
+}
+
+/** Service storage uses zero for inheritance, never an explicit zero-rate override. */
+export function parseServiceTaxInput(form: FormData):
+  | { ok: true; rateBps: number }
+  | { ok: false; error: string } {
+  if (form.has("tax_rate_bps")) {
+    return { ok: false, error: "Refresh the service form and choose a tax rate in percent." };
+  }
+  const mode = form.get("tax_mode");
+  if (mode === "inherit") return { ok: true, rateBps: 0 };
+  if (mode !== "custom") return { ok: false, error: "Choose the business tax rate or a custom percentage." };
+  const raw = String(form.get("tax_rate_percent") ?? "").trim();
+  // Do not turn a decimal comma into a different rate, or silently round away precision.
+  if (!/^\d+(?:\.\d{1,2})?\s*%?$/.test(raw)) {
+    return { ok: false, error: "Enter a percentage with up to two decimal places, using a decimal point." };
+  }
+  const parsed = parseTaxPercentInput(raw);
+  if (!parsed.ok) return parsed;
+  if (parsed.rateBps === 0) {
+    return { ok: false, error: "A zero service override inherits the business rate. Choose Inherit business tax rate." };
+  }
+  return { ok: true, rateBps: parsed.rateBps };
 }

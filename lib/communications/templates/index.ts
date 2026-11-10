@@ -1,4 +1,5 @@
 import { getAppUrl } from "@/lib/env";
+import { storedTaxDisplay } from "@/lib/commerce/stored-tax-display";
 import { BRAND_NAME } from "@/lib/brand/assets";
 import {
   formatAppointmentEmailDate,
@@ -198,6 +199,8 @@ function financialBlock(
       : Math.max(0, total - depositPaid);
 
   const rows: string[] = [];
+  const taxDisplay = storedTaxDisplay({ ...ctx, appointmentTotalCents: total });
+  if (taxDisplay.warning) rows.push(detailRow("Financial review", escapeHtml(taxDisplay.warning)));
   if (subtotal != null) {
     rows.push(
       detailRow(
@@ -207,13 +210,7 @@ function financialBlock(
     );
   }
   if (tax != null && tax > 0) {
-    const rateBps = Math.max(0, Number(ctx.taxRateBps ?? 0));
-    const label = (ctx.taxLabel ?? "Tax").trim() || "Tax";
-    const taxHeading =
-      rateBps > 0
-        ? `${label} (${(rateBps / 100).toFixed(rateBps % 100 === 0 ? 0 : 2)}%)`
-        : label;
-    rows.push(detailRow(taxHeading, money(tax)));
+    rows.push(detailRow(taxDisplay.heading, money(tax)));
   }
   rows.push(detailRow("Appointment total", `<strong>${money(total)}</strong>`));
 
@@ -576,13 +573,8 @@ export function renderEmailTemplate(
       const remaining = ctx.remainingBalanceCents;
       const subtotal = ctx.subtotalCents;
       const tax = ctx.taxCents;
-      const rateBps = Math.max(0, Number(ctx.taxRateBps ?? 0));
-      const taxHeading =
-        tax != null && tax > 0
-          ? rateBps > 0
-            ? `${(ctx.taxLabel ?? "Tax").trim() || "Tax"} (${(rateBps / 100).toFixed(rateBps % 100 === 0 ? 0 : 2)}%)`
-            : (ctx.taxLabel ?? "Tax").trim() || "Tax"
-          : null;
+      const taxDisplay = storedTaxDisplay({ ...ctx, appointmentTotalCents: total });
+      const taxHeading = taxDisplay.heading;
       const supportEmail = resolveCustomerContactEmail(b);
       const content = `
         <p style="margin:0 0 16px;">Hi ${escapeHtml(ctx.customerName)},</p>
@@ -590,6 +582,7 @@ export function renderEmailTemplate(
         <table role="presentation" style="width:100%;border-collapse:collapse;margin:12px 0;">
           ${detailRow("Service", escapeHtml(ctx.serviceName))}
           ${ctx.startTime ? detailRow("Appointment", escapeHtml(whenLabel(ctx))) : ""}
+          ${taxDisplay.warning ? detailRow("Financial review", escapeHtml(taxDisplay.warning)) : ""}
           ${subtotal != null ? detailRow("Subtotal", money(subtotal)) : ""}
           ${taxHeading && tax != null && tax > 0 ? detailRow(taxHeading, money(tax)) : ""}
           ${total != null ? detailRow("Appointment total", `<strong>${money(total)}</strong>`) : ""}
@@ -604,6 +597,7 @@ export function renderEmailTemplate(
         ${appointmentContactCta(b, ctx)}`;
       const amountLabel = money(ctx.amountCents);
       const textLines = [
+        taxDisplay.warning,
         `Receipt ${ctx.receiptNumber ?? ""} for ${amountLabel} from ${ctx.businessName}.`,
         `Service: ${ctx.serviceName}`,
         subtotal != null ? `Subtotal: ${money(subtotal)}` : null,

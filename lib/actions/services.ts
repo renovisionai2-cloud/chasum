@@ -20,6 +20,7 @@ import {
 } from "@/lib/services/operator-catalog";
 import { revalidatePath } from "next/cache";
 import { serviceWriteError } from "@/lib/services/commercial-readiness";
+import { parseServiceTaxInput } from "@/lib/commerce/tax-rate-percent";
 
 function revalidateServices() {
   revalidatePath("/dashboard/services");
@@ -78,6 +79,7 @@ function buildServicePayload(
   formData: FormData,
   businessId: string,
   locationId: string,
+  taxRateBps: number,
   options?: { includeId?: boolean },
 ) {
   const visibility = parseVisibility(formData);
@@ -112,10 +114,9 @@ function buildServicePayload(
     online_booking: visibility === "online",
     confirmation_mode: parseConfirmationMode(formData),
     online_payment_required: checked(formData, "online_payment_required"),
-    taxable: checked(formData, "taxable"),
     deposit_required: depositRequired,
     deposit_cents: depositRequired ? depositCents : 0,
-    tax_rate_bps: optionalInt(formData, "tax_rate_bps") ?? 0,
+    tax_rate_bps: taxRateBps,
     sort_order: Number(formData.get("sort_order")) || 0,
     max_appointments_per_day: optionalInt(formData, "max_appointments_per_day"),
     min_booking_notice_minutes: optionalInt(
@@ -135,6 +136,9 @@ const CORE_SERVICE_KEYS = [
   "category",
   "duration_minutes",
   "price",
+  // A compatibility retry must never silently discard the chosen tax settings.
+  "taxable",
+  "tax_rate_bps",
   "color",
   "buffer_before_minutes",
   "buffer_after_minutes",
@@ -394,7 +398,12 @@ export async function createService(
 
   // Creating a Service through its commercial-settings form is an explicit
   // configuration decision. Imported Services never use this action.
-  const payload = { ...buildServicePayload(formData, business.id, primaryLocation), commercial_settings_reviewed: true };
+  const tax = parseServiceTaxInput(formData);
+  if (!tax.ok) return { error: tax.error };
+  if (formData.has("taxable")) return { error: "Refresh the service form. Tax exemption settings are not editable yet." };
+  // Preserve the existing true creation default; absence of the retired control
+  // must not silently become false. This is not an exemption policy.
+  const payload = { ...buildServicePayload(formData, business.id, primaryLocation, tax.rateBps), taxable: true, commercial_settings_reviewed: true };
 
   let insertedId: string | null = null;
   let { data, error } = await supabase
@@ -446,7 +455,12 @@ export async function updateService(
     (await getActiveLocationId());
   const locationIds = formData.getAll("location_ids").map(String).filter(Boolean);
 
-  const payload = buildServicePayload(formData, business.id, primaryLocation);
+  const tax = parseServiceTaxInput(formData);
+  if (!tax.ok) return { error: tax.error };
+  if (formData.has("taxable")) return { error: "Refresh the service form. Tax exemption settings are not editable yet." };
+  // Omit taxable entirely on update, including compatibility retry, preserving
+  // the stored value even if another editor changed it after this form loaded.
+  const payload = buildServicePayload(formData, business.id, primaryLocation, tax.rateBps);
   // Keep primary location in sync for booking RPCs
   const updatePayload = {
     ...payload,

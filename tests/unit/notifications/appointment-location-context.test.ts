@@ -189,6 +189,16 @@ beforeEach(() => {
 });
 
 describe("appointment notify context uses the appointment location only", () => {
+  it("keeps saved cents and does not label them with today's business rate", async () => {
+    rows.appointments[0].price_cents = 11600;
+    rows.appointments[0].tax_cents = 15;
+    rows.tax_rates = [{ business_id: BIZ_A, name: "HST", rate_bps: 1300, is_default: true, is_active: true }];
+    const before = JSON.stringify(rows);
+    const ctx = await loadAppointmentNotifyContext(APPT, BIZ_A);
+    expect(ctx).toMatchObject({ subtotalCents: 11600, taxCents: 15, appointmentTotalCents: 11615, taxRateBps: null, taxLabel: null });
+    expect(JSON.stringify(rows)).toBe(before);
+  });
+
   it("loads Location A address and never Location B / default / foreign address", async () => {
     const ctx = await loadAppointmentNotifyContext(APPT, BIZ_A);
     expect(ctx).not.toBeNull();

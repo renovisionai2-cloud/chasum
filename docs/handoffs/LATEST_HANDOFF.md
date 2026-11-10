@@ -1,10 +1,26 @@
 # Chasum — Latest Development Handoff
 
-**Updated:** 2026-10-29 (America/Toronto), local Reception #174 governance/documentation reconciliation; no remote, hosted, runtime, database or financial mutation.
+**Updated:** 2026-11-09 (America/Toronto), isolated P1 service-tax audit correction; local/unpublished, no hosted/runtime/database/financial mutation.
 **Purpose:** recover the next action in 5–10 minutes without old-chat reconstruction.
 **First read:** [Current Project State](../CURRENT_PROJECT_STATE.md), which owns the Chasum mission, the permanent Product Owner principle, the multi-location operating model, Summer doctrine, the World-Class Standard and current agent governance.
 
-## Current continuation — local governance child, manual delta audit next
+## Current continuation — corrected P1 candidate, fresh-session audit next
+
+Read the [correction report](../reviews/service-tax-audit-correction-2026-11-09.md) and [revised evidence](../validation/service-tax-integrity-audit-correction-2026-11-09/README.md). Worktree `/Users/darshan/.codex/worktrees/service-tax-integrity-local/chasum`, branch `codex/service-tax-integrity-local`, base `4a394a9f290dca9377d68f2c704b0338277625d8`; uncommitted. Original patch `b1c4a791e85cf32e98b90b0c7c56f1f14bb934ffddb800e6dfb3ffe30e237e9b` and original evidence/report are retained; the revised manifest is the next audit identity.
+
+C1 UI containment complete, broader tax treatment LAUNCH REQUIRED. C2 bounded concurrent browser cleanup and rejection/timeout proof complete. C3 five column-existence preconditions supplied by separate read-only verification, no repeat query. C4 neutral Tax complete; arithmetic-mismatch wording requires PO decision. C5 receipt provenance removed without amount changes. C6 unused fail-open helper removed. C7 Linux Node22/device/operator acceptance unexecuted. Local expanded suite **108 files /1,285 tests PASS** including64 Reception and12 editor cases; focused78, build/typecheck/changed-file lint and release controls PASS. Exact results and full file inventory are in the revised evidence; no local success is CI acceptance.
+
+The previous Claude session was reused and does not meet the fresh-session gate. Next authorization is Darshan's manual fresh-session independent audit of the exact revised patch/base, followed by reconciliation of open policy/copy/source choices. No automatic agent dispatch. No authority for commit/push, protected PRs, N06 mutation, deployment, schema migration, GVM service edit, historical update, payment/invoice/receipt mutation or customer communication. Original guard/rollback and historical reconciliation design remain proposals; accepted financial boundaries remain unchanged.
+
+## Historical original P1 candidate continuation
+
+Read the current board and [tax candidate/correction design](../reviews/service-tax-integrity-2026-11-09.md), then [evidence](../validation/service-tax-integrity-2026-11-09/README.md). Worktree `/Users/darshan/.codex/worktrees/service-tax-integrity-local/chasum`, branch `codex/service-tax-integrity-local`, uncommitted patch on verified main `4a394a9f290dca9377d68f2c704b0338277625d8`. Exact patch and per-file SHA-256 inventory are in that evidence directory; no commit or PR is published. Canonical build-info confirms Production source `ab4e41f530d2a2da65bda429407e0f84446f9fac`; full deployment-ID corroboration is not claimed.
+
+Local engineering proof:1253 tests/105 files PASS (including64 Reception plus12 service-editor responsive cases); final writer recheck45 PASS; final build/typecheck/changed-file lint PASS. Full lint remains29 errors/11 warnings in unchanged files. This is macOS/Node26 synthetic evidence, not CI or device acceptance. The supplied affected Production appointment remains11600+15=11615; no hosted repair or email occurred. Changing service13→0 is only a guarded proposal and cannot repair prior history.
+
+Blockers/next decisions: Darshan manually dispatches Claude audit of the exact patch, then reconciles the existing ignored-taxable/zero-rate representation gap, historical tax metadata, catalog concurrency and main-versus-Production source choice. A Production-based backport is not authorized by this main-based local candidate. Historical appointment amount/customer communication decisions require separate business/accounting evidence and PO approval. No automatic specialist dispatch, new Preview, SQL/migration, retained-data test, provider/worker activation, financial mutation, publication, merge or release. PR#190/#188/#187 and original clean N06 worktree stay protected; #190 CI reruns remain unperformed under the earlier blocked task.
+
+## Historical October 29 continuation — local governance child
 
 Reception integration [PR #174](https://github.com/renovisionai2-cloud/chasum/pull/174), branch `cursor/reception-main-integration-local`, is OPEN / DRAFT / UNMERGED at accepted engineering HEAD `bb1baf105232eb75e4cd7ee4f159cdb54237c360`, tree `a14a049acac5e90e33163182b72a06a815df59dc`. Independent audits and the browser-harness correction are accepted. Genuine [Quality 40810221078](https://github.com/renovisionai2-cloud/chasum/actions/runs/40810221078), Ubuntu / Node 22, passed: 2,385 tests / 0 failures / 36 historical PostgreSQL skips; required browser cases 86/86 PASS (64 M1C, 20 footer, 2 top-navigation; Chromium and WebKit). Build/typecheck, Vercel and Competitive Product Gate passed. Exact integration Preview `https://chasum-p6to8kcq7-renovisionappcom.vercel.app`, deployment `dpl_3Anj16Spw3fN7hVxKmYQ9yM5EaNy`, is READY; physical-device/operator acceptance is incomplete.
 
