@@ -94,7 +94,7 @@ function emitDiagnostic(payload: Record<string, unknown>) {
   }
 }
 type TeardownEvent =
-  | "FIXTURE_TEARDOWN_BEGIN" | "FIXTURE_TEARDOWN_COMPLETE"
+  | "FIXTURE_TEARDOWN_BEGIN" | "FIXTURE_TEARDOWN_COMPLETE" | "FIXTURE_TEARDOWN_ERROR"
   | CloseEvent;
 function emitTeardown(
   event: TeardownEvent,
@@ -410,10 +410,11 @@ afterAll(async () => {
       emit: (event, detail) => emitTeardown(event, detail),
     });
   } catch (error) {
-    cleanupErrors.push(error);
+    cleanupErrors.push(...(error instanceof AggregateError ? error.errors : [error]));
   }
-  lifecycle.add("FIXTURE_TEARDOWN_COMPLETE", { cleanupErrors: cleanupErrors.length });
-  emitTeardown("FIXTURE_TEARDOWN_COMPLETE", { cleanupErrors: cleanupErrors.length });
+  const outcome = cleanupErrors.length ? "FIXTURE_TEARDOWN_ERROR" : "FIXTURE_TEARDOWN_COMPLETE";
+  lifecycle.add(outcome, { cleanupErrors: cleanupErrors.length });
+  emitTeardown(outcome, { cleanupErrors: cleanupErrors.length });
   emitDiagnostic({ event: "FIXTURE_LIFECYCLE", lifecycle: lifecycle.snapshot() });
   if (cleanupErrors.length) throw new AggregateError(cleanupErrors, "M1C fixture cleanup failed");
   if (evidence) await writeFile(resolve(evidence, "browser-results.json"), JSON.stringify(results, null, 2) + "\n");

@@ -10,6 +10,8 @@ export type CloseDiagnostic = {
   component: CloseComponent;
   timeoutMs: number;
   durationMs?: number;
+  status?: CloseOutcome["status"];
+  terminationConfirmed?: false;
   reason?: "REJECTED" | "TIMEOUT";
   message?: string;
 };
@@ -20,10 +22,11 @@ type CloseResource = {
   close: () => Promise<void>;
 };
 
-type CloseOutcome =
-  | { status: "complete" }
+type CloseOutcome = { component: CloseComponent } & (
+  | { status: "completed" }
   | { status: "rejected"; error: unknown }
-  | { status: "timeout" };
+  | { status: "timed_out"; timeoutMs: number }
+);
 
 export class ResourceCloseTimeoutError extends Error {
   constructor(
@@ -38,7 +41,8 @@ export class ResourceCloseTimeoutError extends Error {
 }
 
 function errorMessage(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
+  try { return (error instanceof Error ? error.message : String(error)).slice(0, 300); }
+  catch { return "Unprintable rejection"; }
 }
 
 function emitSafely(
@@ -57,7 +61,7 @@ async function closeWithDeadline(
   resource: CloseResource,
   timeoutMs: number,
   emit: CloseDiagnosticEmitter,
-): Promise<unknown | undefined> {
+): Promise<CloseOutcome> {
   const startedAt = performance.now();
   emitSafely(emit, `${resource.component}_CLOSE_BEGIN`, {
     component: resource.component,
@@ -68,41 +72,45 @@ async function closeWithDeadline(
   // outcome. If the deadline wins, a later rejection remains observed rather
   // than becoming an unhandled rejection.
   const closeOutcome: Promise<CloseOutcome> = Promise.resolve()
-    .then(resource.close)
+    .then(() => resource.close())
     .then<CloseOutcome, CloseOutcome>(
-      () => ({ status: "complete" }),
-      (error: unknown) => ({ status: "rejected", error }),
+      () => ({ component: resource.component, status: "completed" }),
+      (error: unknown) => ({ component: resource.component, status: "rejected", error }),
     );
 
   let deadline: ReturnType<typeof setTimeout> | undefined;
   const timeoutOutcome = new Promise<CloseOutcome>((resolve) => {
-    deadline = setTimeout(() => resolve({ status: "timeout" }), timeoutMs);
+    deadline = setTimeout(() => resolve({ component: resource.component, status: "timed_out", timeoutMs }), timeoutMs);
   });
 
-  const outcome = await Promise.race([closeOutcome, timeoutOutcome]);
-  if (deadline) clearTimeout(deadline);
+  let outcome: CloseOutcome;
+  try { outcome = await Promise.race([closeOutcome, timeoutOutcome]); }
+  finally { if (deadline !== undefined) clearTimeout(deadline); }
   const durationMs = Math.round((performance.now() - startedAt) * 10) / 10;
 
-  if (outcome.status === "complete") {
+  if (outcome.status === "completed") {
     emitSafely(emit, `${resource.component}_CLOSE_COMPLETE`, {
       component: resource.component,
       timeoutMs,
       durationMs,
+      status: outcome.status,
     });
-    return;
+    return outcome;
   }
 
-  const error = outcome.status === "timeout"
+  const error = outcome.status === "timed_out"
     ? new ResourceCloseTimeoutError(resource.component, timeoutMs)
     : outcome.error;
   emitSafely(emit, `${resource.component}_CLOSE_ERROR`, {
     component: resource.component,
     timeoutMs,
     durationMs,
-    reason: outcome.status === "timeout" ? "TIMEOUT" : "REJECTED",
+    status: outcome.status,
+    terminationConfirmed: false,
+    reason: outcome.status === "timed_out" ? "TIMEOUT" : "REJECTED",
     message: errorMessage(error),
   });
-  return error;
+  return outcome;
 }
 
 export async function closeFixtureResources({
@@ -118,17 +126,20 @@ export async function closeFixtureResources({
   browserTimeoutMs?: number;
   viteTimeoutMs?: number;
 }) {
-  const errors = (
-    await Promise.all(
-      browsers.map((browser) => closeWithDeadline(browser, browserTimeoutMs, emit)),
-    )
-  ).filter((error) => error !== undefined);
+  const outcomes = await Promise.all(
+    browsers.map((browser) => closeWithDeadline(browser, browserTimeoutMs, emit)),
+  );
 
   // Vite is always attempted after every browser has either settled or reached
   // its explicit deadline. A timed-out browser remains a failure; the deadline
   // is not treated as proof that its process terminated.
-  const viteError = await closeWithDeadline(vite, viteTimeoutMs, emit);
-  if (viteError !== undefined) errors.push(viteError);
+  outcomes.push(await closeWithDeadline(vite, viteTimeoutMs, emit));
+  // Rejection values are data, never a success sentinel: undefined/null still fail.
+  const errors = outcomes.filter((outcome) => outcome.status !== "completed").map((outcome) =>
+    outcome.status === "timed_out"
+      ? new ResourceCloseTimeoutError(outcome.component, outcome.timeoutMs)
+      : new Error(`${outcome.component} close rejected: ${errorMessage(outcome.error)}`, { cause: outcome.error }),
+  );
 
   if (errors.length) {
     throw new AggregateError(errors, "M1C fixture cleanup failed");
