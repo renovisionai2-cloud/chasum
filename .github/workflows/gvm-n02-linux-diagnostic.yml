@@ -1,0 +1,156 @@
+name: GVM N02 Linux diagnostic — single execution
+
+on:
+  push:
+    branches: [codex/gvm-n02-linux-diagnostic-20261111]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gvm-n02-linux-diagnostic-20261111
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    if: >-
+      github.repository == 'renovisionai2-cloud/chasum' &&
+      github.ref == 'refs/heads/codex/gvm-n02-linux-diagnostic-20261111' &&
+      github.event.created == true && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      DEBUG_COLORS: "0"
+    steps:
+      - name: Checkout diagnostic tools
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Checkout immutable source under examination
+        uses: actions/checkout@v4
+        with:
+          ref: f72af50366224ac2630053e16d4b0cac443ff253
+          path: source
+          persist-credentials: false
+
+      - name: Verify source, tree, diagnostic-only scope and empty credential configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p evidence
+          test "$(git -C source rev-parse HEAD)" = f72af50366224ac2630053e16d4b0cac443ff253
+          test "$(git -C source rev-parse HEAD^{tree})" = cffaea928abe6c58626a631ea92333857b7cf4b6
+          test "$(git -C diagnostic rev-parse HEAD^)" = f72af50366224ac2630053e16d4b0cac443ff253
+          python3 - <<'PY'
+          import json, os, pathlib, subprocess
+          allowed = {
+            ".github/workflows/gvm-n02-linux-diagnostic.yml",
+            "scripts/diagnostics/gvm-n02-linux/clipboard.mjs",
+            "scripts/diagnostics/gvm-n02-linux/run-suite.mjs",
+            "scripts/diagnostics/gvm-n02-linux/README.md",
+          }
+          changed = set(subprocess.check_output(["git","-C","diagnostic","diff","--name-only","HEAD^","HEAD"], text=True).splitlines())
+          assert changed == allowed, changed
+          prohibited = ["SUPABASE_SERVICE_ROLE_KEY","NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY","DATABASE_URL","SUPABASE_DB_URL","VERCEL_TOKEN","RESEND_API_KEY","TWILIO_AUTH_TOKEN","SENTRY_AUTH_TOKEN"]
+          assert not any(os.environ.get(k) for k in prohibited), "Hosted credentials must be absent"
+          info = {
+            "source": subprocess.check_output(["git","-C","source","rev-parse","HEAD"], text=True).strip(),
+            "tree": subprocess.check_output(["git","-C","source","rev-parse","HEAD^{tree}"], text=True).strip(),
+            "diagnosticCommit": os.environ["GITHUB_SHA"],
+            "runId": os.environ["GITHUB_RUN_ID"],
+            "attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+            "runnerOS": os.environ["RUNNER_OS"],
+            "osRelease": pathlib.Path("/etc/os-release").read_text(),
+            "changedFiles": sorted(changed),
+            "hostedCredentialsConfigured": False,
+          }
+          pathlib.Path("evidence/identity.json").write_text(json.dumps(info, indent=2)+"\n")
+          PY
+
+      - name: Set up exact Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.23.4"
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+
+      - name: Install locked dependencies
+        working-directory: source
+        timeout-minutes: 7
+        run: npm ci 2>&1 | tee ../evidence/npm-ci.log
+
+      - name: Build immutable source for fixture CSS and fonts
+        working-directory: source
+        timeout-minutes: 7
+        run: npm run build 2>&1 | tee ../evidence/build.log
+
+      - name: Install locked Chromium and WebKit
+        working-directory: source
+        timeout-minutes: 7
+        run: ./node_modules/.bin/playwright install --with-deps chromium webkit 2>&1 | tee ../evidence/browser-install.log
+
+      - name: Record runtime and verify source remains unchanged
+        id: prepared
+        working-directory: source
+        run: |
+          node --version | tee ../evidence/node-version.txt
+          npm --version | tee ../evidence/npm-version.txt
+          node -p 'JSON.stringify({playwright:require("playwright-core/package.json").version,vitest:require("vitest/package.json").version},null,2)' > ../evidence/versions.json
+          cp node_modules/playwright-core/browsers.json ../evidence/browser-revisions.json
+          sha256sum package-lock.json > ../evidence/lockfile.sha256
+          git diff --exit-code HEAD
+          test -z "$(git status --porcelain=v1)"
+
+      # These are three different observations in ONE run, never retries.
+      # A failed test step remains failed while the other diagnostics collect evidence.
+      - name: Reception unchanged — lifecycle and process evidence
+        if: ${{ !cancelled() && steps.prepared.outcome == 'success' }}
+        working-directory: source
+        timeout-minutes: 9
+        run: node ../diagnostic/scripts/diagnostics/gvm-n02-linux/run-suite.mjs reception ../evidence
+
+      - name: N02 unchanged — original assertions and browser matrix
+        if: ${{ !cancelled() && steps.prepared.outcome == 'success' }}
+        working-directory: source
+        timeout-minutes: 4
+        run: node ../diagnostic/scripts/diagnostics/gvm-n02-linux/run-suite.mjs n02 ../evidence
+
+      - name: Native clipboard observations — readonly and editable sources
+        if: ${{ !cancelled() && steps.prepared.outcome == 'success' }}
+        working-directory: source
+        timeout-minutes: 3
+        run: node ../diagnostic/scripts/diagnostics/gvm-n02-linux/clipboard.mjs ../evidence
+
+      - name: Preserve final source state and evidence hashes
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p evidence
+          git -C source status --porcelain=v1 > evidence/source-status.txt
+          git -C source diff --exit-code HEAD > evidence/source-diff.txt
+          test ! -s evidence/source-status.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          root=Path("evidence")
+          files=sorted(p for p in root.rglob("*") if p.is_file() and p.name!="SHA256SUMS")
+          (root/"SHA256SUMS").write_text("".join(hashlib.sha256(p.read_bytes()).hexdigest()+"  "+str(p.relative_to(root))+"\n" for p in files))
+          PY
+
+      - name: Upload raw evidence even after failed diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gvm-n02-linux-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 14
