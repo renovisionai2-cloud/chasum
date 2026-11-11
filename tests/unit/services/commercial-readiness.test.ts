@@ -8,13 +8,13 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ from: moc
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 beforeEach(() => { vi.clearAllMocks(); const q = { update: mock.update, eq: vi.fn().mockReturnThis(), then: (resolve: (value: unknown) => unknown) => Promise.resolve(mock.result).then(resolve) }; mock.update.mockReturnValue(q); mock.from.mockReturnValue(q); });
 it("returns safe product wording and never automatically reviews imported settings", async () => {
-  const form = new FormData(); form.set("id", "service"); form.set("booking_visibility", "online");
+  const form = new FormData(); form.set("id", "service"); form.set("booking_visibility", "online"); form.set("tax_mode", "inherit");
   expect(await updateService({}, form)).toEqual({ error: commercialReviewMessage });
   expect(mock.update.mock.calls[0][0]).not.toHaveProperty("commercial_settings_reviewed");
   expect(mock.from).toHaveBeenCalledTimes(1);
 });
 it("requires explicit review confirmation to submit readiness", async () => {
-  const form = new FormData(); form.set("id", "service"); form.set("commercial_settings_reviewed", "on");
+  const form = new FormData(); form.set("id", "service"); form.set("commercial_settings_reviewed", "on"); form.set("tax_mode", "inherit");
   await updateService({}, form);
   expect(mock.update.mock.calls[0][0]).toMatchObject({ commercial_settings_reviewed: true });
 });

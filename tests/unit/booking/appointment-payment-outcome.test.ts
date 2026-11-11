@@ -59,6 +59,30 @@ describe("booking payment persistence truth", () => {
     expect(mocks.notify).toHaveBeenCalledWith("appt", { bookingChannel: "staff" });
   });
 
+  it("retains legacy Booking Sheet blank-zero quotes for server verification", async () => {
+    const data = form();
+    data.set("price_cents", ""); data.set("tax_cents", ""); data.set("deposit_cents", "");
+    data.set("payment_mode", "none"); data.set("payment_amount_cents", "0");
+    await createAppointment({}, data);
+    expect(mocks.create).toHaveBeenCalledWith(expect.objectContaining({ priceCents: 0, taxCents: 0, depositCents: 0 }));
+    expect(mocks.record).not.toHaveBeenCalled();
+  });
+
+  it("requests server pricing for absent stamps without inventing explicit zero", async () => {
+    const data = form();
+    data.delete("price_cents"); data.delete("tax_cents"); data.delete("deposit_cents");
+    data.set("payment_mode", "none"); data.set("payment_amount_cents", "0");
+    await createAppointment({}, data);
+    expect(mocks.create).toHaveBeenCalledWith(expect.objectContaining({ priceCents: undefined, taxCents: undefined, depositCents: undefined }));
+    expect(mocks.record).not.toHaveBeenCalled();
+  });
+
+  it.each(["NaN", "15.5", "-1", "Infinity"])("rejects malformed client tax %s before any booking or payment", async (value) => {
+    const data = form(); data.set("tax_cents", value);
+    expect(await createAppointment({}, data)).toHaveProperty("error");
+    expect(mocks.create).not.toHaveBeenCalled(); expect(mocks.record).not.toHaveBeenCalled(); expect(mocks.notify).not.toHaveBeenCalled();
+  });
+
   it("offers manual collection only when no transaction persisted", async () => {
     mocks.record.mockResolvedValue({ ok: false, error: "Synthetic insert failure" });
     const result = await createAppointment({}, form());
