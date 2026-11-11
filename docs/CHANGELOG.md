@@ -1,5 +1,11 @@
 # Chasum Changelog
 
+## 2026-11-11 — GVM-N02 local payment-input recovery (unpublished)
+
+- Reconciled original Draft PR #165 with verified main in a new isolated local two-parent candidate; retained its editing behavior and eleven tests. Prevented unsafe integer cents and decimal conversion loss within the same amount editor.
+- Added local browser and synthetic submission/financial-boundary coverage; documented the unresolved legacy/durable overpayment discrepancy without changing policy or writers.
+- Local validation and protected-scope evidence are recorded in [the recovery report](reviews/gvm-n02-payment-input-recovery-2026-11-11.md). No release, financial acceptance or publication; independent audit and separate financial-policy disposition remain pending.
+
 ## 2026-10-29 — Reception #174 engineering acceptance and LOCAL governance reconciliation
 
 - Published engineering HEAD `bb1baf105232eb75e4cd7ee4f159cdb54237c360`, tree `a14a049acac5e90e33163182b72a06a815df59dc`: independent audits and browser-harness correction accepted; [Linux / Node 22 Quality 40810221078](https://github.com/renovisionai2-cloud/chasum/actions/runs/40810221078) PASS with 2,385 passed / 0 failed / 36 historical PostgreSQL skips and 86/86 required browser cases passed. Build/typecheck, Vercel and Competitive Product Gate passed; protected integration Preview READY. PR #174 remains OPEN / DRAFT / UNMERGED.
