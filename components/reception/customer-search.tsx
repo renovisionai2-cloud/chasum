@@ -2,6 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { getCustomers } from "@/lib/actions/customers";
+import { customerEmailLabel } from "@/lib/customers/contact-identity";
 import { HighlightMatch } from "@/lib/reception/highlight-match";
 import {
   filterCustomersLocal,
@@ -277,11 +278,11 @@ export function CustomerSearch({
                       ) : null}
                       {showResults ? (
                         <HighlightMatch
-                          text={customer.email}
+                          text={customerEmailLabel(customer.email)}
                           query={highlightQuery}
                         />
                       ) : (
-                        customer.email
+                        customerEmailLabel(customer.email)
                       )}
                     </span>
                   </button>

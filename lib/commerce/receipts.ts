@@ -2,6 +2,7 @@ import { writeCommerceAudit } from "@/lib/commerce/audit";
 import { mapReceipt, mapTransaction } from "@/lib/commerce/mappers";
 import type { CommerceReceipt } from "@/lib/commerce/types";
 import { PAYMENT_METHOD_LABELS } from "@/lib/commerce/types";
+import { isEligibleCustomerEmail, normalizeEmail } from "@/lib/customers/contact-identity";
 import type { AppointmentTemplateContext, SendResult } from "@/lib/communications/types";
 import { originalReceiptIntentId, newSendIntentId } from "@/lib/communications/intent-identity";
 import { workerReliabilityEnabled } from "@/lib/communications/reliability-config";
@@ -87,9 +88,10 @@ export async function buildReceiptEmailContext(input: {
     .eq("id", input.businessId)
     .maybeSingle();
 
-  if (!customer?.email) {
+  if (!customer || !isEligibleCustomerEmail(customer.email)) {
     return { ok: false, error: "Customer has no email on file." };
   }
+  const customerEmail = normalizeEmail(customer.email) ?? "";
 
   const method = String(receipt.method);
   const methodLabel =
@@ -206,7 +208,7 @@ export async function buildReceiptEmailContext(input: {
       businessId: input.businessId,
       businessName: business?.name ?? "Business",
       customerName: customer.name ?? "Customer",
-      customerEmail: customer.email,
+      customerEmail,
       customerId: customer.id,
       staffName: "Team",
       serviceName,
@@ -659,13 +661,14 @@ export async function retryPaymentReceiptForAppointment(input: {
     | { id?: string; email?: string | null; name?: string | null }[]
     | null;
   const customer = Array.isArray(customerRel) ? customerRel[0] : customerRel;
-  if (!customer?.email?.trim()) {
+  if (!customer || !isEligibleCustomerEmail(customer.email)) {
     return {
       status: "no_recipient",
       detail: "Customer has no email on file.",
       transactionId: tx.id,
     };
   }
+  const customerEmail = normalizeEmail(customer.email) ?? "";
 
   const receipt = await createReceiptForTransaction({
     businessId: input.businessId,
@@ -690,13 +693,13 @@ export async function retryPaymentReceiptForAppointment(input: {
   let acceptedBefore = receipt.emailStatus === "sent";
   if (workerReliabilityEnabled()) {
     const unresolved = await inspectUnresolvedSendIntent({ businessId: input.businessId,
-      channel: "email", templateKey: "commerce.receipt", to: customer.email.trim(),
+      channel: "email", templateKey: "commerce.receipt", to: customerEmail,
       entityType: "receipt", entityId: receipt.id });
     if (unresolved) return { status: "failed", receiptId: receipt.id, transactionId: tx.id,
       detail: "An earlier receipt send is in progress or uncertain. Reconcile before retrying.",
       deliveryState: unresolved.deliveryState, reconciliationRequired: true, retrySafe: false };
     const prior = await inspectSendIntent({ businessId: input.businessId, channel: "email",
-      templateKey: "commerce.receipt", to: customer.email.trim(),
+      templateKey: "commerce.receipt", to: customerEmail,
       reliability: { intentId: sendIntentId, source: "inline", entityType: "receipt", entityId: receipt.id } });
     if (prior && !prior.success) return { status: "failed",
       detail: "Prior receipt delivery requires reconciliation. No resend attempted.",

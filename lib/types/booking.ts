@@ -412,7 +412,7 @@ export type Customer = {
   id: string;
   business_id: string;
   name: string;
-  email: string;
+  email: string | null;
   phone: string | null;
   address?: string | null;
   notes: string | null;

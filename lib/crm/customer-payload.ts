@@ -5,6 +5,11 @@
  * Membership writes stay gated until the composite-FK design ships. Default OFF.
  */
 
+import {
+  normalizePhoneDisplay,
+  readEmailField,
+} from "@/lib/customers/contact-identity";
+
 export const CUSTOMER_MEMBERSHIP_WRITES_ENABLED = false;
 
 export const CUSTOMER_PROFILE_CONFLICT =
@@ -148,13 +153,18 @@ export function parseCustomerPayload(
   let crmStatus = (formData.get("crm_status") as string)?.trim() || "active";
   if (isVip && crmStatus === "active") crmStatus = "vip";
 
+  const emailField = readEmailField(formData);
   const payload: Record<string, unknown> = {
     name,
     first_name: firstName,
     last_name: lastName,
     preferred_name: preferredName,
-    email: (formData.get("email") as string)?.trim() || "",
-    phone: (formData.get("phone") as string)?.trim() || null,
+    // Absent or empty email is NULL. Never "". Callers reject invalid addresses
+    // before insert; a placeholder re-post is not stored as a new identity.
+    email: emailField.kind === "set" ? emailField.email : null,
+    phone: normalizePhoneDisplay(
+      formData.has("phone") ? String(formData.get("phone") ?? "") : null,
+    ),
     address: (formData.get("address") as string)?.trim() || null,
     photo_url: (formData.get("photo_url") as string)?.trim() || null,
     date_of_birth: (formData.get("date_of_birth") as string)?.trim() || null,

@@ -18,7 +18,8 @@
     "verify:gvm": "node scripts/verify-sprint2-gvm-go-live.mjs",
     "verify:commerce": "node scripts/verify-commerce-engine.mjs",
     "test:stage1b:postgres": "node scripts/verify-stage1b-disposable-postgres.mjs",
-    "test:stage1c:postgres": "node scripts/verify-stage1c-disposable-postgres.mjs"
+    "test:stage1c:postgres": "node scripts/verify-stage1c-disposable-postgres.mjs",
+    "test:issue167:postgres": "node scripts/verify-issue167-disposable-postgres.mjs"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.66.0",
