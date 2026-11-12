@@ -18,7 +18,7 @@ function Fixture() {
       <button type="submit" style={{ minHeight: 44 }}>Submit synthetic booking</button>
       <button type="button" style={{ minHeight: 44 }} onClick={() => setValue({ ...value, amountCents: 2500 })}>Parent amount</button>
       <button type="button" style={{ minHeight: 44 }} onClick={() => { setPrice(20000); setValue({ ...value, amountCents: 8000 }); }}>Parent price</button>
-      <label>Paste source<input aria-label="Paste source" value="12.34" readOnly /></label>
+      <label>Paste source<input aria-label="Paste source" defaultValue="12.34" /></label>
       <output data-testid="count">{count}</output>
       <output data-testid="submitted" style={{ display: "block", overflowWrap: "anywhere" }}>{submitted}</output>
     </form>
