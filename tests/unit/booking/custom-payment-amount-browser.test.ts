@@ -7,6 +7,7 @@ import react from "@vitejs/plugin-react";
 import { chromium, webkit, type Browser } from "playwright-core";
 import { expect as playwrightExpect } from "@playwright/test";
 import { afterAll, beforeAll, expect, it } from "vitest";
+import { createLifecycleDiagnostic } from "./payment-input-browser/lifecycle-diagnostic";
 
 // Real component + built application CSS/fonts. Synthetic form only; no actions,
 // database, provider, credentials, customer data, or hosted network access.
@@ -14,6 +15,7 @@ const browserExpect = playwrightExpect.configure({ timeout: 1500 });
 const root = process.cwd();
 const evidence = process.env.CHASUM_N02_EVIDENCE;
 const browsers: Record<string, Browser> = {};
+const lifecycle = createLifecycleDiagnostic(browsers);
 const metrics: unknown[] = [];
 let server: Server;
 let origin: string;
@@ -54,21 +56,38 @@ beforeAll(async () => {
       res.writeHead(404).end();
     } catch { res.writeHead(500).end(); }
   });
+  lifecycle.attachServer(server);
   await new Promise<void>(done => server.listen(0, "127.0.0.1", done));
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Missing local fixture port");
   origin = `http://127.0.0.1:${address.port}`;
+  lifecycle.emit("BROWSER_LAUNCH_BEGIN", { browser: "chromium" });
   browsers.chromium = await chromium.launch();
+  lifecycle.attachBrowser("chromium", browsers.chromium);
+  lifecycle.emit("BROWSER_LAUNCH_COMPLETE", { browser: "chromium" });
+  lifecycle.emit("BROWSER_LAUNCH_BEGIN", { browser: "webkit" });
   browsers.webkit = await webkit.launch();
+  lifecycle.attachBrowser("webkit", browsers.webkit);
+  lifecycle.emit("BROWSER_LAUNCH_COMPLETE", { browser: "webkit" });
   if (evidence) await mkdir(evidence, { recursive: true });
 });
 
 afterAll(async () => {
-  // Cleanup failures remain failures. No retries or swallowed close errors.
-  const closed = await Promise.allSettled(Object.values(browsers).map(browser => browser.close()));
-  if (server) await new Promise<void>((done, fail) => server.close(error => error ? fail(error) : done()));
-  if (evidence) await writeFile(resolve(evidence, "browser-metrics.json"), JSON.stringify(metrics, null, 2) + "\n");
-  for (const result of closed) if (result.status === "rejected") throw result.reason;
+  lifecycle.beginHook();
+  try {
+    // Original concurrent closes, order, assertions and 10-second hook limit.
+    const closed = await Promise.allSettled(Object.entries(browsers).map(([name, browser]) =>
+      lifecycle.observe(name + ".close", () => browser.close())));
+    if (server) await lifecycle.observe("http.close", () =>
+      new Promise<void>((done, fail) => server.close(error => error ? fail(error) : done())));
+    if (evidence) await lifecycle.observe("evidence.write", () =>
+      writeFile(resolve(evidence, "browser-metrics.json"), JSON.stringify(metrics, null, 2) + "\n"));
+    for (const result of closed) if (result.status === "rejected") throw result.reason;
+    lifecycle.endHook("resolved");
+  } catch (error) {
+    lifecycle.endHook("rejected");
+    throw error;
+  }
 });
 
 for (const engine of ["chromium", "webkit"]) for (const width of [320, 390, 834, 1280]) for (const theme of ["light", "dark"]) {

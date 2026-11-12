@@ -1,0 +1,131 @@
+name: GVM N02 shutdown diagnostic — single execution
+
+on:
+  push:
+    branches: [codex/gvm-n02-shutdown-diagnostic-20261112]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gvm-n02-shutdown-diagnostic-20261112
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    if: >-
+      github.repository == 'renovisionai2-cloud/chasum' &&
+      github.ref == 'refs/heads/codex/gvm-n02-shutdown-diagnostic-20261112' &&
+      github.event.created == true && github.run_attempt == 1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    env:
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      DEBUG_COLORS: "0"
+    steps:
+      - name: Checkout diagnostic descendant
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Verify immutable parent and diagnostic-only scope
+        run: |
+          set -euo pipefail
+          mkdir -p ../evidence
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, subprocess
+          def git(*args): return subprocess.check_output(["git",*args],text=True).strip()
+          base="40515bfa59d1bb035a34c735f7285819d5703f79"
+          assert git("rev-parse","HEAD^")==base
+          assert git("rev-parse","HEAD^{tree}") != "696edc31b75cb1f44246e3858ebb3569eaf43fdc"
+          assert git("rev-parse","HEAD^^{tree}")=="696edc31b75cb1f44246e3858ebb3569eaf43fdc"
+          assert git("show","-s","--format=%P","HEAD")==base
+          allowed={
+            ".github/workflows/gvm-n02-shutdown-diagnostic.yml",
+            "scripts/diagnostics/gvm-n02-shutdown/run-suite.mjs",
+            "tests/unit/booking/payment-input-browser/lifecycle-diagnostic.ts",
+            "tests/unit/booking/custom-payment-amount-browser.test.ts",
+          }
+          assert set(git("diff","--name-only",base,"HEAD").splitlines())==allowed
+          fixture="tests/unit/booking/custom-payment-amount-browser.test.ts"
+          original=subprocess.check_output(["git","show",base+":"+fixture])
+          current=pathlib.Path(fixture).read_bytes()
+          assert original.split(b"for (const engine",1)[1]==current.split(b"for (const engine",1)[1]
+          prohibited=["SUPABASE_SERVICE_ROLE_KEY","NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY","DATABASE_URL","SUPABASE_DB_URL","VERCEL_TOKEN","RESEND_API_KEY","TWILIO_AUTH_TOKEN","SENTRY_AUTH_TOKEN"]
+          assert not any(os.environ.get(k) for k in prohibited), "Hosted credentials must be absent"
+          assert not list(pathlib.Path(".").glob(".env*local"))
+          out=pathlib.Path("../evidence")
+          (out/"diagnostic.patch").write_bytes(subprocess.check_output(["git","diff","--binary","--full-index",base,"HEAD"]))
+          (out/"identity.json").write_text(json.dumps({
+            "parent":base,"applicationSourceTree":"696edc31b75cb1f44246e3858ebb3569eaf43fdc",
+            "diagnosticCommit":git("rev-parse","HEAD"),"diagnosticTree":git("rev-parse","HEAD^{tree}"),
+            "applicationSourceUnchanged":True,"testCaseBytesUnchanged":True,
+            "fixtureCaseSha256":hashlib.sha256(current.split(b"for (const engine",1)[1]).hexdigest(),
+            "changedFiles":sorted(allowed),"hostedCredentialsConfigured":False,
+            "runId":os.environ["GITHUB_RUN_ID"],"attempt":os.environ["GITHUB_RUN_ATTEMPT"],
+            "osRelease":pathlib.Path("/etc/os-release").read_text()
+          },indent=2)+"\n")
+          PY
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22.23.4"
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci 2>&1 | tee ../evidence/npm-ci.log
+
+      - name: Verify release controls
+        run: |
+          node scripts/verify-release-control-config.mjs 2>&1 | tee ../evidence/release-config.log
+          node --test tests/release-control/*.test.mjs 2>&1 | tee ../evidence/release-tests.log
+
+      - name: Typecheck
+        run: npm run typecheck 2>&1 | tee ../evidence/typecheck.log
+
+      - name: Build for fixture CSS and fonts
+        run: npm run build 2>&1 | tee ../evidence/build.log
+
+      - name: Install pinned browsers
+        run: ./node_modules/.bin/playwright install --with-deps chromium webkit 2>&1 | tee ../evidence/browser-install.log
+
+      - name: Record versions and verify clean source
+        run: |
+          node -p 'JSON.stringify({node:process.version,playwright:require("playwright-core/package.json").version,vitest:require("vitest/package.json").version},null,2)' > ../evidence/versions.json
+          cp node_modules/playwright-core/browsers.json ../evidence/browser-revisions.json
+          sha256sum package-lock.json > ../evidence/lockfile.sha256
+          git diff --exit-code HEAD
+          test -z "$(git status --porcelain)"
+
+      - name: Serial full suite — original N02 hook deadline and lifecycle diagnostics
+        run: node scripts/diagnostics/gvm-n02-shutdown/run-suite.mjs ../evidence
+
+      - name: Preserve source state and evidence even after failure
+        if: always()
+        run: |
+          mkdir -p ../evidence
+          git status --porcelain > ../evidence/source-status.txt
+          git diff --exit-code HEAD > ../evidence/source-diff.txt
+          test ! -s ../evidence/source-status.txt
+          python3 - <<'PY'
+          import hashlib,pathlib
+          root=pathlib.Path("../evidence")
+          files=sorted(p for p in root.rglob("*") if p.is_file() and p.name!="SHA256SUMS")
+          (root/"SHA256SUMS").write_text("".join(hashlib.sha256(p.read_bytes()).hexdigest()+"  "+str(p.relative_to(root))+"\n" for p in files))
+          PY
+
+      - name: Upload evidence including genuine failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gvm-n02-shutdown-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: ../evidence/
+          if-no-files-found: error
+          retention-days: 14
