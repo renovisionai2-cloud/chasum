@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { createServer, type Server } from "node:http";
+import { writeSync } from "node:fs";
 import { readFile, readdir, mkdir, writeFile } from "node:fs/promises";
 import { resolve, sep } from "node:path";
 import { build } from "vite";
@@ -7,6 +8,7 @@ import react from "@vitejs/plugin-react";
 import { chromium, webkit, type Browser } from "playwright-core";
 import { expect as playwrightExpect } from "@playwright/test";
 import { afterAll, beforeAll, expect, it } from "vitest";
+import { closeFixtureResources, TEARDOWN_HOOK_TIMEOUT_MS } from "./n02-payment-teardown";
 
 // Real component + built application CSS/fonts. Synthetic form only; no actions,
 // database, provider, credentials, customer data, or hosted network access.
@@ -64,12 +66,22 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // Cleanup failures remain failures. No retries or swallowed close errors.
-  const closed = await Promise.allSettled(Object.values(browsers).map(browser => browser.close()));
-  if (server) await new Promise<void>((done, fail) => server.close(error => error ? fail(error) : done()));
+  const httpServer = server;
+  await closeFixtureResources({
+    resources: {
+      CHROMIUM: browsers.chromium,
+      WEBKIT: browsers.webkit,
+      HTTP_SERVER: httpServer ? { close: () =>
+        new Promise<void>((done, fail) => httpServer.close(error => error ? fail(error) : done())),
+      } : undefined,
+    },
+    // Match Reception: BEGIN must survive reporter buffering if close stalls.
+    emit: (event, detail) => writeSync(2, "[n02-teardown] " + JSON.stringify({
+      event, atMs: Math.round(performance.now() * 10) / 10, ...detail,
+    }) + "\n"),
+  });
   if (evidence) await writeFile(resolve(evidence, "browser-metrics.json"), JSON.stringify(metrics, null, 2) + "\n");
-  for (const result of closed) if (result.status === "rejected") throw result.reason;
-});
+}, TEARDOWN_HOOK_TIMEOUT_MS);
 
 for (const engine of ["chromium", "webkit"]) for (const width of [320, 390, 834, 1280]) for (const theme of ["light", "dark"]) {
   it(`${engine} ${width}px ${theme}: edit, paste, caret, blur, submit and controls`, async () => {
