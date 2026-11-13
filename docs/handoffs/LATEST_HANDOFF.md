@@ -1,5 +1,15 @@
 # Chasum — Latest Development Handoff
 
+## Current local continuation — GVM-N02, 2026-11-11
+
+Darshan authorized local integration/testing of existing Draft PR #165 and explicitly permitted a local two-parent integration commit. Verified main `e6d89424f303b562f6cc1586b898ec104653d4bc` and original #165 `f25ce228d974195fa8d77f7cd36de81e0de0f943` are preserved in the new isolated branch `codex/gvm-n02-payment-input-recovery`. Only BookingPaymentSection changes in application source: retain the original normal-editing correction and prevent decimal conversion from losing cents or publishing unsafe integers. Competitive Product Gate **NOT_APPLICABLE**: bounded locked-behavior bug correction. Classification **LAUNCH REQUIRED**.
+
+Local validation: original 11 tests retained; final amount tests 17/17; action-to-writer synthetic tests 4/4; adjacent suite 105 files / 1,268 tests; Chromium/WebKit 16 responsive/theme cases; typecheck, scoped lint, build, release config and 10 release tests PASS. Repository-wide lint remains 29 errors / 11 warnings in files unchanged from main. Physical devices, hosted Linux/Node22 and authenticated operator acceptance are NOT RUN. [Recovery report](../reviews/gvm-n02-payment-input-recovery-2026-11-11.md) owns exact boundaries, evidence locations and limitations.
+
+The inherited overpayment discrepancy is reproduced: legacy booking/payment records 15,000 cents against an 11,300-cent total in a synthetic fixture; durable SQL rejects above-total payments. No policy, cap, writer or SQL change is authorized. **RELEASE HELD / independent financial-risk review and separate policy/writer disposition pending. GVM deposits remain HELD.** Protected #191 remains Draft at `39709ba82301bf0d7ce04afd5cc2d7cb20a14d71`; its tax code/approved audience wording are untouched and not imported here. #164, N06 and Summer remain untouched. No push, PR modification, GitHub merge, deployment, environment/data mutation, migration, communications or agent dispatch occurred.
+
+Next gate: Darshan manually dispatches the immutable local candidate for independent Claude audit; **PLANNED / NOT DISPATCHED**. Exact final SHA/tree are in the local evidence manifest and consolidated delivery report. Earlier sections below remain dated history and are not execution instructions for this bounded N02 task.
+
 ## Authoritative continuation — November 10, 2026
 
 **Read this section first for present execution.** It supersedes older current/next-task and identity statements below; all historical evidence and decisions remain preserved except the explicitly approved M1C/Reception timeout revision. Start with [Current Project State](../CURRENT_PROJECT_STATE.md), this handoff and the [Environment Manifest](../runtime/ENVIRONMENT_MANIFEST.md), then the relevant constitution/governance and fresh GitHub identities. Older manifest observations are dated evidence, not current serving proof. Classification: **LAUNCH SUPPORT / DOCUMENTATION ONLY**; Competitive Product Gate **NOT_APPLICABLE**, factual reconciliation without a product change.
