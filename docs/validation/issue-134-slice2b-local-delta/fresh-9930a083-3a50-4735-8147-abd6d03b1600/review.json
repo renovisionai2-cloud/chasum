@@ -1,0 +1,730 @@
+{
+  "verdict": "LOCAL_IMPLEMENTATION_OR_HARNESS_CORRECTION_REQUIRED",
+  "classification": "HARNESS_COVERAGE_GAP; no unexpected runtime failure or migration defect demonstrated",
+  "tested_head": "7b11effee5539df93cbd35da5431a0207103edc7",
+  "tested_tree": "09e169343e7dee116771d9c020df68f2d3dd782b",
+  "parent": "429e232eee0ec8cae4a128b8bafcd3fe5cea82ad",
+  "main": "35dd307986c36bb9a5c3a4847e4a212e8dce9fde",
+  "main_tree": "aaaf5be03e16a23265af2f0bd8e8fb9b27fdbb99",
+  "run_id": "9930a083-3a50-4735-8147-abd6d03b1600",
+  "command": "node scripts/verify-issue134-slice2b-lifecycle-disposable-postgres.mjs --confirm-disposable-local",
+  "exit_code": 0,
+  "raw_summary_status": "LOCAL_PROOF_INCOMPLETE",
+  "runtime_failures": [],
+  "start": "2026-10-14T16:05:30.508Z",
+  "end": "2026-10-14T16:05:49.296Z",
+  "version": "postgres (PostgreSQL) 17.11 (Homebrew)",
+  "postmaster": {
+    "pid": 22020,
+    "data": "/private/tmp/chasum-d1-pg17-73mxXJ/pgdata",
+    "port": "55473",
+    "socket": "/private/tmp/chasum-d1-pg17-73mxXJ/socket",
+    "listen": ""
+  },
+  "identity": {
+    "database": "d1_lifecycle",
+    "user": "darshan",
+    "version_num": "170011",
+    "data": "/private/tmp/chasum-d1-pg17-73mxXJ/pgdata",
+    "port": "55473",
+    "listen": "",
+    "server_addr": null,
+    "public_tables": 0
+  },
+  "cases_as_reported_by_exact_runner": {
+    "D01": "PASS",
+    "D02": "PASS",
+    "D03": "PASS",
+    "D04": "PASS",
+    "D05": "PASS",
+    "D06": "PASS",
+    "D07": "PASS",
+    "D08": "PASS",
+    "D09": "NOT_PROVEN",
+    "D10": "PASS",
+    "D11": "PASS",
+    "D12": "PASS",
+    "D13": "PASS",
+    "D14": "PASS",
+    "D15": "PASS",
+    "C01": "PASS",
+    "C02": "PASS",
+    "C03": "PASS",
+    "C04": "PASS",
+    "C05": "PASS",
+    "C06": "PASS",
+    "C07": "PASS",
+    "C08": "PASS",
+    "C09": "NOT_PROVEN",
+    "C10": "PASS",
+    "C11": "PASS",
+    "D12-E": "PASS",
+    "D12-F": "PASS",
+    "D14-E": "PASS",
+    "D14-F": "PASS",
+    "D14-G": "PASS"
+  },
+  "negative_cases": [
+    {
+      "name": "unsafe-anon-appointment_resources-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-anon-appointment_resources-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-anon-appointments-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-anon-appointments-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-anon-inherited-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-anon-inherited-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-anon-set-role-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-anon-set-role-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticated-appointment_resources-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticated-appointment_resources-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticated-appointments-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticated-appointments-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-appointment_resources-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-appointment_resources-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-appointments-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-appointments-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-inherited-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-inherited-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-set-role-trigger",
+      "expected_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_TRIGGER_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-authenticator-set-role-truncate",
+      "expected_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "observed_error": "LIFECYCLE_OPERATIONAL_DDL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 5,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-public-appointment_resources-trigger",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-public-appointment_resources-truncate",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-public-appointments-trigger",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-public-appointments-truncate",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-service_role-appointment_resources-trigger",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-service_role-appointment_resources-truncate",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-service_role-appointments-trigger",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    },
+    {
+      "name": "unsafe-service_role-appointments-truncate",
+      "expected_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "observed_error": "LIFECYCLE_UNSAFE_OPERATIONAL_CAPABILITY",
+      "sqlstate": "55000",
+      "expected_rejection": "PASS",
+      "successful_grant_tags": 1,
+      "schema_absent": true,
+      "roles_memberships_table_acls_restored": true,
+      "effective_capability_preimage": "NOT_CAPTURED_SEPARATELY",
+      "operational_revision_absence_after_this_case": "NOT_QUERIED_SEPARATELY",
+      "transaction": "BEGIN; expected error; connection-close rollback corroborated by next connection snapshots"
+    }
+  ],
+  "installed_availability_bodies": {
+    "before-lifecycle-catalog": {
+      "get_available_slots": "d3f0f20c81a56b5e70fe3850e7b357f7",
+      "validate_appointment_slot": "ba820a872e7ae4082cc66ce02dc03b52",
+      "availability_block_reason": "d2261e44fd62ffb476fe69864635ce14"
+    },
+    "after-lifecycle-catalog": {
+      "get_available_slots": "d3f0f20c81a56b5e70fe3850e7b357f7",
+      "validate_appointment_slot": "ba820a872e7ae4082cc66ce02dc03b52",
+      "availability_block_reason": "d2261e44fd62ffb476fe69864635ce14"
+    },
+    "final-local-catalog": {
+      "get_available_slots": "d3f0f20c81a56b5e70fe3850e7b357f7",
+      "validate_appointment_slot": "ba820a872e7ae4082cc66ce02dc03b52",
+      "availability_block_reason": "d2261e44fd62ffb476fe69864635ce14"
+    }
+  },
+  "migration_rollback": {
+    "db": "d1_assertion_rollback",
+    "journal_schema": null,
+    "revision_columns": 0,
+    "v2_count": 0
+  },
+  "source_hashes": {
+    "scripts/verify-issue134-slice2b-lifecycle-disposable-postgres.mjs": "53905f7fecfffcd24bbba93b4b641a8a6b161d90405da5117b9633051b7965b0",
+    "scripts/proofs/issue-134-slice2b-lifecycle/cases.mjs": "0ed900e8ef3efd28da546684360445c5b3a73fe3d427a5644ab3c0cdce0dfc48",
+    "scripts/proofs/issue-134-slice2b-lifecycle/generate-migration.py": "f8ef1fa2418ce81cb8ed5f6d10575f50a6b6efff5395711072f524a49f04251b",
+    "scripts/proofs/issue-134-slice2b-lifecycle/catalog-assertions.py": "68a73446a42180d16bab44f64d45f81640bd79e03161f987dc56f528de30fc59",
+    "scripts/proofs/issue-134-slice2b-lifecycle/concurrency.mjs": "ac817d936200f98e4cd5ee1035aa6a902c22cf216135086c4aa36bf989a708d4",
+    "scripts/proofs/issue-134-slice2b-lifecycle/domain-cases.mjs": "1c286763a7d5b6f4c8430029e37dfa426842b4069deae88830e5e737f8d38418",
+    "scripts/proofs/issue-134-slice2b-lifecycle/extended-cases.mjs": "e161b7e8064ccb95d45e2dd222e284924e9ff9985193c0632c98a4903aae072e",
+    "scripts/proofs/issue-134-slice2b-lifecycle/final-cases.mjs": "9782233d5bf776571775716049067f5a331954e3c6c1701412dbfcf9382475be",
+    "scripts/proofs/issue-134-slice2b-lifecycle/guard-cases.mjs": "7b9e017d3ebaff66eda8d0dbc1839a6bdc6a318321596289b69b958a094e1254",
+    "scripts/proofs/issue-134-slice2b-lifecycle/local-platform.sql": "10309eb049611c75675c2895fdc8ad8de4a85b3c432542cf399a387a016a13c9",
+    "scripts/proofs/issue-134-slice2b-lifecycle/sessions.mjs": "416e23f00f2554c2d33826bb04f4c60ea1611f0c629f366762a6894fae8da30f",
+    "supabase/migrations/001_booking_engine.sql": "20b78578d4eb819f4dc13e8a30cf9a69d9b7312e370394c7008808a5529369c8",
+    "supabase/migrations/002_booking_enhancements.sql": "98ebf1f249a0af4af589b02389ad40e17a5ca5bc462dbb6233211e39d07cb03a",
+    "supabase/migrations/003_rls_hardening.sql": "91bfd8743d1d8165b66e2caaf19cf52edf81dccba8a64447a7bc837483cfe7e9",
+    "supabase/migrations/004_phase3_integrations.sql": "782766f2e81e29646cd4c15dc20ae0a425a0a6896dbb62b26b54650598f837d1",
+    "supabase/migrations/005_phase4_scheduling_engine.sql": "82527e50d6274b16ac0cab42c26a975a7949356c02e5748b24b42cfd6bc7d081",
+    "supabase/migrations/006_deduplicate_businesses.sql": "0eae950b42dfb0b6a7b3613d6cf33aedd5a00f4ad86d8a23a04def5db0383070",
+    "supabase/migrations/007_one_business_per_owner.sql": "65d96bfeeb350242564ad47ce7a8e43cd325a7f34575212f271eff8b36a2be51",
+    "supabase/migrations/008_phase5_multi_location.sql": "82398d6cc29c8a0678555b979f54481f1ab4c159ce197ccb7ad70b0589fd09b2",
+    "supabase/migrations/009_phase5_drop_old_rpc_overloads.sql": "3fd3e0c4ffd68bcc3794a1cb6a6ecab71b6b6876b68acfe9e83dfd582c723be3",
+    "supabase/migrations/010_phase5_location_rls_hardening.sql": "9b58e900ccb30ceb7c652409802675f610184d0ed6077d9660541b680a6ead90",
+    "supabase/migrations/011_sprint2_gvm_go_live.sql": "97d737ad2df5a4337513fe30a75db636fbd3bc6a931abd6a3c22b517017602a7",
+    "supabase/migrations/012_sprint7_public_booking.sql": "a93c69a2cc7bb770500eecc1672885bde97cf99e6e3e247be68487ee1b80db9f",
+    "supabase/migrations/013_sprint8_gvm_go_live.sql": "9e0704077cae38fbfc2b507299da333a1170547fee9dd4f7b85abbd296c3e8de",
+    "supabase/migrations/014_owner_platform.sql": "14f64c3a516ed12f1781f0eaa843a26ba869971be8740370b68e5bf303f902cc",
+    "supabase/migrations/015_billing_phase1.sql": "bd2e0bbaa4ac3f194356867250b1420d80a46fbf123e24102ad556e01f6ea884",
+    "supabase/migrations/016_communication_center_phase1.sql": "05638e909a1cdae4d5448de57694a3d894365079425257485eb1c2baaa97b523",
+    "supabase/migrations/017_employee_management.sql": "66ae2c6a3e96cd3ae5c245013788cfd5a6a7ad586e6e5e8249627f1a51c84bc2",
+    "supabase/migrations/018_crm_department.sql": "81135211651a91c5d94a5e86718760816119726e3defb8c056ecc26d321f7163",
+    "supabase/migrations/019_booking_engine_2.sql": "b4ce28be3cb5e2d58b3c9cc7a22a0fb7fba8236b72c86d04a1642fb3d44f9323",
+    "supabase/migrations/020_business_management.sql": "dcb87748c70f6813f228a9234d6659b8ca726e90dff7623128602cda7c7a13d9",
+    "supabase/migrations/021_reports_analytics.sql": "a33a9706715ac3164472dcc5e38e5a113b774c7f857a47f2346442cc069ed12f",
+    "supabase/migrations/022_ai_receptionist.sql": "663c14715b1258bbef20331bbbc4cc366aae159bb1c6baed900335e566d9cc73",
+    "supabase/migrations/023_business_management_settings.sql": "2be3b88ff36bc8659076f49e1156ec47e447736733d803b3ed8d312a8fd2dca1",
+    "supabase/migrations/024_services_module.sql": "835c7f257e89dce41a61ccf4bae5a713f8215d83969ea14995496b2ab5720b70",
+    "supabase/migrations/025_employees_module.sql": "1ed1cf9af6e2158297b95d9d799cd2c40368e140a52d422abef69d3ac4b74db5",
+    "supabase/migrations/026_availability_engine.sql": "37b19fb00c95994b5c8c05d143b7fc668b1d032c665ed3ce43aba8a33caea0a8",
+    "supabase/migrations/027_crm_phase_5_4.sql": "c8cc754d32bbb56dc21b7f626afe2ba38cceca3f70692a9e803b6175e0891109",
+    "supabase/migrations/028_commerce_platform.sql": "f262d750f6c6d9a1d711f793d2b6f92661283026ad635a78d618622f654615ab",
+    "supabase/migrations/029_communications_platform.sql": "fa72c992b5916c1097fe7f90512244b6ec923d87597148a9a473a117b8dbc136",
+    "supabase/migrations/030_repair_commerce_payment_columns.sql": "4dd92e715fe1806a8bdcb89bbfc4535389b36d0cfad3fe88fe9db81390d44c4a",
+    "supabase/migrations/031_commerce_finalize_and_arrival_workflow.sql": "f5411008906d00a380cacb25427d7d2b6236b3a2219019cc5bf1fbfdb231814e",
+    "supabase/migrations/032_private_alpha_co_owners.sql": "7e2e00f37f9f314f465e046aa29a9e4a71c476052a558de6767fa933aa66d578",
+    "supabase/migrations/033_private_alpha_co_owner_rls.sql": "d2470783554edf549f02314fa9397f0f67be8c736c97b9d3c12960d13ba2db37",
+    "sql/recovery/A_production_availability_engine_realign.sql": "84863ad305bd98b01e817a43153f3344e816c5994c32f7b8452e2c09aac94fdf",
+    "supabase/migrations/039_business_slug_aliases.sql": "c86d3aafb096f4604846a36bb0ae820eaf2734bcebcca739447dd9043cb0481a",
+    "supabase/migrations/20260920230358_tenant_identity_gate.sql": "75a0ab5578493df310db955b282543f5bba20291356056237fe1e727b8b2af62",
+    "supabase/migrations/20260922050000_issue_81_stage_1b_relationship_booking_convergence.sql": "82d1a480f604833b38d89da5792e63db0cc3c061ec485580f4bd5df7b544ba6d",
+    "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+    "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+    "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+    "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql": "01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b",
+    "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql": "ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56",
+    "supabase/migrations/20261013201608_issue_134_slice2b_lifecycle_amendment.sql": "3c5179f29f53678ec51798d6fb2929448cba98cf64bd7c44a1d6c796e56eb3a1"
+  },
+  "d1_sha256": "0caf4f79ce43088520313728b4d3cd77758b0aa066f8f2f776f4714f9ebff6ed",
+  "protected_sources": {
+    "docs/reviews/issue-134-slice2b-lifecycle-readiness-addendum.md": "89ac66c67e85f2cb53973ce7f9e30d9f44e71b9661d0658a48d339a70a2282db",
+    "docs/reviews/issue-134-durable-booking-deposit-contract.md": "29f6cf2dda9163c2c395f845a4420593a094f8519d4880d77e44e17191c8262d",
+    "docs/reviews/issue-133-slice2-canonical-financial-wiring-design.md": "1f1a966c8466d6f124adab76a2bb188497c363a30d1f104df42c663d7eba029a",
+    "supabase/migrations/20261004190341_issue_134_payment_attempt_foundation.sql": "dee700ae7622afbcc91adf753b3fa559018ed9909f01cba2dc510db0a1ee3a47",
+    "supabase/migrations/20261005154345_issue_134_r1a_manual_payment_kernel.sql": "4b7e38553eca69e039ef57e94b1e7201cfbad22e5beac4398db66cc94bad5ee7",
+    "supabase/migrations/20261007012529_issue_134_appointment_financial_attribution.sql": "fd673cbf7ff5874000bb2272ab3db261193972b4c5437d54c58fc0c4333e7524",
+    "supabase/migrations/20261007203352_issue_134_durable_booking_operation.sql": "01b10f8c629cc73b08d6c5849160836b90cbc87beb29d7c8b78857375fe2493b",
+    "supabase/migrations/20261008210359_issue_133_payment_projection_observability.sql": "ca91f6cbe7b9aa3a2c1b0b1eec13c267b1364badac9bfe07c4366c3157006f56"
+  },
+  "availability_sources": {
+    "supabase/migrations/026_availability_engine.sql": "37b19fb00c95994b5c8c05d143b7fc668b1d032c665ed3ce43aba8a33caea0a8",
+    "sql/recovery/A_production_availability_engine_realign.sql": "84863ad305bd98b01e817a43153f3344e816c5994c32f7b8452e2c09aac94fdf"
+  },
+  "side_effect_counts": {
+    "background_jobs": 0,
+    "calendar_connections": 0,
+    "notification_logs": 0,
+    "notifications": 0,
+    "waitlists": 0,
+    "webhook_endpoints": 0
+  },
+  "final_catalog_preserved": "PASS",
+  "observations": 1118,
+  "lock_witnesses": 38,
+  "concurrency_error_states": {
+    "23503": 2,
+    "25P02": 2,
+    "23514": 3,
+    "23P01": 2,
+    "40P01": 1,
+    "55P03": 1,
+    "57014": 1
+  },
+  "historical_evidence_files_unchanged": 47,
+  "historical_archives_unchanged": 33,
+  "stopped": true,
+  "pid_file_absent": true,
+  "socket_absent": true,
+  "additional_gate_gaps": [
+    "No dedicated existing-appointment before/after/staff-max buffer and cleanup-boundary matrix, including 10:00-10:30+5, refusal at 10:30 and permitted 10:35.",
+    "No dedicated availability cancellation-ignore/double-book/missing-metadata/cross-Business metadata-isolation edge matrix in executed runner.",
+    "Negative cases lack separate pre-attempt effective-capability witness and per-case post-rollback operational_revision absence query. Correct GRANT tags, expected refusals and restored role/membership/table ACL snapshots are retained."
+  ],
+  "scope": "One exact local run; no source edits, rerun, hosted contact or migration regeneration",
+  "protected_17_installed_pin_comparison": [
+    {
+      "name": "availability_block_reason",
+      "historical_pin": "d69e69be3b7b59e383bd7e10ebac4e2a",
+      "installed": {
+        "before-lifecycle-catalog": "d2261e44fd62ffb476fe69864635ce14",
+        "after-lifecycle-catalog": "d2261e44fd62ffb476fe69864635ce14",
+        "final-local-catalog": "d2261e44fd62ffb476fe69864635ce14"
+      },
+      "changed_from_historical": true
+    },
+    {
+      "name": "bind_booking_operation_appointment_v1",
+      "historical_pin": "969958c4bc89c69b5d86e3b6331a69ca",
+      "installed": {
+        "before-lifecycle-catalog": "969958c4bc89c69b5d86e3b6331a69ca",
+        "after-lifecycle-catalog": "969958c4bc89c69b5d86e3b6331a69ca",
+        "final-local-catalog": "969958c4bc89c69b5d86e3b6331a69ca"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "bootstrap_booking_operation_v1",
+      "historical_pin": "cd89add6bfd84f1856513c928d5721e7",
+      "installed": {
+        "before-lifecycle-catalog": "cd89add6bfd84f1856513c928d5721e7",
+        "after-lifecycle-catalog": "cd89add6bfd84f1856513c928d5721e7",
+        "final-local-catalog": "cd89add6bfd84f1856513c928d5721e7"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "commit_booking_operation_manual_payment_v1",
+      "historical_pin": "23ee6ac48b6d81f42f33bf40ae39cea5",
+      "installed": {
+        "before-lifecycle-catalog": "23ee6ac48b6d81f42f33bf40ae39cea5",
+        "after-lifecycle-catalog": "23ee6ac48b6d81f42f33bf40ae39cea5",
+        "final-local-catalog": "23ee6ac48b6d81f42f33bf40ae39cea5"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "get_available_slots",
+      "historical_pin": "d3f0f20c81a56b5e70fe3850e7b357f7",
+      "installed": {
+        "before-lifecycle-catalog": "d3f0f20c81a56b5e70fe3850e7b357f7",
+        "after-lifecycle-catalog": "d3f0f20c81a56b5e70fe3850e7b357f7",
+        "final-local-catalog": "d3f0f20c81a56b5e70fe3850e7b357f7"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "guard_commerce_booking_operation_v1",
+      "historical_pin": "d41900b2e537770768b4ed1cc8bc19f5",
+      "installed": {
+        "before-lifecycle-catalog": "d41900b2e537770768b4ed1cc8bc19f5",
+        "after-lifecycle-catalog": "d41900b2e537770768b4ed1cc8bc19f5",
+        "final-local-catalog": "d41900b2e537770768b4ed1cc8bc19f5"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "is_location_holiday",
+      "historical_pin": "9e2e6baf8eb03b48980fc0cdf403682d",
+      "installed": {
+        "before-lifecycle-catalog": "9e2e6baf8eb03b48980fc0cdf403682d",
+        "after-lifecycle-catalog": "9e2e6baf8eb03b48980fc0cdf403682d",
+        "final-local-catalog": "9e2e6baf8eb03b48980fc0cdf403682d"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "is_staff_on_vacation",
+      "historical_pin": "b50c2c223d3a096ba12681ccf5185aea",
+      "installed": {
+        "before-lifecycle-catalog": "b50c2c223d3a096ba12681ccf5185aea",
+        "after-lifecycle-catalog": "b50c2c223d3a096ba12681ccf5185aea",
+        "final-local-catalog": "b50c2c223d3a096ba12681ccf5185aea"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "payment_appointment_truth_v1",
+      "historical_pin": "62e536cd4fac2f1d9cae6e99c1cb9117",
+      "installed": {
+        "before-lifecycle-catalog": "62e536cd4fac2f1d9cae6e99c1cb9117",
+        "after-lifecycle-catalog": "62e536cd4fac2f1d9cae6e99c1cb9117",
+        "final-local-catalog": "62e536cd4fac2f1d9cae6e99c1cb9117"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "payment_projection_history_valid_v1",
+      "historical_pin": "a0619196c1ff08a005c13e924ad200c1",
+      "installed": {
+        "before-lifecycle-catalog": "a0619196c1ff08a005c13e924ad200c1",
+        "after-lifecycle-catalog": "a0619196c1ff08a005c13e924ad200c1",
+        "final-local-catalog": "a0619196c1ff08a005c13e924ad200c1"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "persist_booking_operation_appointment_v1",
+      "historical_pin": "6001c439bf8657d112870d4bf7245ad9",
+      "installed": {
+        "before-lifecycle-catalog": "6001c439bf8657d112870d4bf7245ad9",
+        "after-lifecycle-catalog": "6001c439bf8657d112870d4bf7245ad9",
+        "final-local-catalog": "6001c439bf8657d112870d4bf7245ad9"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "project_payment_obligation_v1",
+      "historical_pin": "b4ccf60290658c4dea0c0110ba5b950d",
+      "installed": {
+        "before-lifecycle-catalog": "b4ccf60290658c4dea0c0110ba5b950d",
+        "after-lifecycle-catalog": "b4ccf60290658c4dea0c0110ba5b950d",
+        "final-local-catalog": "b4ccf60290658c4dea0c0110ba5b950d"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "read_booking_operations_v1",
+      "historical_pin": "4f9c0896e6c3f2fa593281a96e058bb1",
+      "installed": {
+        "before-lifecycle-catalog": "4f9c0896e6c3f2fa593281a96e058bb1",
+        "after-lifecycle-catalog": "4f9c0896e6c3f2fa593281a96e058bb1",
+        "final-local-catalog": "4f9c0896e6c3f2fa593281a96e058bb1"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "read_payment_observability_v1",
+      "historical_pin": "58b16d7bfcf3524da5e1082dc2ed15b3",
+      "installed": {
+        "before-lifecycle-catalog": "58b16d7bfcf3524da5e1082dc2ed15b3",
+        "after-lifecycle-catalog": "58b16d7bfcf3524da5e1082dc2ed15b3",
+        "final-local-catalog": "58b16d7bfcf3524da5e1082dc2ed15b3"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "resolve_location_id",
+      "historical_pin": "f8cae8e103e3df570f5d2c0f6526ef35",
+      "installed": {
+        "before-lifecycle-catalog": "f8cae8e103e3df570f5d2c0f6526ef35",
+        "after-lifecycle-catalog": "f8cae8e103e3df570f5d2c0f6526ef35",
+        "final-local-catalog": "f8cae8e103e3df570f5d2c0f6526ef35"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "set_updated_at",
+      "historical_pin": "9b1889f56258bf9d6554213c05019c76",
+      "installed": {
+        "before-lifecycle-catalog": "9b1889f56258bf9d6554213c05019c76",
+        "after-lifecycle-catalog": "9b1889f56258bf9d6554213c05019c76",
+        "final-local-catalog": "9b1889f56258bf9d6554213c05019c76"
+      },
+      "changed_from_historical": false
+    },
+    {
+      "name": "validate_appointment_slot",
+      "historical_pin": "ba820a872e7ae4082cc66ce02dc03b52",
+      "installed": {
+        "before-lifecycle-catalog": "ba820a872e7ae4082cc66ce02dc03b52",
+        "after-lifecycle-catalog": "ba820a872e7ae4082cc66ce02dc03b52",
+        "final-local-catalog": "ba820a872e7ae4082cc66ce02dc03b52"
+      },
+      "changed_from_historical": false
+    }
+  ]
+}
