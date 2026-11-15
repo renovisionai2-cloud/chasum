@@ -1,5 +1,17 @@
 # Chasum Changelog
 
+## 2026-11-14 — PR #191 final integration recovery
+
+- Integrated verified main `85c29d3` into existing tax head `39709ba` as a genuine two-parent candidate; resolved only the three continuity-document conflicts and retained both tax decisions and accepted GVM-N02 completion.
+- PR #165 is merged/closed at main `85c29d3`, from final head `70cb4f0`; its application/tests and approved N02-only cleanup contract are preserved unchanged. Earlier unpublished entries retain their dated meaning.
+- Tax application source and approved customer/business wording are unchanged. Local validation passed 117 files / 1,545 tests, typecheck/build/scoped lint and release controls; exact-source Draft CI/Preview remain pending; no Production release, financial repair, data/configuration change, main merge or release registration is authorized.
+
+## 2026-11-11 — GVM-N02 local payment-input recovery (unpublished)
+
+- Reconciled original Draft PR #165 with verified main in a new isolated local two-parent candidate; retained its editing behavior and eleven tests. Prevented unsafe integer cents and decimal conversion loss within the same amount editor.
+- Added local browser and synthetic submission/financial-boundary coverage; documented the unresolved legacy/durable overpayment discrepancy without changing policy or writers.
+- Local validation and protected-scope evidence are recorded in [the recovery report](reviews/gvm-n02-payment-input-recovery-2026-11-11.md). No release, financial acceptance or publication; independent audit and separate financial-policy disposition remain pending.
+
 ## 2026-11-09 — LOCAL P1 audit correction; fresh-session review pending
 
 - Removed the misleading Taxable control; retain existing booleans on edit and the established true create default, rejecting retired form submissions before writing. Full taxable/exempt/zero-rated policy remains a separate LAUNCH REQUIRED decision.
