@@ -8,6 +8,7 @@ import ts from "typescript";
 import { chromium, webkit, type Browser } from "playwright-core";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { closeServiceTaxFixture } from "./service-tax-teardown";
+import { prepareServiceTaxFixture } from "./service-tax-readiness";
 
 // Real ServicesManager, dialog, form and application CSS. All action modules are
 // synthetic, mutations throw, and browser requests may only reach this server.
@@ -24,6 +25,12 @@ window.__parseTax = form => parseServiceTaxInput(new FormData(form));
 const service = {id:'service-a',business_id:'tenant-a',location_id:'location-a',name:'Synthetic service',duration_minutes:30,price:116,color:'#2563eb',is_active:true,online_booking:true,booking_visibility:'online',taxable:true,tax_rate_bps:13,service_locations:[]};
 createRoot(document.getElementById('root')).render(<ServicesManager services={[service]} locations={[{id:'location-a',name:'Synthetic location',is_active:true,is_default:true}]} categories={[]} staff={[]} selectedLocationId="location-a" />);
 `;
+
+function emitReadiness(event: string, detail: Record<string, unknown> = {}) {
+  try {
+    writeSync(2, "[service-tax-readiness] " + JSON.stringify({ event, at: new Date().toISOString(), ...detail }) + "\n");
+  } catch { /* Diagnostics must not replace a fixture or navigation failure. */ }
+}
 
 beforeAll(async () => {
   server = await createServer({
@@ -69,6 +76,15 @@ beforeAll(async () => {
   const address = server.httpServer!.address();
   if (!address || typeof address === "string") throw new Error("Missing local port");
   origin = `http://127.0.0.1:${address.port}`;
+  const preparationStarted = performance.now();
+  emitReadiness("PREPARATION_BEGIN");
+  try {
+    const moduleCount = await prepareServiceTaxFixture(server);
+    emitReadiness("PREPARATION_COMPLETE", { moduleCount, elapsedMs: Math.round(performance.now() - preparationStarted) });
+  } catch (error) {
+    emitReadiness("PREPARATION_FAILED", { message: String(error), elapsedMs: Math.round(performance.now() - preparationStarted) });
+    throw error;
+  }
   browsers.chromium = await chromium.launch();
   browsers.webkit = await webkit.launch();
 }, 120_000);
@@ -91,8 +107,19 @@ for (const engine of ["chromium", "webkit"]) {
         });
         const page = await context.newPage();
         page.on("pageerror", (error) => errors.push(error.message));
+        const navigationStarted = performance.now();
+        const milestone = (event: string, detail: Record<string, unknown> = {}) =>
+          emitReadiness(event, { engine, width, theme, elapsedMs: Math.round(performance.now() - navigationStarted), ...detail });
+        page.on("response", (response) => {
+          if (response.request().isNavigationRequest()) milestone("DOCUMENT_RESPONSE", { status: response.status() });
+        });
+        page.on("domcontentloaded", () => milestone("DOM_CONTENT_LOADED"));
+        page.on("load", () => milestone("LOAD"));
         try {
-          await page.goto(origin + "/__tax");
+          milestone("NAVIGATION_BEGIN");
+          await page.goto(origin + "/__tax", { waitUntil: "load", timeout: 30_000 });
+          await page.getByRole("button", { name: "Edit Synthetic service", exact: true }).waitFor({ state: "visible", timeout: 10_000 });
+          milestone("EDITOR_READY");
           await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), theme === "dark");
           await page.getByRole("button", { name: "Edit Synthetic service", exact: true }).click();
           const rate = page.getByLabel("Custom tax rate (%)", { exact: true });
@@ -126,6 +153,9 @@ for (const engine of ["chromium", "webkit"]) {
           expect(await parse()).toEqual({ ok: true, rateBps: 0 });
           expect(await page.locator('[name="tax_rate_bps"]').count()).toBe(0);
           expect(external).toEqual([]); expect(errors).toEqual([]);
+        } catch (error) {
+          milestone("CASE_FAILED", { message: String(error) });
+          throw error;
         } finally { await context.close(); }
       }, 60_000);
     }
