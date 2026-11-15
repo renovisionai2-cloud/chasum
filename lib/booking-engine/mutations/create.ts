@@ -107,7 +107,7 @@ export async function createBooking(
   const supabase = await createClient();
 
   // Stamp commercial fields so deposits / balances / invoices stay in sync.
-  const { data: serviceRow } = await supabase
+  const { data: serviceRow, error: serviceError } = await supabase
     .from("services")
     .select("price, deposit_cents, deposit_required, tax_rate_bps")
     .eq("id", intent.serviceId)
@@ -123,7 +123,7 @@ export async function createBooking(
       : Math.round(Number(serviceRow?.price ?? 0) * 100);
 
   // Authoritative tax + exclusive subtotal from catalog + tax rates.
-  const { data: taxRows } = await supabase
+  const { data: taxRows, error: taxError } = await supabase
     .from("tax_rates")
     .select("id, name, rate_bps, inclusive, is_default, is_active")
     .eq("business_id", intent.businessId)
@@ -160,18 +160,58 @@ export async function createBooking(
       });
 
   // Prefer form exclusive stamp when both price and tax were provided.
-  const stampedPriceCents = formProvidedTax
+  let stampedPriceCents = formProvidedTax
     ? priceCents
     : financials.subtotalCents;
-  const taxCents = formProvidedTax
+  let taxCents = formProvidedTax
     ? Math.max(0, Math.round(intent.taxCents!))
     : financials.taxCents;
-  const depositCents =
+  let depositCents =
     intent.depositCents != null &&
     (intent.depositCents > 0 ||
       (durablePersistence && intent.depositCents === 0))
       ? intent.depositCents
       : financials.depositRequiredCents;
+
+  // Session forms supply a quote, not financial authority. The public SQL
+  // writer and durable operation snapshot retain their existing contracts.
+  if (!isPublicRpcPersistence(persistence) && !durablePersistence) {
+    if (serviceError || !serviceRow || serviceRow.price == null || taxError) {
+      return { phase: "rollback", error: "Service tax pricing could not be verified. Please try again." };
+    }
+    let catalogPriceCents = Math.round(Number(serviceRow.price) * 100);
+    if (intent.packageId) {
+      const { data: pkg, error } = await supabase.from("service_packages")
+        .select("price_cents, service_ids")
+        .eq("id", intent.packageId).eq("business_id", intent.businessId)
+        .eq("is_active", true).maybeSingle();
+      if (error || !pkg || !Array.isArray(pkg.service_ids) || !pkg.service_ids.includes(intent.serviceId)) {
+        return { phase: "rollback", error: "Package pricing could not be verified." };
+      }
+      catalogPriceCents = Number(pkg.price_cents);
+    }
+    if (!Number.isSafeInteger(catalogPriceCents) || catalogPriceCents < 0) {
+      return { phase: "rollback", error: "Service pricing could not be verified." };
+    }
+    const verified = resolveBookingFinancials({
+      catalogPriceCents,
+      serviceTaxRateBps: serviceRow.tax_rate_bps,
+      taxRates: taxRows ?? [],
+      depositRequiredCents: serviceRow.deposit_cents,
+      depositRequired: serviceRow.deposit_required,
+    });
+    const quotes = [
+      [intent.priceCents, verified.subtotalCents],
+      [intent.taxCents, verified.taxCents],
+      [intent.depositCents, verified.depositRequiredCents],
+    ];
+    if (quotes.some(([quoted, expected]) => quoted != null && (!Number.isSafeInteger(quoted) || quoted !== expected))) {
+      return { phase: "rollback", error: "Booking pricing has changed. Refresh and review the tax and total before confirming." };
+    }
+    stampedPriceCents = verified.subtotalCents;
+    taxCents = verified.taxCents;
+    depositCents = verified.depositRequiredCents;
+  }
 
   const paymentStatus =
     depositCents > 0 ? "deposit_required" : "unpaid";
@@ -327,11 +367,11 @@ async function persistViaSessionInsert(
     room_id: input.intent.roomId ?? null,
   };
 
-  let { data, error } = await supabase
+  const { data, error } = await supabase
     .from("appointments")
     .insert({
       ...insertBase,
-      price_cents: input.stampedPriceCents || null,
+      price_cents: input.stampedPriceCents,
       tax_cents: input.taxCents,
       deposit_cents: input.depositCents || 0,
       amount_paid_cents: 0,
@@ -340,28 +380,7 @@ async function persistViaSessionInsert(
     .select("id")
     .single();
 
-  if (
-    error &&
-    (error.message.includes("price_cents") ||
-      error.message.includes("payment_status") ||
-      error.message.includes("amount_paid") ||
-      error.message.includes("deposit_cents") ||
-      error.message.includes("tax_cents"))
-  ) {
-    const fallback = await supabase
-      .from("appointments")
-      .insert({
-        ...insertBase,
-        ...(error.message.includes("tax_cents")
-          ? {}
-          : { tax_cents: input.taxCents }),
-      })
-      .select("id")
-      .single();
-    data = fallback.data;
-    error = fallback.error;
-  }
-
+  // Never retry by stripping verified financial stamps from a new booking.
   return {
     id: data?.id ?? null,
     error: error ? { message: error.message } : null,

@@ -9,6 +9,14 @@ import {
 const rpcCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
 const serviceRpcCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
 const appointmentInserts: unknown[] = [];
+let servicePrice = 200;
+let serviceTaxBps: number | null = null;
+let serviceMissing = false;
+let taxError = false;
+let insertError: string | null = null;
+let packageRow: { price_cents: number; service_ids: string[] } | null = null;
+let taxRows: Array<{ rate_bps: number; name: string; inclusive: boolean; is_active: boolean; is_default: boolean }> = [];
+const pricingFilters: unknown[][] = [];
 let rpcResult: { data: string | null; error: { message: string } | null } = {
   data: "appt-public",
   error: null,
@@ -59,15 +67,16 @@ vi.mock("@/lib/supabase/server", () => ({
       const query: Record<string, unknown> = {};
       const self = () => query;
       query.select = self;
-      query.eq = self;
+      query.eq = (...args: unknown[]) => { pricingFilters.push([table, ...args]); return query; };
       query.maybeSingle = async () => {
+        if (table === "service_packages") return { data: packageRow, error: null };
         if (table === "services") {
           return {
-            data: {
-              price: 200,
+            data: serviceMissing ? null : {
+              price: servicePrice,
               deposit_cents: 0,
               deposit_required: false,
-              tax_rate_bps: null,
+              tax_rate_bps: serviceTaxBps,
             },
             error: null,
           };
@@ -81,8 +90,8 @@ vi.mock("@/lib/supabase/server", () => ({
         return {
           select: () => ({
             single: async () => ({
-              data: { id: "appt-session" },
-              error: null,
+              data: insertError ? null : { id: "appt-session" },
+              error: insertError ? { message: insertError } : null,
             }),
           }),
         };
@@ -92,7 +101,7 @@ vi.mock("@/lib/supabase/server", () => ({
         onRejected?: (reason: unknown) => unknown,
       ) => {
         if (table === "tax_rates") {
-          return Promise.resolve({ data: [], error: null }).then(
+          return Promise.resolve({ data: taxRows, error: taxError ? { message: "unavailable" } : null }).then(
             onFulfilled,
             onRejected,
           );
@@ -170,6 +179,7 @@ function namedStaffIntent(
 
 describe("createBooking persistence strategy seam", () => {
   beforeEach(() => {
+    servicePrice = 200; serviceTaxBps = null; serviceMissing = false; taxError = false; insertError = null; taxRows = []; packageRow = null; pricingFilters.length = 0;
     rpcCalls.length = 0;
     serviceRpcCalls.length = 0;
     appointmentInserts.length = 0;
@@ -182,6 +192,82 @@ describe("createBooking persistence strategy seam", () => {
       context,
       endTime: "2026-08-28T17:00:00.000Z",
     });
+  });
+
+  it("stamps $116 plus inherited 13% from server data when stamps are absent", async () => {
+    servicePrice = 116;
+    taxRows = [{ name: "HST", rate_bps: 1300, inclusive: false, is_active: true, is_default: true }];
+    const result = await createBooking(namedStaffIntent({ channel: "staff", priceCents: undefined, taxCents: undefined }));
+    expect(result.phase).toBe("success");
+    expect(appointmentInserts[0]).toMatchObject({ price_cents: 11600, tax_cents: 1508 });
+    expect(pricingFilters).toContainEqual(["services", "business_id", "biz-1"]);
+    expect(pricingFilters).toContainEqual(["tax_rates", "business_id", "biz-1"]);
+  });
+
+  it("rejects a stale 15-cent client tax before any appointment or event", async () => {
+    servicePrice = 116;
+    taxRows = [{ name: "HST", rate_bps: 1300, inclusive: false, is_active: true, is_default: true }];
+    const result = await createBooking(namedStaffIntent({ channel: "staff", priceCents: 11600, taxCents: 15 }));
+    expect(result.phase).toBe("rollback"); expect(result.error).toMatch(/pricing.*changed/i);
+    expect(appointmentInserts).toEqual([]); expect(emitBookingEvent).not.toHaveBeenCalled();
+  });
+
+  it("uses the scoped active package price for a package booking", async () => {
+    packageRow = { price_cents: 11600, service_ids: ["svc-1"] };
+    serviceTaxBps = 0;
+    taxRows = [{ name: "GST", rate_bps: 500, inclusive: false, is_active: true, is_default: true }];
+    const result = await createBooking(namedStaffIntent({ channel: "staff", packageId: "pkg-a", priceCents: 11600, taxCents: 580 }));
+    expect(result.phase).toBe("success");
+    expect(appointmentInserts[0]).toMatchObject({ price_cents: 11600, tax_cents: 580 });
+    expect(pricingFilters).toContainEqual(["service_packages", "business_id", "biz-1"]);
+    expect(pricingFilters).toContainEqual(["service_packages", "is_active", true]);
+  });
+
+  it.each([null, { price_cents: 11600, service_ids: ["foreign-service"] }])("rejects unavailable or incompatible package %j", async (row) => {
+    packageRow = row;
+    expect((await createBooking(namedStaffIntent({ channel: "staff", packageId: "foreign-package" }))).phase).toBe("rollback");
+    expect(appointmentInserts).toEqual([]); expect(emitBookingEvent).not.toHaveBeenCalled();
+  });
+
+  it("keeps an explicit free booking exact zero, not unknown", async () => {
+    servicePrice = 0; serviceTaxBps = 0;
+    expect((await createBooking(namedStaffIntent({ channel: "staff", priceCents: 0, taxCents: 0 }))).phase).toBe("success");
+    expect(appointmentInserts[0]).toMatchObject({ price_cents: 0, tax_cents: 0 });
+  });
+
+  it("does not retry without financial columns when saving the verified quote fails", async () => {
+    insertError = "column tax_cents does not exist";
+    expect((await createBooking(namedStaffIntent({ channel: "staff" }))).phase).toBe("rollback");
+    expect(appointmentInserts).toHaveLength(1);
+    expect(appointmentInserts[0]).toMatchObject({ price_cents: 20000, tax_cents: 0, deposit_cents: 0 });
+    expect(emitBookingEvent).not.toHaveBeenCalled();
+  });
+
+  it("inherits an explicit zero business rate without inventing tax", async () => {
+    servicePrice = 116; serviceTaxBps = 0;
+    taxRows = [{ name: "Zero rate", rate_bps: 0, inclusive: false, is_active: true, is_default: true }];
+    expect((await createBooking(namedStaffIntent({ channel: "staff", priceCents: 11600, taxCents: 0 }))).phase).toBe("success");
+    expect(appointmentInserts[0]).toMatchObject({ price_cents: 11600, tax_cents: 0 });
+  });
+
+  it("preserves a legitimate 13-bps override as 15 cents", async () => {
+    servicePrice = 116; serviceTaxBps = 13;
+    taxRows = [{ name: "HST", rate_bps: 1300, inclusive: false, is_active: true, is_default: true }];
+    expect((await createBooking(namedStaffIntent({ channel: "staff", priceCents: 11600, taxCents: 15 }))).phase).toBe("success");
+    expect(appointmentInserts[0]).toMatchObject({ price_cents: 11600, tax_cents: 15 });
+  });
+
+  it("preserves tax-inclusive $116 with exact extracted tax", async () => {
+    servicePrice = 116;
+    taxRows = [{ name: "VAT", rate_bps: 1300, inclusive: true, is_active: true, is_default: true }];
+    expect((await createBooking(namedStaffIntent({ channel: "staff", priceCents: 10265, taxCents: 1335 }))).phase).toBe("success");
+    expect(appointmentInserts[0]).toMatchObject({ price_cents: 10265, tax_cents: 1335 });
+  });
+
+  it.each(["service", "tax"])("fails closed when %s pricing is unavailable", async (which) => {
+    serviceMissing = which === "service"; taxError = which === "tax";
+    expect((await createBooking(namedStaffIntent({ channel: "staff" }))).phase).toBe("rollback");
+    expect(appointmentInserts).toEqual([]); expect(emitBookingEvent).not.toHaveBeenCalled();
   });
 
   it("uses session/RLS insert by default, including when channel is public", async () => {

@@ -1,10 +1,31 @@
 # Chasum Changelog
 
+## 2026-11-14 — PR #191 final integration recovery
+
+- Integrated verified main `85c29d3` into existing tax head `39709ba` as a genuine two-parent candidate; resolved only the three continuity-document conflicts and retained both tax decisions and accepted GVM-N02 completion.
+- PR #165 is merged/closed at main `85c29d3`, from final head `70cb4f0`; its application/tests and approved N02-only cleanup contract are preserved unchanged. Earlier unpublished entries retain their dated meaning.
+- Tax application source and approved customer/business wording are unchanged. Local validation passed 117 files / 1,545 tests, typecheck/build/scoped lint and release controls; exact-source Draft CI/Preview remain pending; no Production release, financial repair, data/configuration change, main merge or release registration is authorized.
+
 ## 2026-11-11 — GVM-N02 local payment-input recovery (unpublished)
 
 - Reconciled original Draft PR #165 with verified main in a new isolated local two-parent candidate; retained its editing behavior and eleven tests. Prevented unsafe integer cents and decimal conversion loss within the same amount editor.
 - Added local browser and synthetic submission/financial-boundary coverage; documented the unresolved legacy/durable overpayment discrepancy without changing policy or writers.
 - Local validation and protected-scope evidence are recorded in [the recovery report](reviews/gvm-n02-payment-input-recovery-2026-11-11.md). No release, financial acceptance or publication; independent audit and separate financial-policy disposition remain pending.
+
+## 2026-11-09 — LOCAL P1 audit correction; fresh-session review pending
+
+- Removed the misleading Taxable control; retain existing booleans on edit and the established true create default, rejecting retired form submissions before writing. Full taxable/exempt/zero-rated policy remains a separate LAUNCH REQUIRED decision.
+- Added self-contained concurrent30-second browser/10-second Vite/45-second hook teardown with nine tests covering rejection including undefined, stalled resources, late rejection and timer cleanup. All12 service-editor cases and64 Reception cases remain.
+- Removed current-catalog and rounded-ratio receipt tax attribution while preserving monetary expressions; removed the unused permissive percent helper. Neutral Tax now suppresses rate-only warnings for consistent cents. Genuine-mismatch copy remains PO-gated.
+- Preserved the original audited patch/report/evidence; added [correction report](reviews/service-tax-audit-correction-2026-11-09.md) and revised immutable candidate manifest. Local expanded suite108 files/1,285 tests PASS, including64 Reception and12 editor cases; focused78, build/typecheck/changed-file lint and release controls PASS. Five Production column-existence facts are supplied independent observations, not repeat queries. The reused Claude session does not satisfy fresh-session review; Linux Node22/device/operator gates remain open.
+- No hosted/financial/customer/SQL/release change, commit/push/PR publication or automatic dispatch. All accepted financial and protected candidate decisions remain intact.
+
+## 2026-11-09 — Historical original LOCAL P1 service-tax candidate
+
+- Prepared an isolated uncommitted candidate on main `4a394a9f`: explicit business-rate inheritance/human percentage service input, server-side validation, tenant-scoped session quote verification, exact zero preservation and refusal to omit verified financial fields during compatibility saves.
+- Preserved stored historical financial amounts; notification/receipt rendering no longer borrows today's default rate as historical fact, and flags contradictory supplied rate/total metadata. Public RPC, durable snapshots, ledger/payment/invoice behavior and financial classifications remain protected.
+- Local1253-test/105-file suite PASS including64 unchanged Reception and12 new service-editor Chromium/WebKit responsive cases; final writer recheck45 PASS, build/typecheck/changed-file lint PASS. Full lint retains29 errors/11 warnings in unchanged baseline files. No CI/device/operator acceptance is inferred.
+- Added [root-cause/correction design](reviews/service-tax-integrity-2026-11-09.md), synthetic evidence and continuity updates. Existing taxable/zero-rate gap and broader tax-readiness concerns remain explicit gates. No hosted data change, historical correction, customer message, migration, commit/push/PR publication, merge, deployment or automatic audit dispatch. Protected PRs#190/#188/#187 and N06 are unchanged.
 
 ## 2026-10-29 — Reception #174 engineering acceptance and LOCAL governance reconciliation
 

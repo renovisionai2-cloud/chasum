@@ -1,8 +1,20 @@
 # Chasum — Environment Manifest
 
-**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **current reconciliation:** 2026-10-12 America/Toronto, fresh canonical Production build-info/alias and GitHub integration checks only. Staging records remain dated accepted evidence; no database query or mutation.
+**Record owner:** Development Control Tower. **Prepared:** 2026-09-17; **last full deployment reconciliation:** 2026-10-12 America/Toronto, canonical Production build-info/alias and GitHub integration checks. Latest source-only observation: 2026-11-09 below. Staging records remain dated accepted evidence; no database query or mutation.
 **Mode:** Manually reconciled, redacted observation seed. NOT an automatically refreshed inventory.
 **Authority:** Runtime observations and their limits only. [Current board](../CURRENT_PROJECT_STATE.md) owns task/acceptance state; [handoff](../handoffs/LATEST_HANDOFF.md) owns continuity procedure.
+
+## November 9 audit-correction schema precondition — supplied observation
+
+Darshan supplied a separate read-only Production schema verification confirming `appointments.price_cents`, `tax_cents`, `deposit_cents`, `payment_status` and `amount_paid_cents` all exist. This correction pass did not query Production again. Column existence alone is not RLS/writer/atomicity proof or write authorization. The financial-column-stripping fallback stays removed from the local candidate.
+
+The bounded correction is local on the same base/main `4a394a9f290dca9377d68f2c704b0338277625d8`; Production source reference remains `ab4e41f530d2a2da65bda429407e0f84446f9fac`. No hosted environment, runtime, schema, permission, credential, release or configuration change. Local macOS/Node26.7.0 tests and build do not establish Linux Node22 CI or device/operator acceptance. See [correction report](../reviews/service-tax-audit-correction-2026-11-09.md). Earlier source-serving observation below was not repeated.
+
+## November 9 read-only source observation — no environment change
+
+During the isolated P1 tax investigation, public `https://chasum.vercel.app/api/build-info` returned commit `ab4e41f530d2a2da65bda429407e0f84446f9fac`, commitShort `ab4e41f`, env `production`, ref `main`, production `true`. This corroborates the source supplied in Darshan's incident brief. The exact serving Vercel deployment ID/alias promotion was not independently queried; no new release acceptance is claimed. Fresh GitHub main is `4a394a9f290dca9377d68f2c704b0338277625d8` and remains a distinct source.
+
+Production Supabase ref `kxcydvhswkuzepwzzinq` and the incident row facts are supplied evidence, not fresh database observations. No database query, Auth action, hosted write, configuration/credential change, Staging action or deployment occurred. No new financial Preview exists. Local proof ran in a separate managed worktree with copied existing dependencies, no copied environment files, Node26.7.0/Next16.3.6 and synthetic I/O. The October12 full deployment observations below remain dated history, not current source identity.
 
 ## October 12 post-merge identity reconciliation
 
