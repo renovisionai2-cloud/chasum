@@ -103,8 +103,10 @@ export async function buildReceiptEmailContext(input: {
   let endTime: string | null = null;
   let subtotalCents: number | null = null;
   let taxCents: number | null = null;
-  let taxRateBps: number | null = null;
-  let taxLabel: string | null = null;
+  // Stored amounts do not establish historical tax-rate/name provenance.
+  // Do not borrow today's catalog or infer a rate from rounded cents.
+  const taxRateBps = null;
+  const taxLabel = null;
   let appointmentTotalCents: number | null = null;
   let depositRequiredCents: number | null = null;
   let depositPaidCents: number | null = amountReceived;
@@ -167,24 +169,6 @@ export async function buildReceiptEmailContext(input: {
       | null;
     const loc = Array.isArray(locRel) ? locRel[0] : locRel;
     locationTimezone = loc?.timezone?.trim() || null;
-
-    const { data: taxRows } = await supabase
-      .from("tax_rates")
-      .select("name, rate_bps, is_default, is_active")
-      .eq("business_id", input.businessId)
-      .eq("is_active", true);
-    const rates = [...(taxRows ?? [])].sort((a, b) =>
-      String(a.name ?? "").localeCompare(String(b.name ?? "")),
-    );
-    const preferred =
-      rates.find((r) => r.is_default) ?? rates[0] ?? null;
-    if (preferred) {
-      taxRateBps = Math.max(0, Number(preferred.rate_bps ?? 0));
-      taxLabel = String(preferred.name ?? "Tax");
-    } else if (subtotalCents != null && subtotalCents > 0 && taxCents > 0) {
-      taxRateBps = Math.round((taxCents * 10_000) / subtotalCents);
-      taxLabel = "Tax";
-    }
 
     appointmentId = String(appt.id);
   }

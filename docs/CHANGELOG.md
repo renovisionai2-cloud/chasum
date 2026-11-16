@@ -1,5 +1,11 @@
 # Chasum Changelog
 
+## 2026-11-15 — Decision B GVM tax-only LOCAL candidate (unreleased)
+
+- Transfer approved PR #191 percent/inheritance editing, server quote verification and historical tax-display truth to serving Production source ab4e41f, with only the two required booking adaptations.
+- Preserve Production payment/receipt/notification workflows, Auth, dependencies, SQL and release controls; retain approved mismatch wording and all 12 tax browser cases.
+- Local build/typecheck/scoped lint, 949 relevant regression tests and 10 release-control tests pass. Browser/Vite teardown completed. Independent audit and separate publication approval remain required; no release or data correction occurred.
+
 ## 2026-10-27 — M1C Reception-compatible LOCAL candidate
 
 - Reuse the governed Account avatar/Sheet presentation with the unchanged canonical Sign out form, pending indication and synchronous local repeat protection.

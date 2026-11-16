@@ -188,34 +188,11 @@ export async function loadAppointmentNotifyContext(
     netPaidCents: netPaid,
   });
 
-  let taxRateBps: number | null = null;
-  let taxLabel: string | null = null;
-  try {
-    const { data: taxRows } = await supabase
-      .from("tax_rates")
-      .select("name, rate_bps, inclusive, is_default, is_active")
-      .eq("business_id", data.business_id)
-      .eq("is_active", true);
-    const rates = [...(taxRows ?? [])].sort((a, b) =>
-      String(a.name ?? "").localeCompare(String(b.name ?? "")),
-    );
-    const preferred =
-      rates.find((r) => r.is_default) ?? rates[0] ?? null;
-    if (preferred) {
-      taxRateBps = Math.max(0, Number(preferred.rate_bps ?? 0));
-      taxLabel = String(preferred.name ?? "Tax");
-    }
-  } catch {
-    /* optional enrichment */
-  }
-  if (
-    taxRateBps == null &&
-    subtotalCents != null &&
-    subtotalCents > 0 &&
-    taxCents > 0
-  ) {
-    taxRateBps = Math.round((taxCents * 10_000) / subtotalCents);
-  }
+  // Appointments persist amounts, not the historical rate/name/tax mode.
+  // Today's business default (or a ratio of rounded cents) cannot establish
+  // that missing provenance. Keep stored amounts and use a generic Tax label.
+  const taxRateBps = null;
+  const taxLabel = null;
 
   const { PAYMENT_METHOD_LABELS, APPOINTMENT_PAYMENT_STATUS_LABELS } =
     await import("@/lib/commerce/types");
