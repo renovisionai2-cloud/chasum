@@ -1,0 +1,62 @@
+name: Decision B isolated proof only
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact independently reviewed Decision B SHA
+        required: true
+        default: 29450dcadf5bcdcd2969392fc2e5b22e6c5bafd5
+permissions:
+  contents: read
+concurrency:
+  group: decision-b-isolated-qa
+  cancel-in-progress: false
+jobs:
+  qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Require trusted default branch and exact candidate
+        env:
+          REQUESTED_SHA: ${{ inputs.candidate_sha }}
+          WORKFLOW_REF: ${{ github.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          test "$WORKFLOW_REF" = "refs/heads/$DEFAULT_BRANCH"
+          test "$REQUESTED_SHA" = 29450dcadf5bcdcd2969392fc2e5b22e6c5bafd5
+      - name: Immutable trusted controls
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          path: controls
+          persist-credentials: false
+      - name: Separate immutable candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: 29450dcadf5bcdcd2969392fc2e5b22e6c5bafd5
+          path: candidate
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Node 22 (no dependency cache sharing)
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22.23.4
+      - name: Bounded proof only with immutable hosted controls
+        env:
+          CONTROL_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 -B controls/scripts/qa-decision-b/driver.py \
+            --proof-only --controls-verification hosted \
+            --candidate "$GITHUB_WORKSPACE/candidate" \
+            --output "$RUNNER_TEMP/chasum-decision-b-qa"
+      - name: Upload sanitized evidence (credentials stay outside candidate)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: decision-b-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/chasum-decision-b-qa/publish/
+          if-no-files-found: error
+          retention-days: 14
+          include-hidden-files: false
