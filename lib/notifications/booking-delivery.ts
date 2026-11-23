@@ -6,6 +6,7 @@
  */
 
 import { planIncludesSms } from "@/lib/billing/plan-features";
+import { eligibleEmailOrBlank } from "@/lib/customers/contact-identity";
 import { sendEmail, sendSMS } from "@/lib/communications/delivery";
 import {
   APPOINTMENT_LOCATION_EMBED,
@@ -242,7 +243,7 @@ export async function loadAppointmentNotifyContext(
     businessName: business.name,
     customerId: customer.id ?? data.customer_id,
     customerName: customer.name,
-    customerEmail: customer.email?.trim() || "",
+    customerEmail: eligibleEmailOrBlank(customer.email),
     customerPhone: customer.phone,
     staffName: staff?.name ?? "To be assigned",
     staffEmail: staff?.email?.trim() || null,

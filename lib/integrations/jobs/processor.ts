@@ -7,6 +7,7 @@ import {
   sendSMS,
 } from "@/lib/communications";
 import { PermanentDeliverySkip, isPermanentDeliverySkip } from "@/lib/communications/errors";
+import { isEligibleCustomerEmail } from "@/lib/customers/contact-identity";
 import type { AppointmentTemplateContext } from "@/lib/communications";
 import type { SendResult } from "@/lib/communications/types";
 import {
@@ -192,7 +193,7 @@ async function getAppointmentContext(
   const customer = unwrapRelation(data.customer) as {
     id: string;
     name: string;
-    email: string;
+    email: string | null;
     phone: string | null;
   } | null;
   const location = sameBusinessLocation(
@@ -224,13 +225,14 @@ async function getAppointmentContext(
     businessTimezone,
   });
 
+  const storedEmail = customer.email?.trim().toLowerCase() ?? "";
   return {
     appointmentId: data.id,
     businessId: data.business_id,
     businessName: business.name,
     customerId: customer.id ?? data.customer_id,
     customerName: customer.name,
-    customerEmail: customer.email,
+    customerEmail: isEligibleCustomerEmail(storedEmail) ? storedEmail : null,
     customerPhone: customer.phone,
     staffName: staff?.name ?? "To be assigned",
     serviceName: service.name,
@@ -243,6 +245,20 @@ async function getAppointmentContext(
     locationAddress: toAppointmentLocationAddress(location),
     notes: data.notes,
   };
+}
+
+function requireEligibleEmailRecipient(
+  stored: unknown,
+  fallback: string | null | undefined,
+): string {
+  const storedText = typeof stored === "string" ? stored.trim() : "";
+  const candidate = storedText || fallback || "";
+  if (!isEligibleCustomerEmail(candidate)) {
+    throw new PermanentDeliverySkip(
+      "Email recipient is missing or not a real customer address — message was not sent.",
+    );
+  }
+  return candidate.trim().toLowerCase();
 }
 
 async function processEmailJob(job: BackgroundJob, payload = job.payload) {
@@ -260,8 +276,7 @@ async function processEmailJob(job: BackgroundJob, payload = job.payload) {
     if (topReceiptId != null && nestedReceiptId != null && topReceiptId !== nestedReceiptId) {
       throw new JobReconciliationRequired("receipt_identity_conflict");
     }
-    const to = (payload.recipient as string) || ctx.customerEmail;
-    if (!to) throw new Error("Missing email recipient");
+    const to = requireEligibleEmailRecipient(payload.recipient, ctx.customerEmail);
     const result = await sendEmail({
       businessId: ctx.businessId,
       to,
@@ -290,11 +305,7 @@ async function processEmailJob(job: BackgroundJob, payload = job.payload) {
     );
   }
   await verifyContextTenant(job, ctx);
-  if (!ctx.customerEmail && !(payload.recipient as string | undefined)) {
-    throw new PermanentDeliverySkip(
-      "Customer has no email address — confirmation email was not sent.",
-    );
-  }
+  const to = requireEligibleEmailRecipient(payload.recipient, ctx.customerEmail);
 
   const previousStartTime = payload.previousStartTime as string | undefined;
   const previousEndTime = payload.previousEndTime as string | undefined;
@@ -302,7 +313,7 @@ async function processEmailJob(job: BackgroundJob, payload = job.payload) {
 
   const result = await sendEmail({
     businessId: ctx.businessId,
-    to: (payload.recipient as string) ?? ctx.customerEmail!,
+    to,
     templateKey,
     context: {
       ...ctx,
