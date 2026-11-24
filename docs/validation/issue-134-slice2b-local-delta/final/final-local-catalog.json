@@ -1,0 +1,6077 @@
+{
+  "roles": [
+    {
+      "role": "anon",
+      "super": false,
+      "bypass": false,
+      "inherit": true
+    },
+    {
+      "role": "authenticated",
+      "super": false,
+      "bypass": false,
+      "inherit": true
+    },
+    {
+      "role": "authenticator",
+      "super": false,
+      "bypass": false,
+      "inherit": false
+    },
+    {
+      "role": "darshan",
+      "super": true,
+      "bypass": true,
+      "inherit": true
+    },
+    {
+      "role": "service_role",
+      "super": false,
+      "bypass": true,
+      "inherit": true
+    }
+  ],
+  "policies": [
+    {
+      "name": "Owners delete own assets",
+      "check": null,
+      "roles": [
+        "16386"
+      ],
+      "table": "storage.objects",
+      "using": "((bucket_id = 'business-assets'::text) AND ((storage.foldername(name))[1] IN ( SELECT (businesses.id)::text AS id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid()))))",
+      "command": "d"
+    },
+    {
+      "name": "Owners update own assets",
+      "check": null,
+      "roles": [
+        "16386"
+      ],
+      "table": "storage.objects",
+      "using": "((bucket_id = 'business-assets'::text) AND ((storage.foldername(name))[1] IN ( SELECT (businesses.id)::text AS id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid()))))",
+      "command": "w"
+    },
+    {
+      "name": "Owners upload business assets",
+      "check": "((bucket_id = 'business-assets'::text) AND ((storage.foldername(name))[1] IN ( SELECT (businesses.id)::text AS id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid()))))",
+      "roles": [
+        "16386"
+      ],
+      "table": "storage.objects",
+      "using": null,
+      "command": "a"
+    },
+    {
+      "name": "Public read business assets",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "storage.objects",
+      "using": "(bucket_id = 'business-assets'::text)",
+      "command": "r"
+    },
+    {
+      "name": "No client business creation",
+      "check": "false",
+      "roles": [
+        "16385",
+        "16386"
+      ],
+      "table": "businesses",
+      "using": null,
+      "command": "a"
+    },
+    {
+      "name": "Owners delete their businesses",
+      "check": null,
+      "roles": [
+        "16386"
+      ],
+      "table": "businesses",
+      "using": "((owner_id = auth.uid()) OR is_business_owner(id))",
+      "command": "d"
+    },
+    {
+      "name": "Owners read their businesses",
+      "check": null,
+      "roles": [
+        "16386"
+      ],
+      "table": "businesses",
+      "using": "((owner_id = auth.uid()) OR is_business_owner(id))",
+      "command": "r"
+    },
+    {
+      "name": "Owners update their businesses",
+      "check": "((owner_id = auth.uid()) OR is_business_owner(id))",
+      "roles": [
+        "16386"
+      ],
+      "table": "businesses",
+      "using": "((owner_id = auth.uid()) OR is_business_owner(id))",
+      "command": "w"
+    },
+    {
+      "name": "Public can view businesses",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "businesses",
+      "using": "true",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage services",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "services",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Public can view active services",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "services",
+      "using": "(is_active = true)",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage staff",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "staff",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Public can view active staff",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "staff",
+      "using": "(is_active = true)",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage staff services",
+      "check": "(EXISTS ( SELECT 1\n   FROM (staff st\n     JOIN services s ON ((s.id = staff_services.service_id)))\n  WHERE ((st.id = staff_services.staff_id) AND (st.business_id = s.business_id) AND is_business_owner(st.business_id))))",
+      "roles": [
+        "16386"
+      ],
+      "table": "staff_services",
+      "using": "(EXISTS ( SELECT 1\n   FROM (staff st\n     JOIN services s ON ((s.id = staff_services.service_id)))\n  WHERE ((st.id = staff_services.staff_id) AND (st.business_id = s.business_id) AND is_business_owner(st.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Public can view bookable staff services",
+      "check": null,
+      "roles": [
+        "16385",
+        "16386"
+      ],
+      "table": "staff_services",
+      "using": "is_public_staff_service(staff_id, service_id)",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage business hours",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "business_hours",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Public can view business hours",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "business_hours",
+      "using": "true",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage customers",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "customers",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage appointments",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "appointments",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage staff working hours",
+      "check": "(EXISTS ( SELECT 1\n   FROM staff s\n  WHERE ((s.id = staff_working_hours.staff_id) AND is_business_owner(s.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "staff_working_hours",
+      "using": "(EXISTS ( SELECT 1\n   FROM staff s\n  WHERE ((s.id = staff_working_hours.staff_id) AND is_business_owner(s.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Public can view staff working hours",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "staff_working_hours",
+      "using": "true",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage staff vacations",
+      "check": "(EXISTS ( SELECT 1\n   FROM staff s\n  WHERE ((s.id = staff_vacations.staff_id) AND is_business_owner(s.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "staff_vacations",
+      "using": "(EXISTS ( SELECT 1\n   FROM staff s\n  WHERE ((s.id = staff_vacations.staff_id) AND is_business_owner(s.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Public can view staff vacations",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "staff_vacations",
+      "using": "true",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage holidays",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "holidays",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Public can view holidays",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "holidays",
+      "using": "true",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage availability",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "availability",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Public can view availability",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "availability",
+      "using": "true",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage calendar connections",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "calendar_connections",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage external events",
+      "check": "(EXISTS ( SELECT 1\n   FROM calendar_connections cc\n  WHERE ((cc.id = external_events.calendar_connection_id) AND is_business_owner(cc.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "external_events",
+      "using": "(EXISTS ( SELECT 1\n   FROM calendar_connections cc\n  WHERE ((cc.id = external_events.calendar_connection_id) AND is_business_owner(cc.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage notifications",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "notifications",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners insert notification logs",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "notification_logs",
+      "using": null,
+      "command": "a"
+    },
+    {
+      "name": "Owners view notification logs",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "notification_logs",
+      "using": "is_business_owner(business_id)",
+      "command": "r"
+    },
+    {
+      "name": "Service role manages notification logs",
+      "check": "(auth.role() = 'service_role'::text)",
+      "roles": [
+        "0"
+      ],
+      "table": "notification_logs",
+      "using": "(auth.role() = 'service_role'::text)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage api keys",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "api_keys",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage webhooks",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "webhook_endpoints",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage recurring rules",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "recurring_rules",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage waitlists",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "waitlists",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners view background jobs",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "background_jobs",
+      "using": "((business_id IS NULL) OR is_business_owner(business_id))",
+      "command": "r"
+    },
+    {
+      "name": "Service role manages background jobs",
+      "check": "(auth.role() = 'service_role'::text)",
+      "roles": [
+        "0"
+      ],
+      "table": "background_jobs",
+      "using": "(auth.role() = 'service_role'::text)",
+      "command": "*"
+    },
+    {
+      "name": "Anyone can read subscription plans",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "subscription_plans",
+      "using": "true",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage locations",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "locations",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners read own locations",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "locations",
+      "using": "is_business_owner(business_id)",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage location settings",
+      "check": "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE ((l.id = location_settings.location_id) AND is_business_owner(l.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "location_settings",
+      "using": "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE ((l.id = location_settings.location_id) AND is_business_owner(l.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage location hours",
+      "check": "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE ((l.id = location_hours.location_id) AND is_business_owner(l.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "location_hours",
+      "using": "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE ((l.id = location_hours.location_id) AND is_business_owner(l.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Owners read own location hours",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "location_hours",
+      "using": "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE ((l.id = location_hours.location_id) AND is_business_owner(l.business_id))))",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage customer documents",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "customer_documents",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners insert own subscription events",
+      "check": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "roles": [
+        "0"
+      ],
+      "table": "subscription_events",
+      "using": null,
+      "command": "a"
+    },
+    {
+      "name": "Owners read own subscription events",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "subscription_events",
+      "using": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage billing invoices",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "billing_invoices",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage own invoices",
+      "check": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "roles": [
+        "0"
+      ],
+      "table": "billing_invoices",
+      "using": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage own communication history",
+      "check": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "roles": [
+        "0"
+      ],
+      "table": "communication_history",
+      "using": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage own follow-ups",
+      "check": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "roles": [
+        "0"
+      ],
+      "table": "communication_follow_ups",
+      "using": "(business_id IN ( SELECT businesses.id\n   FROM businesses\n  WHERE (businesses.owner_id = auth.uid())))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage departments",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "departments",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage staff locations",
+      "check": "(EXISTS ( SELECT 1\n   FROM (staff st\n     JOIN locations l ON ((l.id = staff_locations.location_id)))\n  WHERE ((st.id = staff_locations.staff_id) AND (st.business_id = l.business_id) AND is_business_owner(st.business_id))))",
+      "roles": [
+        "16386"
+      ],
+      "table": "staff_locations",
+      "using": "(EXISTS ( SELECT 1\n   FROM (staff st\n     JOIN locations l ON ((l.id = staff_locations.location_id)))\n  WHERE ((st.id = staff_locations.staff_id) AND (st.business_id = l.business_id) AND is_business_owner(st.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Public can view active staff locations",
+      "check": null,
+      "roles": [
+        "16385",
+        "16386"
+      ],
+      "table": "staff_locations",
+      "using": "is_public_staff_location(staff_id, location_id)",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage staff documents",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "staff_documents",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage staff activity",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "staff_activity",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage customer notes",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "customer_notes",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage customer payment events",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "customer_payment_events",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage booking resources",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "booking_resources",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage appointment resources",
+      "check": "(EXISTS ( SELECT 1\n   FROM appointments a\n  WHERE ((a.id = appointment_resources.appointment_id) AND is_business_owner(a.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "appointment_resources",
+      "using": "(EXISTS ( SELECT 1\n   FROM appointments a\n  WHERE ((a.id = appointment_resources.appointment_id) AND is_business_owner(a.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage appointment attachments",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "appointment_attachments",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage appointment change log",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "appointment_change_log",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage portal tokens",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "customer_portal_tokens",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage service categories",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "service_categories",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage memberships",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "memberships",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage service packages",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "service_packages",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage gift cards",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "gift_cards",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage tax rates",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "tax_rates",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage discount codes",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "discount_codes",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage custom form templates",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "custom_form_templates",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage business automation rules",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "business_automation_rules",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage report schedules",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "report_schedules",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage report exports",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "report_exports",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage AI receptionist conversations",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "ai_receptionist_conversations",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage AI receptionist messages",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "ai_receptionist_messages",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage business closures",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "business_closures",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage business documents",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "business_documents",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage location hour segments",
+      "check": "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE ((l.id = location_hour_segments.location_id) AND is_business_owner(l.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "location_hour_segments",
+      "using": "(EXISTS ( SELECT 1\n   FROM locations l\n  WHERE ((l.id = location_hour_segments.location_id) AND is_business_owner(l.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage service locations",
+      "check": "(EXISTS ( SELECT 1\n   FROM (services s\n     JOIN locations l ON ((l.id = service_locations.location_id)))\n  WHERE ((s.id = service_locations.service_id) AND (s.business_id = l.business_id) AND is_business_owner(s.business_id))))",
+      "roles": [
+        "16386"
+      ],
+      "table": "service_locations",
+      "using": "(EXISTS ( SELECT 1\n   FROM (services s\n     JOIN locations l ON ((l.id = service_locations.location_id)))\n  WHERE ((s.id = service_locations.service_id) AND (s.business_id = l.business_id) AND is_business_owner(s.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Public can view bookable service locations",
+      "check": null,
+      "roles": [
+        "16385",
+        "16386"
+      ],
+      "table": "service_locations",
+      "using": "is_public_service_location(service_id, location_id)",
+      "command": "r"
+    },
+    {
+      "name": "Owners manage service blackouts",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "service_blackouts",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage custom roles",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "custom_roles",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage staff hour segments",
+      "check": "(EXISTS ( SELECT 1\n   FROM staff s\n  WHERE ((s.id = staff_hour_segments.staff_id) AND is_business_owner(s.business_id))))",
+      "roles": [
+        "0"
+      ],
+      "table": "staff_hour_segments",
+      "using": "(EXISTS ( SELECT 1\n   FROM staff s\n  WHERE ((s.id = staff_hour_segments.staff_id) AND is_business_owner(s.business_id))))",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage staff closures",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "staff_closures",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage commerce invoice sequences",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_invoice_sequences",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage commerce invoices",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_invoices",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage commerce invoice lines",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_invoice_lines",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage commerce transactions",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_transactions",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage commerce receipts",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_receipts",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners manage commerce refunds",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_refunds",
+      "using": "is_business_owner(business_id)",
+      "command": "*"
+    },
+    {
+      "name": "Owners insert commerce audit log",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_audit_log",
+      "using": null,
+      "command": "a"
+    },
+    {
+      "name": "Owners read commerce audit log",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "commerce_audit_log",
+      "using": "is_business_owner(business_id)",
+      "command": "r"
+    },
+    {
+      "name": "Owners insert communications audit",
+      "check": "is_business_owner(business_id)",
+      "roles": [
+        "0"
+      ],
+      "table": "communications_audit_log",
+      "using": null,
+      "command": "a"
+    },
+    {
+      "name": "Owners read communications audit",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "communications_audit_log",
+      "using": "is_business_owner(business_id)",
+      "command": "r"
+    },
+    {
+      "name": "Members read own membership",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "business_members",
+      "using": "((user_id = auth.uid()) OR is_business_owner(business_id))",
+      "command": "r"
+    },
+    {
+      "name": "Public can view business slug aliases",
+      "check": null,
+      "roles": [
+        "0"
+      ],
+      "table": "business_slug_aliases",
+      "using": "true",
+      "command": "r"
+    }
+  ],
+  "triggers": [
+    {
+      "name": "RI_ConstraintTrigger_a_16829",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16829\" AFTER DELETE ON public.appointments FROM external_events NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_16830",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16830\" AFTER UPDATE ON public.appointments FROM external_events NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_16874",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16874\" AFTER DELETE ON public.appointments FROM notification_logs NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_16875",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_16875\" AFTER UPDATE ON public.appointments FROM notification_logs NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_17970",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_17970\" AFTER DELETE ON public.appointments FROM communication_history NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_17971",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_17971\" AFTER UPDATE ON public.appointments FROM communication_history NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18008",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18008\" AFTER DELETE ON public.appointments FROM communication_follow_ups NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18009",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18009\" AFTER UPDATE ON public.appointments FROM communication_follow_ups NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18213",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18213\" AFTER DELETE ON public.appointments FROM customer_payment_events NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18214",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18214\" AFTER UPDATE ON public.appointments FROM customer_payment_events NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18272",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18272\" AFTER DELETE ON public.appointments FROM appointment_resources NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_cascade_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18273",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18273\" AFTER UPDATE ON public.appointments FROM appointment_resources NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18310",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18310\" AFTER DELETE ON public.appointments FROM appointment_attachments NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_cascade_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18311",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18311\" AFTER UPDATE ON public.appointments FROM appointment_attachments NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18332",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18332\" AFTER DELETE ON public.appointments FROM appointment_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_cascade_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18333",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18333\" AFTER UPDATE ON public.appointments FROM appointment_change_log NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18978",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18978\" AFTER DELETE ON public.appointments FROM commerce_invoices NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_18979",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_18979\" AFTER UPDATE ON public.appointments FROM commerce_invoices NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19051",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19051\" AFTER DELETE ON public.appointments FROM commerce_transactions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19052",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19052\" AFTER UPDATE ON public.appointments FROM commerce_transactions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19150",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19150\" AFTER DELETE ON public.appointments FROM commerce_refunds NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_setnull_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19151",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19151\" AFTER UPDATE ON public.appointments FROM commerce_refunds NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19437",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19437\" AFTER DELETE ON public.appointments FROM commerce_payment_attempts NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_restrict_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19438",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19438\" AFTER UPDATE ON public.appointments FROM commerce_payment_attempts NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19529",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19529\" AFTER DELETE ON public.appointments FROM commerce_transactions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19530",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19530\" AFTER UPDATE ON public.appointments FROM commerce_transactions NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_restrict_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19743",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19743\" AFTER DELETE ON public.appointments FROM booking_lifecycle_private.appointment_mutations NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_restrict_del\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_a_19744",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_a_19744\" AFTER UPDATE ON public.appointments FROM booking_lifecycle_private.appointment_mutations NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_noaction_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16551",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16551\" AFTER INSERT ON public.appointments FROM businesses NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16552",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16552\" AFTER UPDATE ON public.appointments FROM businesses NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16556",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16556\" AFTER INSERT ON public.appointments FROM services NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16557",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16557\" AFTER UPDATE ON public.appointments FROM services NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16561",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16561\" AFTER INSERT ON public.appointments FROM staff NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16562",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16562\" AFTER UPDATE ON public.appointments FROM staff NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16566",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16566\" AFTER INSERT ON public.appointments FROM customers NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_16567",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_16567\" AFTER UPDATE ON public.appointments FROM customers NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_17007",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_17007\" AFTER INSERT ON public.appointments FROM recurring_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_17008",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_17008\" AFTER UPDATE ON public.appointments FROM recurring_rules NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_17776",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_17776\" AFTER INSERT ON public.appointments FROM locations NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_17777",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_17777\" AFTER UPDATE ON public.appointments FROM locations NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_18287",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_18287\" AFTER INSERT ON public.appointments FROM booking_resources NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_18288",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_18288\" AFTER UPDATE ON public.appointments FROM booking_resources NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_19563",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_19563\" AFTER INSERT ON public.appointments FROM commerce_booking_operations NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_19564",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_19564\" AFTER UPDATE ON public.appointments FROM commerce_booking_operations NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "appointments_booking_operation_guard",
+      "table": "appointments",
+      "enabled": "A",
+      "internal": false,
+      "definition": "CREATE TRIGGER appointments_booking_operation_guard BEFORE INSERT OR DELETE OR UPDATE OF id, business_id, booking_operation_id, customer_id, location_id, service_id, staff_id, start_time, end_time, status, notes, room_id, price_cents, tax_cents, deposit_cents, operational_revision ON public.appointments FOR EACH ROW EXECUTE FUNCTION guard_appointment_booking_operation_link_v1()"
+    },
+    {
+      "name": "appointments_updated_at",
+      "table": "appointments",
+      "enabled": "O",
+      "internal": false,
+      "definition": "CREATE TRIGGER appointments_updated_at BEFORE UPDATE ON public.appointments FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_18274",
+      "table": "appointment_resources",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_18274\" AFTER INSERT ON public.appointment_resources FROM appointments NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_18275",
+      "table": "appointment_resources",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_18275\" AFTER UPDATE ON public.appointment_resources FROM appointments NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_18279",
+      "table": "appointment_resources",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_18279\" AFTER INSERT ON public.appointment_resources FROM booking_resources NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_ins\"()"
+    },
+    {
+      "name": "RI_ConstraintTrigger_c_18280",
+      "table": "appointment_resources",
+      "enabled": "O",
+      "internal": true,
+      "definition": "CREATE CONSTRAINT TRIGGER \"RI_ConstraintTrigger_c_18280\" AFTER UPDATE ON public.appointment_resources FROM booking_resources NOT DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION \"RI_FKey_check_upd\"()"
+    },
+    {
+      "name": "appointment_resources_lifecycle_guard",
+      "table": "appointment_resources",
+      "enabled": "A",
+      "internal": false,
+      "definition": "CREATE TRIGGER appointment_resources_lifecycle_guard BEFORE INSERT OR DELETE OR UPDATE ON public.appointment_resources FOR EACH ROW EXECUTE FUNCTION booking_lifecycle_private.guard_appointment_resource_v2()"
+    }
+  ],
+  "functions": [
+    {
+      "acl": null,
+      "oid": "16570",
+      "name": "is_business_owner",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "045b0b327f1a544908d17b43f2269f1c",
+      "identity": "is_business_owner(uuid)",
+      "language": "sql",
+      "arguments": "bid uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": null,
+      "oid": "16588",
+      "name": "set_updated_at",
+      "owner": "darshan",
+      "config": null,
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "9b1889f56258bf9d6554213c05019c76",
+      "identity": "set_updated_at()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "16691",
+      "name": "get_public_appointments",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "TABLE(start_time timestamp with time zone, end_time timestamp with time zone, staff_id uuid, status appointment_status)",
+      "schema": "public",
+      "body_md5": "9366cc10fdea2e7f0b90e941f3474ca8",
+      "identity": "get_public_appointments(uuid,timestamp with time zone,timestamp with time zone)",
+      "language": "sql",
+      "arguments": "p_business_id uuid, p_start timestamp with time zone, p_end timestamp with time zone",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "16692",
+      "name": "upsert_booking_customer",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "uuid",
+      "schema": "public",
+      "body_md5": "7b7312c0364a3bd0f77add525a0137a4",
+      "identity": "upsert_booking_customer(uuid,text,text,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_name text, p_email text, p_phone text DEFAULT NULL::text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": null,
+      "oid": "17032",
+      "name": "gbtreekey4_in",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey4",
+      "schema": "public",
+      "body_md5": "3ae07a716761d2fb692f9b07efc1e53e",
+      "identity": "gbtreekey4_in(cstring)",
+      "language": "c",
+      "arguments": "cstring",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17033",
+      "name": "gbtreekey4_out",
+      "owner": "darshan",
+      "config": null,
+      "result": "cstring",
+      "schema": "public",
+      "body_md5": "6712805062db109a94ce544bbe7067cc",
+      "identity": "gbtreekey4_out(gbtreekey4)",
+      "language": "c",
+      "arguments": "gbtreekey4",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17036",
+      "name": "gbtreekey8_in",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey8",
+      "schema": "public",
+      "body_md5": "3ae07a716761d2fb692f9b07efc1e53e",
+      "identity": "gbtreekey8_in(cstring)",
+      "language": "c",
+      "arguments": "cstring",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17037",
+      "name": "gbtreekey8_out",
+      "owner": "darshan",
+      "config": null,
+      "result": "cstring",
+      "schema": "public",
+      "body_md5": "6712805062db109a94ce544bbe7067cc",
+      "identity": "gbtreekey8_out(gbtreekey8)",
+      "language": "c",
+      "arguments": "gbtreekey8",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17040",
+      "name": "gbtreekey16_in",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "3ae07a716761d2fb692f9b07efc1e53e",
+      "identity": "gbtreekey16_in(cstring)",
+      "language": "c",
+      "arguments": "cstring",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17041",
+      "name": "gbtreekey16_out",
+      "owner": "darshan",
+      "config": null,
+      "result": "cstring",
+      "schema": "public",
+      "body_md5": "6712805062db109a94ce544bbe7067cc",
+      "identity": "gbtreekey16_out(gbtreekey16)",
+      "language": "c",
+      "arguments": "gbtreekey16",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17044",
+      "name": "gbtreekey32_in",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey32",
+      "schema": "public",
+      "body_md5": "3ae07a716761d2fb692f9b07efc1e53e",
+      "identity": "gbtreekey32_in(cstring)",
+      "language": "c",
+      "arguments": "cstring",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17045",
+      "name": "gbtreekey32_out",
+      "owner": "darshan",
+      "config": null,
+      "result": "cstring",
+      "schema": "public",
+      "body_md5": "6712805062db109a94ce544bbe7067cc",
+      "identity": "gbtreekey32_out(gbtreekey32)",
+      "language": "c",
+      "arguments": "gbtreekey32",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17048",
+      "name": "gbtreekey_var_in",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey_var",
+      "schema": "public",
+      "body_md5": "3ae07a716761d2fb692f9b07efc1e53e",
+      "identity": "gbtreekey_var_in(cstring)",
+      "language": "c",
+      "arguments": "cstring",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17049",
+      "name": "gbtreekey_var_out",
+      "owner": "darshan",
+      "config": null,
+      "result": "cstring",
+      "schema": "public",
+      "body_md5": "6712805062db109a94ce544bbe7067cc",
+      "identity": "gbtreekey_var_out(gbtreekey_var)",
+      "language": "c",
+      "arguments": "gbtreekey_var",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17051",
+      "name": "cash_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "money",
+      "schema": "public",
+      "body_md5": "1acd79b2b4b9df652d58d90e72f05a29",
+      "identity": "cash_dist(money,money)",
+      "language": "c",
+      "arguments": "money, money",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17053",
+      "name": "date_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "integer",
+      "schema": "public",
+      "body_md5": "3983f43755ffa80d869985d91ee8e538",
+      "identity": "date_dist(date,date)",
+      "language": "c",
+      "arguments": "date, date",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17055",
+      "name": "float4_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "real",
+      "schema": "public",
+      "body_md5": "1491a162a165d9bd567fbac3c9d1dd2d",
+      "identity": "float4_dist(real,real)",
+      "language": "c",
+      "arguments": "real, real",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17057",
+      "name": "float8_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "1c6ca5056a910a22941735008e6a75c1",
+      "identity": "float8_dist(double precision,double precision)",
+      "language": "c",
+      "arguments": "double precision, double precision",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17059",
+      "name": "int2_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "smallint",
+      "schema": "public",
+      "body_md5": "e28cfd9bdc2bae4a5d31338e45f7cc09",
+      "identity": "int2_dist(smallint,smallint)",
+      "language": "c",
+      "arguments": "smallint, smallint",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17061",
+      "name": "int4_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "integer",
+      "schema": "public",
+      "body_md5": "70022e3435f9747864cf180d2d97e3dc",
+      "identity": "int4_dist(integer,integer)",
+      "language": "c",
+      "arguments": "integer, integer",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17063",
+      "name": "int8_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "bigint",
+      "schema": "public",
+      "body_md5": "a73c1806b07543ad4167457378c84df9",
+      "identity": "int8_dist(bigint,bigint)",
+      "language": "c",
+      "arguments": "bigint, bigint",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17065",
+      "name": "interval_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "interval",
+      "schema": "public",
+      "body_md5": "c2001397d4f589efc976e1f2db79c9ac",
+      "identity": "interval_dist(interval,interval)",
+      "language": "c",
+      "arguments": "interval, interval",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17067",
+      "name": "oid_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "oid",
+      "schema": "public",
+      "body_md5": "98f1ff8d3c8373653d6d3a2e298a7eba",
+      "identity": "oid_dist(oid,oid)",
+      "language": "c",
+      "arguments": "oid, oid",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17069",
+      "name": "time_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "interval",
+      "schema": "public",
+      "body_md5": "570a6afc92722fa17cb3fb725c661bb5",
+      "identity": "time_dist(time without time zone,time without time zone)",
+      "language": "c",
+      "arguments": "time without time zone, time without time zone",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17071",
+      "name": "ts_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "interval",
+      "schema": "public",
+      "body_md5": "cd9d836b7dd414c3713096792f16bf8d",
+      "identity": "ts_dist(timestamp without time zone,timestamp without time zone)",
+      "language": "c",
+      "arguments": "timestamp without time zone, timestamp without time zone",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17073",
+      "name": "tstz_dist",
+      "owner": "darshan",
+      "config": null,
+      "result": "interval",
+      "schema": "public",
+      "body_md5": "d9abd396677b459458fae044fa46f4b1",
+      "identity": "tstz_dist(timestamp with time zone,timestamp with time zone)",
+      "language": "c",
+      "arguments": "timestamp with time zone, timestamp with time zone",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17075",
+      "name": "gbt_oid_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "dd55203bb053d894f332ab32cd797e81",
+      "identity": "gbt_oid_consistent(internal,oid,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, oid, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17076",
+      "name": "gbt_oid_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "e1605f622b9c0c4353c304a66189e79b",
+      "identity": "gbt_oid_distance(internal,oid,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, oid, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17077",
+      "name": "gbt_oid_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b170eb7f24d67b67a728326d4b01cb10",
+      "identity": "gbt_oid_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17078",
+      "name": "gbt_oid_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "732afaf305d4f417c4cf5db0c3bc0f23",
+      "identity": "gbt_oid_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17079",
+      "name": "gbt_decompress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "59e11b242d92fcb1248165436b21dcf5",
+      "identity": "gbt_decompress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17080",
+      "name": "gbt_var_decompress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "ccb6a57b982d2f25ac531bc2d0a83bb1",
+      "identity": "gbt_var_decompress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17081",
+      "name": "gbt_var_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "0574356c843636b49182bc6047dce549",
+      "identity": "gbt_var_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17082",
+      "name": "gbt_oid_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "bcd9cb9619f4e8e465119557e028dd3f",
+      "identity": "gbt_oid_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17083",
+      "name": "gbt_oid_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "9d59d62bf218671c206c5a0fc99e8d03",
+      "identity": "gbt_oid_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17084",
+      "name": "gbt_oid_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey8",
+      "schema": "public",
+      "body_md5": "5757cea442b4a6568875ead13deb3a90",
+      "identity": "gbt_oid_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17085",
+      "name": "gbt_oid_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b7439f5acbfc90da616f215b5fa98492",
+      "identity": "gbt_oid_same(gbtreekey8,gbtreekey8,internal)",
+      "language": "c",
+      "arguments": "gbtreekey8, gbtreekey8, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17104",
+      "name": "gbt_int2_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "5d3d20338cdd8b1dd1b716d0b7fe1b20",
+      "identity": "gbt_int2_consistent(internal,smallint,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, smallint, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17105",
+      "name": "gbt_int2_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "1b18f69482d0ccfffc9d24e6833cc116",
+      "identity": "gbt_int2_distance(internal,smallint,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, smallint, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17106",
+      "name": "gbt_int2_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "8e689ab3938180f4c3a82812e3ceb7e9",
+      "identity": "gbt_int2_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17107",
+      "name": "gbt_int2_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "22809d09c3801a9269f095ffdfbee732",
+      "identity": "gbt_int2_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17108",
+      "name": "gbt_int2_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "c3daa7326bb2cf9a91ec946a8e46f09e",
+      "identity": "gbt_int2_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17109",
+      "name": "gbt_int2_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "f0fde684618d8511cbeb7ee12b25f454",
+      "identity": "gbt_int2_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17110",
+      "name": "gbt_int2_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey4",
+      "schema": "public",
+      "body_md5": "db5b663109e2c4088dc93913182f8caa",
+      "identity": "gbt_int2_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17111",
+      "name": "gbt_int2_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "3f52d2b718c78605317967df5455e6b9",
+      "identity": "gbt_int2_same(gbtreekey4,gbtreekey4,internal)",
+      "language": "c",
+      "arguments": "gbtreekey4, gbtreekey4, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17130",
+      "name": "gbt_int4_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "9be10e5d8f86fd5163361f0de10f2814",
+      "identity": "gbt_int4_consistent(internal,integer,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, integer, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17131",
+      "name": "gbt_int4_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "93d6a241916764584c5daa5e27c6fd4e",
+      "identity": "gbt_int4_distance(internal,integer,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, integer, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17132",
+      "name": "gbt_int4_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "e4aeb13d147e98757be382ea4d8ea973",
+      "identity": "gbt_int4_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17133",
+      "name": "gbt_int4_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "cb39e0dcda5770ba36430bbb44249afd",
+      "identity": "gbt_int4_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17134",
+      "name": "gbt_int4_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "a34e57e9769fd251e1772b7994220353",
+      "identity": "gbt_int4_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17135",
+      "name": "gbt_int4_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "6fa362382d3d9451e1491b74050a9c20",
+      "identity": "gbt_int4_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17136",
+      "name": "gbt_int4_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey8",
+      "schema": "public",
+      "body_md5": "8fccc6d938f74efa14807469982f19b2",
+      "identity": "gbt_int4_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17137",
+      "name": "gbt_int4_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "2a585782a2bc20b6bfd567258221758c",
+      "identity": "gbt_int4_same(gbtreekey8,gbtreekey8,internal)",
+      "language": "c",
+      "arguments": "gbtreekey8, gbtreekey8, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17156",
+      "name": "gbt_int8_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "3dac7564f78804ec4d9b411ece64abd2",
+      "identity": "gbt_int8_consistent(internal,bigint,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, bigint, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17157",
+      "name": "gbt_int8_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "7e8e63d20ce39846dd3bbc795ae9a511",
+      "identity": "gbt_int8_distance(internal,bigint,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, bigint, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17158",
+      "name": "gbt_int8_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b9e5b5783de00a79dffbf27b07e03ed0",
+      "identity": "gbt_int8_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17159",
+      "name": "gbt_int8_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "31061f1b43766b7ecb150d1b065b922d",
+      "identity": "gbt_int8_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17160",
+      "name": "gbt_int8_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "87ad9c7cc77c999350aa4049f9d844e7",
+      "identity": "gbt_int8_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17161",
+      "name": "gbt_int8_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "e97615b3945abc4affdfe70cc30d3000",
+      "identity": "gbt_int8_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17162",
+      "name": "gbt_int8_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "362fa638f5af4198e050aa1ce4f687b8",
+      "identity": "gbt_int8_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17163",
+      "name": "gbt_int8_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "58a769820465cc9ae86df9024ffc22d1",
+      "identity": "gbt_int8_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17182",
+      "name": "gbt_float4_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "2e2cdd150b9ea2fd1d65b6d2ccbf35f1",
+      "identity": "gbt_float4_consistent(internal,real,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, real, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17183",
+      "name": "gbt_float4_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "6a02c2ffa11e804008bf8ac1c948a38e",
+      "identity": "gbt_float4_distance(internal,real,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, real, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17184",
+      "name": "gbt_float4_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "888a893aaba63c847e324f3f920e8ef2",
+      "identity": "gbt_float4_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17185",
+      "name": "gbt_float4_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "3e979e8dbb7a68e145cbc23273b65608",
+      "identity": "gbt_float4_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17186",
+      "name": "gbt_float4_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "9f7f3cdddc71f1d2f88761fb1a603bf5",
+      "identity": "gbt_float4_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17187",
+      "name": "gbt_float4_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "562c951714215976f6d8e0bc83cd761a",
+      "identity": "gbt_float4_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17188",
+      "name": "gbt_float4_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey8",
+      "schema": "public",
+      "body_md5": "f1f39c6dabdb6397aa5a07741921afc9",
+      "identity": "gbt_float4_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17189",
+      "name": "gbt_float4_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "514b26034fac053e2c0b4c244b11c965",
+      "identity": "gbt_float4_same(gbtreekey8,gbtreekey8,internal)",
+      "language": "c",
+      "arguments": "gbtreekey8, gbtreekey8, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17208",
+      "name": "gbt_float8_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "a19d7db88f02b87477109e3f22de860a",
+      "identity": "gbt_float8_consistent(internal,double precision,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, double precision, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17209",
+      "name": "gbt_float8_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "441f67ab03506f16034abb0c1cc5b6b3",
+      "identity": "gbt_float8_distance(internal,double precision,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, double precision, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17210",
+      "name": "gbt_float8_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b49686a0aaeb0b28ffff2b5ecee54741",
+      "identity": "gbt_float8_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17211",
+      "name": "gbt_float8_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "5fe758b66a03d975a48d2c80804295ef",
+      "identity": "gbt_float8_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17212",
+      "name": "gbt_float8_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "7d4f3fdf23be08b80f4fe26572c50d85",
+      "identity": "gbt_float8_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17213",
+      "name": "gbt_float8_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "9643b2a534ff52ed6f4c1449739ce9ee",
+      "identity": "gbt_float8_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17214",
+      "name": "gbt_float8_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "98b9d1f308bf188b306553aabd17d79c",
+      "identity": "gbt_float8_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17215",
+      "name": "gbt_float8_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "e06294bc90bb577f59f4dd7f7be66b22",
+      "identity": "gbt_float8_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17234",
+      "name": "gbt_ts_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "129c868da7e3c4a0491e70b514f3753b",
+      "identity": "gbt_ts_consistent(internal,timestamp without time zone,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, timestamp without time zone, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17235",
+      "name": "gbt_ts_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "db22dca96984ecb19d93162a70524054",
+      "identity": "gbt_ts_distance(internal,timestamp without time zone,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, timestamp without time zone, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17236",
+      "name": "gbt_tstz_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "b8861ab86f918b9644795bb07ca5f469",
+      "identity": "gbt_tstz_consistent(internal,timestamp with time zone,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, timestamp with time zone, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17237",
+      "name": "gbt_tstz_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "1d6585dd2397d6d2697a2e3e0c83208f",
+      "identity": "gbt_tstz_distance(internal,timestamp with time zone,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, timestamp with time zone, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17238",
+      "name": "gbt_ts_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "57340326372754a66f0a76ec89ca65c7",
+      "identity": "gbt_ts_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17239",
+      "name": "gbt_tstz_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "ab22f6df5d528becaebbdece5ee66ec1",
+      "identity": "gbt_tstz_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17240",
+      "name": "gbt_ts_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "55cb8087a37875a63f866a2123a8cbd5",
+      "identity": "gbt_ts_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17241",
+      "name": "gbt_ts_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "20c2a7e75a2240d7889f8680b81520b0",
+      "identity": "gbt_ts_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17242",
+      "name": "gbt_ts_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "8eabcb6214a15cbb4f4a1cee4fcc2765",
+      "identity": "gbt_ts_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17243",
+      "name": "gbt_ts_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "1e726d3c09e7272724fd08b39df8d1e4",
+      "identity": "gbt_ts_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17244",
+      "name": "gbt_ts_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "f428ee7a3856b80d203b6a0c2cc6ab0c",
+      "identity": "gbt_ts_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17281",
+      "name": "gbt_time_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "ed8a5c9ea5d5439d44e7e5b727f34730",
+      "identity": "gbt_time_consistent(internal,time without time zone,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, time without time zone, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17282",
+      "name": "gbt_time_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "91afb765291ff3114b8a770aed366894",
+      "identity": "gbt_time_distance(internal,time without time zone,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, time without time zone, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17283",
+      "name": "gbt_timetz_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "4adebfd6169cf3aa4c847bc6f90e2a73",
+      "identity": "gbt_timetz_consistent(internal,time with time zone,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, time with time zone, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17284",
+      "name": "gbt_time_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "47f6f6d7321b4278b3c82a93a42e0720",
+      "identity": "gbt_time_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17285",
+      "name": "gbt_timetz_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "5bb7fc668c1beac4d39297f3b0e52881",
+      "identity": "gbt_timetz_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17286",
+      "name": "gbt_time_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "d09f1e07aeb92ae2e077e62801258b75",
+      "identity": "gbt_time_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17287",
+      "name": "gbt_time_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "5200b734bedfcf514557aa8c3d102309",
+      "identity": "gbt_time_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17288",
+      "name": "gbt_time_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "c459b1a98952cb87dbe9dc21e7dfdfa9",
+      "identity": "gbt_time_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17289",
+      "name": "gbt_time_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "7d3e359536aa378a5bc4a9d59c48caa7",
+      "identity": "gbt_time_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17290",
+      "name": "gbt_time_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "3cb63778b4e4c2cbc7c2f3126198aeaa",
+      "identity": "gbt_time_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17324",
+      "name": "gbt_date_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "f83142827e633f4e9e3b6202dd4b2c36",
+      "identity": "gbt_date_consistent(internal,date,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, date, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17325",
+      "name": "gbt_date_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "44e562e61fb9f26a098a6e23a328f1af",
+      "identity": "gbt_date_distance(internal,date,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, date, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17326",
+      "name": "gbt_date_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b370299af7cf50813973c08ef3853ad9",
+      "identity": "gbt_date_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17327",
+      "name": "gbt_date_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "512d49bff26a1bb771066e01db279e8f",
+      "identity": "gbt_date_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17328",
+      "name": "gbt_date_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "4522d3a094140c09baa58db70142376a",
+      "identity": "gbt_date_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17329",
+      "name": "gbt_date_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "1e980c7ff90cfd30b84fcf965dae013d",
+      "identity": "gbt_date_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17330",
+      "name": "gbt_date_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey8",
+      "schema": "public",
+      "body_md5": "ba4d30001dfc222ad733ff8ef3aa2fda",
+      "identity": "gbt_date_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17331",
+      "name": "gbt_date_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "028ae465a36da2960cf56ccfcd178841",
+      "identity": "gbt_date_same(gbtreekey8,gbtreekey8,internal)",
+      "language": "c",
+      "arguments": "gbtreekey8, gbtreekey8, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17350",
+      "name": "gbt_intv_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "5379c948b105caab4801943f1edc7ab8",
+      "identity": "gbt_intv_consistent(internal,interval,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, interval, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17351",
+      "name": "gbt_intv_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "404d22269730e4f26d0a41cd8592fe3a",
+      "identity": "gbt_intv_distance(internal,interval,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, interval, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17352",
+      "name": "gbt_intv_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "9a8589b4e2cc55724cac0c1ee6a98412",
+      "identity": "gbt_intv_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17353",
+      "name": "gbt_intv_decompress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "c1c0144d6f29a2f82b1e403e67694b32",
+      "identity": "gbt_intv_decompress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17354",
+      "name": "gbt_intv_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "89320ec81bfd80fddea68a211a1f08a2",
+      "identity": "gbt_intv_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17355",
+      "name": "gbt_intv_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "f2294b33226b16ee6b19794ac509b308",
+      "identity": "gbt_intv_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17356",
+      "name": "gbt_intv_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "3be6dd5b6b663313fed987fa6fb25488",
+      "identity": "gbt_intv_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17357",
+      "name": "gbt_intv_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey32",
+      "schema": "public",
+      "body_md5": "45dd1efa1f158aab55d113763accc95e",
+      "identity": "gbt_intv_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17358",
+      "name": "gbt_intv_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "f671a03d1f498710d2f694f23c0e0a9f",
+      "identity": "gbt_intv_same(gbtreekey32,gbtreekey32,internal)",
+      "language": "c",
+      "arguments": "gbtreekey32, gbtreekey32, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17377",
+      "name": "gbt_cash_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "5bfd21d4f3970fe3e896d4715f6b83d0",
+      "identity": "gbt_cash_consistent(internal,money,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, money, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17378",
+      "name": "gbt_cash_distance",
+      "owner": "darshan",
+      "config": null,
+      "result": "double precision",
+      "schema": "public",
+      "body_md5": "a67ad1a9ff0f88d3556aa0c80b69afbb",
+      "identity": "gbt_cash_distance(internal,money,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, money, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17379",
+      "name": "gbt_cash_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "c8f50386f25598786c804a6da906ddd2",
+      "identity": "gbt_cash_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17380",
+      "name": "gbt_cash_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "0c6e88888619f543c7593d1d90ebf5fa",
+      "identity": "gbt_cash_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17381",
+      "name": "gbt_cash_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b923664a86f8d90a9e9fb6fa6dcdc2ca",
+      "identity": "gbt_cash_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17382",
+      "name": "gbt_cash_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "06bb65e86058c708a7aec660ca65b2c0",
+      "identity": "gbt_cash_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17383",
+      "name": "gbt_cash_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "464138ae4426fd557d9d09d7511ae0a1",
+      "identity": "gbt_cash_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17384",
+      "name": "gbt_cash_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "28c42b17618f25bac2ffb41dfa1d328c",
+      "identity": "gbt_cash_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17403",
+      "name": "gbt_macad_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "9289e2dd70888364a9129e1937658fc8",
+      "identity": "gbt_macad_consistent(internal,macaddr,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, macaddr, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17404",
+      "name": "gbt_macad_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b191fc3b60d3dc01264fa6a8d828864c",
+      "identity": "gbt_macad_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17405",
+      "name": "gbt_macad_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "3a4f4e43d9ce682eb4cae6b8a16ac2dc",
+      "identity": "gbt_macad_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17406",
+      "name": "gbt_macad_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "2352699ee4110772db7e487c9c6b3438",
+      "identity": "gbt_macad_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17407",
+      "name": "gbt_macad_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "04abbe5c1801e67fc1a151a7d1984999",
+      "identity": "gbt_macad_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17408",
+      "name": "gbt_macad_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "ccba960f35f78c345ca4a953f427c813",
+      "identity": "gbt_macad_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17409",
+      "name": "gbt_macad_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b217d4c6a823df47625536138448273f",
+      "identity": "gbt_macad_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17426",
+      "name": "gbt_text_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "d701781f1989c1575390902d0620b167",
+      "identity": "gbt_text_consistent(internal,text,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, text, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17427",
+      "name": "gbt_bpchar_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "5f211074e31a73243aa13039f69cdd1b",
+      "identity": "gbt_bpchar_consistent(internal,character,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, character, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17428",
+      "name": "gbt_text_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "4cafb50ad59a6445a0213258445908b8",
+      "identity": "gbt_text_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17429",
+      "name": "gbt_bpchar_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "76dbb1959cbba074b92416a8d6789490",
+      "identity": "gbt_bpchar_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17430",
+      "name": "gbt_text_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "aebd195b135207e27deffdbc4b945f3d",
+      "identity": "gbt_text_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17431",
+      "name": "gbt_text_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "7aac3bbbb28ef023d28fd70171d46ecd",
+      "identity": "gbt_text_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17432",
+      "name": "gbt_text_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey_var",
+      "schema": "public",
+      "body_md5": "3b98d44d8eed7b1635f7649998a1c601",
+      "identity": "gbt_text_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17433",
+      "name": "gbt_text_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "f6b593c2141e882e2fd3768e228ad1bf",
+      "identity": "gbt_text_same(gbtreekey_var,gbtreekey_var,internal)",
+      "language": "c",
+      "arguments": "gbtreekey_var, gbtreekey_var, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17466",
+      "name": "gbt_bytea_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "bd08bbb206b71cab1fed270d2280fec1",
+      "identity": "gbt_bytea_consistent(internal,bytea,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, bytea, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17467",
+      "name": "gbt_bytea_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "6ed79a6bd12c150a372ec90bba72fba6",
+      "identity": "gbt_bytea_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17468",
+      "name": "gbt_bytea_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "e8d4a643cb184249688910c67f0b3eac",
+      "identity": "gbt_bytea_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17469",
+      "name": "gbt_bytea_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "324c3583547bda333c03282769a6c083",
+      "identity": "gbt_bytea_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17470",
+      "name": "gbt_bytea_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey_var",
+      "schema": "public",
+      "body_md5": "ec4dce0a76148a60586db7c54da925ff",
+      "identity": "gbt_bytea_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17471",
+      "name": "gbt_bytea_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "f5f3b8ed32b1e4bc2b8144d6a1186980",
+      "identity": "gbt_bytea_same(gbtreekey_var,gbtreekey_var,internal)",
+      "language": "c",
+      "arguments": "gbtreekey_var, gbtreekey_var, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17488",
+      "name": "gbt_numeric_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "c03c52fb01c0c4692f3692ff1bacc686",
+      "identity": "gbt_numeric_consistent(internal,numeric,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, numeric, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17489",
+      "name": "gbt_numeric_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "aa51b3d81aceac64864832252955940c",
+      "identity": "gbt_numeric_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17490",
+      "name": "gbt_numeric_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "d6d70b66647ff91894c8b92bba813db8",
+      "identity": "gbt_numeric_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17491",
+      "name": "gbt_numeric_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "d76fd72bc92c9b1ef60d1de21ec9e796",
+      "identity": "gbt_numeric_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17492",
+      "name": "gbt_numeric_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey_var",
+      "schema": "public",
+      "body_md5": "d314f0eced439e90045699aa17861e03",
+      "identity": "gbt_numeric_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17493",
+      "name": "gbt_numeric_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "7f24092a2ba000517ad37cc6517baf1c",
+      "identity": "gbt_numeric_same(gbtreekey_var,gbtreekey_var,internal)",
+      "language": "c",
+      "arguments": "gbtreekey_var, gbtreekey_var, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17510",
+      "name": "gbt_bit_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "878550d7e83f71fce0c49f44e350fedb",
+      "identity": "gbt_bit_consistent(internal,bit,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, bit, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17511",
+      "name": "gbt_bit_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "31f34def849731302ee00e721401f01e",
+      "identity": "gbt_bit_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17512",
+      "name": "gbt_bit_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "bb931bf3a8c73b48aeb0d1c8ff8089a0",
+      "identity": "gbt_bit_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17513",
+      "name": "gbt_bit_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "e0877b1f6b123b43a7e32f762798e785",
+      "identity": "gbt_bit_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17514",
+      "name": "gbt_bit_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey_var",
+      "schema": "public",
+      "body_md5": "06cf6eaf5701d50b4786c48583f7bb38",
+      "identity": "gbt_bit_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17515",
+      "name": "gbt_bit_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "16e8047e6ef1cabcbda842ee8111c84c",
+      "identity": "gbt_bit_same(gbtreekey_var,gbtreekey_var,internal)",
+      "language": "c",
+      "arguments": "gbtreekey_var, gbtreekey_var, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17548",
+      "name": "gbt_inet_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "36d9daac03ed3c1b0cd23c1ebd6d7942",
+      "identity": "gbt_inet_consistent(internal,inet,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, inet, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17549",
+      "name": "gbt_inet_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "5f73deaa9eb5c0635bd64eb585ea5b67",
+      "identity": "gbt_inet_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17550",
+      "name": "gbt_inet_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "8e8c84c1a762980a3ccc90cc91d655b5",
+      "identity": "gbt_inet_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17551",
+      "name": "gbt_inet_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "d1a64926c4a67ad5aa057e48ea4a57e5",
+      "identity": "gbt_inet_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17552",
+      "name": "gbt_inet_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "782ba37d0efa46fde9508140c8e71117",
+      "identity": "gbt_inet_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17553",
+      "name": "gbt_inet_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "7a6454e92603ff9a700389528452b153",
+      "identity": "gbt_inet_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17584",
+      "name": "gbt_uuid_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "d7531ebad1116a09e0a44640cb312938",
+      "identity": "gbt_uuid_consistent(internal,uuid,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, uuid, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17585",
+      "name": "gbt_uuid_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "277131c172b9b34dd2e34bd633f2b7ef",
+      "identity": "gbt_uuid_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17586",
+      "name": "gbt_uuid_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "62f971abeadf3003a07c50230a501348",
+      "identity": "gbt_uuid_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17587",
+      "name": "gbt_uuid_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "a517fd8d68c0acf48fe815e120674626",
+      "identity": "gbt_uuid_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17588",
+      "name": "gbt_uuid_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "6959e67d7b34dcdf17784dcbd26c3190",
+      "identity": "gbt_uuid_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17589",
+      "name": "gbt_uuid_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey32",
+      "schema": "public",
+      "body_md5": "02942dd56299bb968daec39032b51cd4",
+      "identity": "gbt_uuid_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17590",
+      "name": "gbt_uuid_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "a2fdf27ab5acd04fd9fc85408bdb53ec",
+      "identity": "gbt_uuid_same(gbtreekey32,gbtreekey32,internal)",
+      "language": "c",
+      "arguments": "gbtreekey32, gbtreekey32, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17607",
+      "name": "gbt_macad8_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "48c35c7954feadbb811ed754da6c32c1",
+      "identity": "gbt_macad8_consistent(internal,macaddr8,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, macaddr8, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17608",
+      "name": "gbt_macad8_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "fe1606b464ed4be2a9d8601f3839dc9c",
+      "identity": "gbt_macad8_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17609",
+      "name": "gbt_macad8_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "b8c0246bc124d763d5f26a3ee92a74bc",
+      "identity": "gbt_macad8_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17610",
+      "name": "gbt_macad8_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "6b41d25d0f422201aa7c56fc051b8e31",
+      "identity": "gbt_macad8_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17611",
+      "name": "gbt_macad8_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "66eafaf0d97829e0736c8921846c4af3",
+      "identity": "gbt_macad8_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17612",
+      "name": "gbt_macad8_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey16",
+      "schema": "public",
+      "body_md5": "d07e39b9753a0c5921884548c6793b34",
+      "identity": "gbt_macad8_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17613",
+      "name": "gbt_macad8_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "ee8c2cb89bd2e65104c1a7a6370bac86",
+      "identity": "gbt_macad8_same(gbtreekey16,gbtreekey16,internal)",
+      "language": "c",
+      "arguments": "gbtreekey16, gbtreekey16, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17630",
+      "name": "gbt_enum_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "ca7532dc5565084a0c53db2d9a2cd01d",
+      "identity": "gbt_enum_consistent(internal,anyenum,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, anyenum, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17631",
+      "name": "gbt_enum_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "192cb5abfc4973ab89d788caea2389ec",
+      "identity": "gbt_enum_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17632",
+      "name": "gbt_enum_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "3ede550074202fa83467674c6e846f99",
+      "identity": "gbt_enum_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17633",
+      "name": "gbt_enum_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "fff1a2478ce894ba1c9bc31020c16b67",
+      "identity": "gbt_enum_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17634",
+      "name": "gbt_enum_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "116be03e32038899242d9ad349e6e2de",
+      "identity": "gbt_enum_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17635",
+      "name": "gbt_enum_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey8",
+      "schema": "public",
+      "body_md5": "c3948c8cf486b4e9581436f204acfd3d",
+      "identity": "gbt_enum_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17636",
+      "name": "gbt_enum_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "a7e9d571bd72ff0799d487964bacc5e0",
+      "identity": "gbt_enum_same(gbtreekey8,gbtreekey8,internal)",
+      "language": "c",
+      "arguments": "gbtreekey8, gbtreekey8, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17654",
+      "name": "gbtreekey2_in",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey2",
+      "schema": "public",
+      "body_md5": "3ae07a716761d2fb692f9b07efc1e53e",
+      "identity": "gbtreekey2_in(cstring)",
+      "language": "c",
+      "arguments": "cstring",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17655",
+      "name": "gbtreekey2_out",
+      "owner": "darshan",
+      "config": null,
+      "result": "cstring",
+      "schema": "public",
+      "body_md5": "6712805062db109a94ce544bbe7067cc",
+      "identity": "gbtreekey2_out(gbtreekey2)",
+      "language": "c",
+      "arguments": "gbtreekey2",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17657",
+      "name": "gbt_bool_consistent",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "8056612ce590a44b42e53db0a2d19820",
+      "identity": "gbt_bool_consistent(internal,boolean,smallint,oid,internal)",
+      "language": "c",
+      "arguments": "internal, boolean, smallint, oid, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17658",
+      "name": "gbt_bool_compress",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "946688ab3d74a1a017a0687422a89c61",
+      "identity": "gbt_bool_compress(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17659",
+      "name": "gbt_bool_fetch",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "abf7c178ce639833f9013245a9f458f7",
+      "identity": "gbt_bool_fetch(internal)",
+      "language": "c",
+      "arguments": "internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17660",
+      "name": "gbt_bool_penalty",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "252891089913a329090c13a7eff1e03a",
+      "identity": "gbt_bool_penalty(internal,internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17661",
+      "name": "gbt_bool_picksplit",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "8f1fce1453ce914bc90b9e31af5870ba",
+      "identity": "gbt_bool_picksplit(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17662",
+      "name": "gbt_bool_union",
+      "owner": "darshan",
+      "config": null,
+      "result": "gbtreekey2",
+      "schema": "public",
+      "body_md5": "08b772bd51a11936357c18cc5a6e8483",
+      "identity": "gbt_bool_union(internal,internal)",
+      "language": "c",
+      "arguments": "internal, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17663",
+      "name": "gbt_bool_same",
+      "owner": "darshan",
+      "config": null,
+      "result": "internal",
+      "schema": "public",
+      "body_md5": "6affcd9996e5fa750e3525684a583ce5",
+      "identity": "gbt_bool_same(gbtreekey2,gbtreekey2,internal)",
+      "language": "c",
+      "arguments": "gbtreekey2, gbtreekey2, internal",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17682",
+      "name": "seed_staff_working_hours",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "8fccc6309ecf5bc6c7f267842688216d",
+      "identity": "seed_staff_working_hours()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17684",
+      "name": "is_business_holiday",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "5f9794d45aece022d3494c9c09b98aa7",
+      "identity": "is_business_holiday(uuid,date)",
+      "language": "sql",
+      "arguments": "p_business_id uuid, p_date date",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17685",
+      "name": "is_staff_on_vacation",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "b50c2c223d3a096ba12681ccf5185aea",
+      "identity": "is_staff_on_vacation(uuid,date)",
+      "language": "sql",
+      "arguments": "p_staff_id uuid, p_date date",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17690",
+      "name": "ensure_business_for_owner",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "result": "businesses",
+      "schema": "public",
+      "body_md5": "89f7ad48d37a556be7def3a0e0175e62",
+      "identity": "ensure_business_for_owner(text,text)",
+      "language": "sql",
+      "arguments": "p_name text, p_preferred_slug text",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "17762",
+      "name": "create_default_location",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "uuid",
+      "schema": "public",
+      "body_md5": "f0f02fdc46701be057197e2fa865e52f",
+      "identity": "create_default_location(uuid,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_name text DEFAULT 'Main Location'::text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": null,
+      "oid": "17800",
+      "name": "resolve_location_id",
+      "owner": "darshan",
+      "config": null,
+      "result": "uuid",
+      "schema": "public",
+      "body_md5": "f8cae8e103e3df570f5d2c0f6526ef35",
+      "identity": "resolve_location_id(uuid,uuid)",
+      "language": "sql",
+      "arguments": "p_business_id uuid, p_location_id uuid DEFAULT NULL::uuid",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17801",
+      "name": "can_add_location",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "ba2a99ae485f392d41f75bdaa74ecb58",
+      "identity": "can_add_location(uuid)",
+      "language": "sql",
+      "arguments": "p_business_id uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": null,
+      "oid": "17802",
+      "name": "is_location_holiday",
+      "owner": "darshan",
+      "config": null,
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "9e2e6baf8eb03b48980fc0cdf403682d",
+      "identity": "is_location_holiday(uuid,uuid,date)",
+      "language": "sql",
+      "arguments": "p_business_id uuid, p_location_id uuid, p_date date",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": null,
+      "oid": "17803",
+      "name": "slot_is_blocked",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "e2e82680ae3d7db2a25d581cd7926220",
+      "identity": "slot_is_blocked(uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,uuid)",
+      "language": "sql",
+      "arguments": "p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid DEFAULT NULL::uuid",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "17804",
+      "name": "get_available_slots",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "SETOF timestamp with time zone",
+      "schema": "public",
+      "body_md5": "d3f0f20c81a56b5e70fe3850e7b357f7",
+      "identity": "get_available_slots(uuid,uuid,uuid,date,uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_date date, p_exclude_appointment_id uuid DEFAULT NULL::uuid, p_location_id uuid DEFAULT NULL::uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "17805",
+      "name": "validate_appointment_slot",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "void",
+      "schema": "public",
+      "body_md5": "ba820a872e7ae4082cc66ce02dc03b52",
+      "identity": "validate_appointment_slot(uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_start_time timestamp with time zone, p_end_time timestamp with time zone, p_exclude_appointment_id uuid DEFAULT NULL::uuid, p_location_id uuid DEFAULT NULL::uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17809",
+      "name": "get_public_locations",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "SETOF locations",
+      "schema": "public",
+      "body_md5": "2257bfdce4770d9356e6e7a145dd49a7",
+      "identity": "get_public_locations(uuid)",
+      "language": "sql",
+      "arguments": "p_business_id uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17810",
+      "name": "get_public_location_by_slug",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "locations",
+      "schema": "public",
+      "body_md5": "34b1ceb88b7d301caadd40d83805508f",
+      "identity": "get_public_location_by_slug(uuid,text)",
+      "language": "sql",
+      "arguments": "p_business_id uuid, p_location_slug text",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17814",
+      "name": "lookup_booking_customer",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "TABLE(name text, phone text)",
+      "schema": "public",
+      "body_md5": "250c1a169764e756a67b4430d289cffc",
+      "identity": "lookup_booking_customer(uuid,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_email text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "17839",
+      "name": "create_public_appointment",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "uuid",
+      "schema": "public",
+      "body_md5": "3b5f64b742c44f3eb019b0fb03572410",
+      "identity": "create_public_appointment(uuid,uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,text,uuid,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_service_id uuid, p_staff_id uuid, p_customer_id uuid, p_start_time timestamp with time zone, p_end_time timestamp with time zone, p_notes text DEFAULT NULL::text, p_location_id uuid DEFAULT NULL::uuid, p_status text DEFAULT 'confirmed'::text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "=X/darshan",
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "18905",
+      "name": "availability_block_reason",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "text",
+      "schema": "public",
+      "body_md5": "d69e69be3b7b59e383bd7e10ebac4e2a",
+      "identity": "availability_block_reason(uuid,uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,uuid,boolean)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_location_id uuid, p_staff_id uuid, p_service_id uuid, p_block_start timestamp with time zone, p_block_end timestamp with time zone, p_exclude_appointment_id uuid DEFAULT NULL::uuid, p_allow_double_booking boolean DEFAULT false",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19298",
+      "name": "lock_business_slug_namespace",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "void",
+      "schema": "public",
+      "body_md5": "2abc0c12b681739d433a864e6b290703",
+      "identity": "lock_business_slug_namespace(text)",
+      "language": "plpgsql",
+      "arguments": "p_slug text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19299",
+      "name": "lock_business_slug_namespace_pair",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "void",
+      "schema": "public",
+      "body_md5": "9e2885bc3899d2369b26a05fd200ef16",
+      "identity": "lock_business_slug_namespace_pair(text,text)",
+      "language": "plpgsql",
+      "arguments": "p_left text, p_right text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19300",
+      "name": "enforce_business_slug_namespace",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "40eeb71cbf1d96db7cc1e54e10a76563",
+      "identity": "enforce_business_slug_namespace()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19301",
+      "name": "record_business_slug_alias",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "34fa489dc27db18ae6896dc3ac396434",
+      "identity": "record_business_slug_alias()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19310",
+      "name": "guard_business_identity_update",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "e7bfc1594e51944725aa82d1378d429d",
+      "identity": "guard_business_identity_update()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19347",
+      "name": "tenant_identity_key",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog"
+      ],
+      "result": "text",
+      "schema": "public",
+      "body_md5": "a42ed23bb7d3d7532ca466c04fb13277",
+      "identity": "tenant_identity_key(text,text)",
+      "language": "sql",
+      "arguments": "p_value text, p_kind text",
+      "volatility": "i",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19348",
+      "name": "decide_business_identity",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, public, pg_temp",
+        "lock_timeout=5s"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "25977640a6c76a7b23b94dfea31d297a",
+      "identity": "decide_business_identity(uuid,text,text,text,text,text,text,text,text,text,text)",
+      "language": "plpgsql",
+      "arguments": "p_actor_user_id uuid, p_intent text, p_name text, p_legal_name text, p_email text, p_phone text, p_website text, p_city text, p_region text, p_country text, p_requested_slug text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19352",
+      "name": "assert_same_business_relationship",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "0915be9049764412c72c1000f63264e1",
+      "identity": "assert_same_business_relationship()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19356",
+      "name": "prevent_business_id_reassignment",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "c26081d2074deec27e448a8a01a741ed",
+      "identity": "prevent_business_id_reassignment()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "19360",
+      "name": "is_public_service_location",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "e2a5ea1c0dd2b05005056636b07fe228",
+      "identity": "is_public_service_location(uuid,uuid)",
+      "language": "sql",
+      "arguments": "p_service_id uuid, p_location_id uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "19361",
+      "name": "is_public_staff_location",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "5998a65e7e99c45b3e0e967e70914684",
+      "identity": "is_public_staff_location(uuid,uuid)",
+      "language": "sql",
+      "arguments": "p_staff_id uuid, p_location_id uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan"
+      ],
+      "oid": "19362",
+      "name": "is_public_staff_service",
+      "owner": "darshan",
+      "config": [
+        "search_path=public, pg_temp"
+      ],
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "4dffdbe81e16ef4b478236220550b50d",
+      "identity": "is_public_staff_service(uuid,uuid)",
+      "language": "sql",
+      "arguments": "p_staff_id uuid, p_service_id uuid",
+      "volatility": "s",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "anon=X/darshan",
+        "authenticated=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19377",
+      "name": "book_public_appointment",
+      "owner": "darshan",
+      "config": [
+        "search_path=public"
+      ],
+      "result": "uuid",
+      "schema": "public",
+      "body_md5": "e6b6c225667c2e69ae1849c232133e7c",
+      "identity": "book_public_appointment(uuid,uuid,uuid,uuid,text,text,timestamp with time zone,timestamp with time zone,text,text,integer,integer,integer,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_location_id uuid, p_service_id uuid, p_staff_id uuid, p_customer_name text, p_customer_email text, p_start_time timestamp with time zone, p_end_time timestamp with time zone, p_status text, p_customer_phone text DEFAULT NULL::text, p_price_cents integer DEFAULT 0, p_tax_cents integer DEFAULT 0, p_deposit_cents integer DEFAULT 0, p_notes text DEFAULT NULL::text",
+      "volatility": "v",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19511",
+      "name": "guard_commerce_payment_attempt",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "357b376447d848a209cb312aec8e089d",
+      "identity": "guard_commerce_payment_attempt()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19512",
+      "name": "guard_commerce_attempt_ledger_link",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "7a12ccfac364e691c6c492e32448ad4e",
+      "identity": "guard_commerce_attempt_ledger_link()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19513",
+      "name": "reject_commerce_attempt_history_mutation",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "ff3b6e50ebec40113ecb5f59fc7c3be2",
+      "identity": "reject_commerce_attempt_history_mutation()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19518",
+      "name": "admit_payment_attempt_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, attempt_id uuid, execution_state text, conflict_event_id uuid)",
+      "schema": "public",
+      "body_md5": "0779e45b5c21e4d949626e73a540bea5",
+      "identity": "admit_payment_attempt_v1(uuid,uuid,text,text,uuid,uuid,uuid,text,integer,text,text,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_key uuid, p_request_fingerprint text, p_source text, p_customer_id uuid, p_appointment_id uuid, p_actor_id uuid, p_payment_kind text, p_amount_cents integer, p_currency text, p_method text, p_provider_route text",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19520",
+      "name": "commit_manual_payment_attempt_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, attempt_id uuid, transaction_id uuid, recorded boolean, synchronization text)",
+      "schema": "public",
+      "body_md5": "9c2a09ec8acc5e507c31ae9cea8d4247",
+      "identity": "commit_manual_payment_attempt_v1(uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan"
+      ],
+      "oid": "19533",
+      "name": "guard_legacy_commerce_transaction_appointment_attribution_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "268b8c5c50eaf75651dc9f60322ade26",
+      "identity": "guard_legacy_commerce_transaction_appointment_attribution_v1()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19573",
+      "name": "guard_commerce_booking_operation_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "d41900b2e537770768b4ed1cc8bc19f5",
+      "identity": "guard_commerce_booking_operation_v1()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19574",
+      "name": "guard_appointment_booking_operation_link_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "body_md5": "3316eaac3e20bfeb6cb28d883d1f51b5",
+      "identity": "guard_appointment_booking_operation_link_v1()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19575",
+      "name": "bootstrap_booking_operation_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, operation_id uuid, customer_id uuid, attempt_id uuid, execution_state text, conflict_event_id uuid)",
+      "schema": "public",
+      "body_md5": "cd89add6bfd84f1856513c928d5721e7",
+      "identity": "bootstrap_booking_operation_v1(uuid,uuid,uuid,uuid,text,text,text,text,text,uuid,uuid,text,text,text,uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,text,integer,uuid,uuid[],uuid,text,integer,integer,integer,text,text,text,boolean,text,integer,text,text,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_attempt_key uuid, p_actor_id uuid, p_source text, p_booking_fingerprint text, p_payment_fingerprint text, p_customer_input_fingerprint text, p_customer_origin text, p_existing_customer_id uuid, p_inline_customer_id uuid, p_inline_name text, p_inline_email text, p_inline_phone text, p_location_id uuid, p_service_id uuid, p_staff_id uuid, p_requested_start timestamp with time zone, p_requested_end timestamp with time zone, p_requested_status text, p_duration_minutes integer, p_room_id uuid, p_resource_ids uuid[], p_package_id uuid, p_package_name text, p_subtotal_cents integer, p_tax_cents integer, p_deposit_required_cents integer, p_payment_mode text, p_appointment_notes text, p_payment_note text, p_receipt_requested boolean, p_payment_kind text, p_payment_amount_cents integer, p_currency text, p_method text, p_provider_route text",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19577",
+      "name": "persist_booking_operation_appointment_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, operation_id uuid, appointment_id uuid)",
+      "schema": "public",
+      "body_md5": "6001c439bf8657d112870d4bf7245ad9",
+      "identity": "persist_booking_operation_appointment_v1(uuid,uuid,uuid,uuid,uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,text,integer,text,uuid,uuid[],uuid,text,integer,integer,integer)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_actor_id uuid, p_customer_id uuid, p_location_id uuid, p_service_id uuid, p_staff_id uuid, p_requested_start timestamp with time zone, p_requested_end timestamp with time zone, p_requested_status text, p_duration_minutes integer, p_appointment_notes text, p_room_id uuid, p_resource_ids uuid[], p_package_id uuid, p_package_name text, p_subtotal_cents integer, p_tax_cents integer, p_deposit_required_cents integer",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19579",
+      "name": "bind_booking_operation_appointment_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, operation_id uuid, appointment_id uuid, attempt_id uuid)",
+      "schema": "public",
+      "body_md5": "969958c4bc89c69b5d86e3b6331a69ca",
+      "identity": "bind_booking_operation_appointment_v1(uuid,uuid,uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_actor_id uuid, p_appointment_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19580",
+      "name": "close_booking_operation_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, operation_id uuid, appointment_id uuid, attempt_id uuid, recorded boolean)",
+      "schema": "public",
+      "body_md5": "fe76dbea946da8c3097635ef1d81c243",
+      "identity": "close_booking_operation_v1(uuid,uuid,uuid,text,uuid,uuid,boolean)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_actor_id uuid, p_reason text, p_expected_current_customer_id uuid, p_replacement_customer_id uuid, p_cancel boolean",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19582",
+      "name": "commit_booking_operation_manual_payment_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, attempt_id uuid, transaction_id uuid, recorded boolean, synchronization text)",
+      "schema": "public",
+      "body_md5": "23ee6ac48b6d81f42f33bf40ae39cea5",
+      "identity": "commit_booking_operation_manual_payment_v1(uuid,uuid,uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_actor_id uuid, p_attempt_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19584",
+      "name": "read_booking_operations_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(snapshot_at timestamp with time zone, payload jsonb)",
+      "schema": "public",
+      "body_md5": "4f9c0896e6c3f2fa593281a96e058bb1",
+      "identity": "read_booking_operations_v1(uuid,uuid,text,uuid,integer,timestamp with time zone,uuid,integer)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_actor_id uuid, p_mode text, p_operation_id uuid, p_cursor_attention_rank integer, p_cursor_created_at timestamp with time zone, p_cursor_id uuid, p_limit integer",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19644",
+      "name": "set_payment_projection_admission_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "3aad5bca27652b36c268cfc8e912ff57",
+      "identity": "set_payment_projection_admission_v1(uuid,boolean)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_enabled boolean",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19645",
+      "name": "payment_projection_history_valid_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "boolean",
+      "schema": "public",
+      "body_md5": "a0619196c1ff08a005c13e924ad200c1",
+      "identity": "payment_projection_history_valid_v1(uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19647",
+      "name": "payment_appointment_truth_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "62e536cd4fac2f1d9cae6e99c1cb9117",
+      "identity": "payment_appointment_truth_v1(uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19648",
+      "name": "project_payment_obligation_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "b4ccf60290658c4dea0c0110ba5b950d",
+      "identity": "project_payment_obligation_v1(uuid,uuid,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid, p_kind text",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19650",
+      "name": "project_payment_appointment_cache_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "a238588ab7268eb3ed7a5b2b8b1399d2",
+      "identity": "project_payment_appointment_cache_v1(uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19651",
+      "name": "project_payment_invoice_settlement_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "260798a8c0d49bddcea0af31441dc8ba",
+      "identity": "project_payment_invoice_settlement_v1(uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19652",
+      "name": "project_payment_customer_payment_events_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "fa356834c59e16b2d65661d0271b46d0",
+      "identity": "project_payment_customer_payment_events_v1(uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19653",
+      "name": "project_payment_receipt_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "3df7956389bf19fc9022dc4868411e51",
+      "identity": "project_payment_receipt_v1(uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_attempt_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19654",
+      "name": "read_payment_observability_v1",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "jsonb",
+      "schema": "public",
+      "body_md5": "58b16d7bfcf3524da5e1082dc2ed15b3",
+      "identity": "read_payment_observability_v1(uuid,uuid,text,uuid,text,integer)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_actor_id uuid, p_mode text, p_attempt_id uuid, p_cursor text, p_limit integer",
+      "volatility": "s",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19759",
+      "name": "guard_appointment_mutation_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "booking_lifecycle_private",
+      "body_md5": "afb139f21118ac39490b71b0e7c1c975",
+      "identity": "booking_lifecycle_private.guard_appointment_mutation_v2()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19762",
+      "name": "guard_appointment_resource_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "trigger",
+      "schema": "booking_lifecycle_private",
+      "body_md5": "b5b46edec2f3e12391c135f2f4853485",
+      "identity": "booking_lifecycle_private.guard_appointment_resource_v2()",
+      "language": "plpgsql",
+      "arguments": "",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19763",
+      "name": "revise_booking_notes_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, appointment_id uuid, operation_id uuid, mutation_id uuid, effect_revision bigint, current_revision bigint, current_status appointment_status, original_attempt_id uuid, recovery_required boolean)",
+      "schema": "public",
+      "body_md5": "924a74873d3b764a4c9738bebda53273",
+      "identity": "revise_booking_notes_v2(uuid,uuid,uuid,uuid,uuid,bigint,text,text)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_appointment_id uuid, p_actor_id uuid, p_mutation_id uuid, p_expected_revision bigint, p_reason text, p_notes text",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19765",
+      "name": "transition_booking_appointment_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, appointment_id uuid, operation_id uuid, mutation_id uuid, effect_revision bigint, current_revision bigint, current_status appointment_status, original_attempt_id uuid, recovery_required boolean)",
+      "schema": "public",
+      "body_md5": "2eb7b5951f424b7619216b1a030d9688",
+      "identity": "transition_booking_appointment_v2(uuid,uuid,uuid,uuid,uuid,bigint,text,appointment_status,boolean)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_appointment_id uuid, p_actor_id uuid, p_mutation_id uuid, p_expected_revision bigint, p_reason text, p_target_status appointment_status, p_correction boolean",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19767",
+      "name": "revise_booking_schedule_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, appointment_id uuid, operation_id uuid, mutation_id uuid, effect_revision bigint, current_revision bigint, current_status appointment_status, original_attempt_id uuid, recovery_required boolean)",
+      "schema": "public",
+      "body_md5": "5a5b2f2ccf8347ee8fa37fc6d84d2f91",
+      "identity": "revise_booking_schedule_v2(uuid,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid,uuid,timestamp with time zone,timestamp with time zone,uuid,uuid[])",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_appointment_id uuid, p_actor_id uuid, p_mutation_id uuid, p_expected_revision bigint, p_reason text, p_command text, p_location_id uuid, p_service_id uuid, p_staff_id uuid, p_start_time timestamp with time zone, p_end_time timestamp with time zone, p_room_id uuid, p_resource_ids uuid[]",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19769",
+      "name": "read_booking_appointment_mutation_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, appointment_id uuid, operation_id uuid, mutation_id uuid, effect_revision bigint, current_revision bigint, current_status appointment_status, original_attempt_id uuid, recovery_required boolean)",
+      "schema": "public",
+      "body_md5": "4e38db0ef2cf19d6d44805e8936c8771",
+      "identity": "read_booking_appointment_mutation_v2(uuid,uuid,uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_appointment_id uuid, p_actor_id uuid, p_mutation_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19770",
+      "name": "close_operation_lifecycle_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, operation_id uuid, appointment_id uuid, attempt_id uuid, recorded boolean, mutation_id uuid, effect_revision bigint, current_revision bigint, current_status appointment_status, lifecycle_outcome text)",
+      "schema": "booking_lifecycle_private",
+      "body_md5": "cf8d2079c2700fe28424b1b3e423ccff",
+      "identity": "booking_lifecycle_private.close_operation_lifecycle_v2(uuid,uuid,uuid,text,uuid,uuid,boolean,uuid,bigint,uuid,text,boolean)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_actor_id uuid, p_reason text, p_expected_current_customer_id uuid, p_replacement_customer_id uuid, p_cancel boolean, p_mutation_id uuid, p_expected_revision bigint, p_expected_appointment_id uuid, p_audit_reason text, p_compatibility_v1 boolean",
+      "volatility": "v",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "darshan=X/darshan",
+        "service_role=X/darshan"
+      ],
+      "oid": "19772",
+      "name": "close_booking_appointment_v2",
+      "owner": "darshan",
+      "config": [
+        "search_path=pg_catalog, pg_temp"
+      ],
+      "result": "TABLE(outcome text, appointment_id uuid, operation_id uuid, mutation_id uuid, effect_revision bigint, current_revision bigint, current_status appointment_status, original_attempt_id uuid, recovery_required boolean)",
+      "schema": "public",
+      "body_md5": "e376ec0ebf86702efc2cee3ff5d22cf9",
+      "identity": "close_booking_appointment_v2(uuid,uuid,uuid,uuid,uuid,bigint,text,text,uuid,uuid)",
+      "language": "plpgsql",
+      "arguments": "p_business_id uuid, p_operation_id uuid, p_appointment_id uuid, p_actor_id uuid, p_mutation_id uuid, p_expected_revision bigint, p_reason text, p_command text, p_expected_customer_id uuid, p_replacement_customer_id uuid",
+      "volatility": "v",
+      "security_definer": false
+    }
+  ],
+  "constraints": [
+    {
+      "name": "appointments_booking_operation_fk",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (booking_operation_id, business_id) REFERENCES commerce_booking_operations(id, business_id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_business_id_fkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "appointments_customer_id_fkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_id_business_attempt_key",
+      "table": "appointments",
+      "validated": true,
+      "definition": "UNIQUE (id, business_id)"
+    },
+    {
+      "name": "appointments_id_business_customer_financial_key",
+      "table": "appointments",
+      "validated": true,
+      "definition": "UNIQUE (id, business_id, customer_id)"
+    },
+    {
+      "name": "appointments_location_id_fkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_operational_revision_check",
+      "table": "appointments",
+      "validated": true,
+      "definition": "CHECK ((operational_revision >= 0))"
+    },
+    {
+      "name": "appointments_payment_status_check",
+      "table": "appointments",
+      "validated": true,
+      "definition": "CHECK ((payment_status = ANY (ARRAY['unpaid'::text, 'deposit_required'::text, 'deposit_paid'::text, 'partially_paid'::text, 'fully_paid'::text, 'refunded'::text, 'voided'::text])))"
+    },
+    {
+      "name": "appointments_pkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "appointments_recurring_rule_id_fkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (recurring_rule_id) REFERENCES recurring_rules(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "appointments_room_id_fkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (room_id) REFERENCES booking_resources(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "appointments_service_id_fkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_staff_id_fkey",
+      "table": "appointments",
+      "validated": true,
+      "definition": "FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE RESTRICT"
+    },
+    {
+      "name": "appointments_staff_no_overlap",
+      "table": "appointments",
+      "validated": true,
+      "definition": "EXCLUDE USING gist (staff_id WITH =, tstzrange(start_time, end_time, '[)'::text) WITH &&) WHERE ((status <> 'cancelled'::appointment_status))"
+    },
+    {
+      "name": "appointment_resources_appointment_id_fkey",
+      "table": "appointment_resources",
+      "validated": true,
+      "definition": "FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "appointment_resources_pkey",
+      "table": "appointment_resources",
+      "validated": true,
+      "definition": "PRIMARY KEY (appointment_id, resource_id)"
+    },
+    {
+      "name": "appointment_resources_resource_id_fkey",
+      "table": "appointment_resources",
+      "validated": true,
+      "definition": "FOREIGN KEY (resource_id) REFERENCES booking_resources(id) ON DELETE RESTRICT"
+    }
+  ],
+  "lifecycle_relations": [
+    {
+      "acl": [
+        "darshan=arwdDxtm/darshan",
+        "authenticated=arwd/darshan",
+        "service_role=arwd/darshan"
+      ],
+      "rls": true,
+      "force": false,
+      "owner": "darshan",
+      "table": "appointments",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "default": "gen_random_uuid()",
+          "not_null": true
+        },
+        {
+          "name": "business_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "service_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "staff_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "customer_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "start_time",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "end_time",
+          "type": "timestamp with time zone",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "status",
+          "type": "appointment_status",
+          "default": "'scheduled'::appointment_status",
+          "not_null": true
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "default": "now()",
+          "not_null": true
+        },
+        {
+          "name": "recurring_rule_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "external_event_id",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "location_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "room_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "color",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "price_cents",
+          "type": "integer",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "tax_cents",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "discount_cents",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "deposit_cents",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "invoice_number",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "internal_notes",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "custom_fields",
+          "type": "jsonb",
+          "default": "'{}'::jsonb",
+          "not_null": true
+        },
+        {
+          "name": "travel_minutes",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "timezone",
+          "type": "text",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "payment_status",
+          "type": "text",
+          "default": "'unpaid'::text",
+          "not_null": true
+        },
+        {
+          "name": "amount_paid_cents",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "amount_refunded_cents",
+          "type": "integer",
+          "default": "0",
+          "not_null": true
+        },
+        {
+          "name": "booking_operation_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "operational_revision",
+          "type": "bigint",
+          "default": "0",
+          "not_null": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX appointments_pkey ON public.appointments USING btree (id)",
+        "CREATE INDEX appointments_business_start_idx ON public.appointments USING btree (business_id, start_time)",
+        "CREATE INDEX appointments_staff_start_idx ON public.appointments USING btree (staff_id, start_time)",
+        "CREATE INDEX appointments_staff_no_overlap ON public.appointments USING gist (staff_id, tstzrange(start_time, end_time, '[)'::text)) WHERE (status <> 'cancelled'::appointment_status)",
+        "CREATE INDEX appointments_location_id_idx ON public.appointments USING btree (location_id)",
+        "CREATE INDEX appointments_room_idx ON public.appointments USING btree (room_id) WHERE (room_id IS NOT NULL)",
+        "CREATE INDEX appointments_payment_status_idx ON public.appointments USING btree (business_id, payment_status)",
+        "CREATE UNIQUE INDEX appointments_id_business_attempt_key ON public.appointments USING btree (id, business_id)",
+        "CREATE UNIQUE INDEX appointments_id_business_customer_financial_key ON public.appointments USING btree (id, business_id, customer_id)",
+        "CREATE UNIQUE INDEX appointments_booking_operation_key ON public.appointments USING btree (business_id, booking_operation_id) WHERE (booking_operation_id IS NOT NULL)"
+      ],
+      "constraints": [
+        {
+          "name": "appointments_booking_operation_fk",
+          "validated": true,
+          "definition": "FOREIGN KEY (booking_operation_id, business_id) REFERENCES commerce_booking_operations(id, business_id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointments_business_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "appointments_customer_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointments_id_business_attempt_key",
+          "validated": true,
+          "definition": "UNIQUE (id, business_id)"
+        },
+        {
+          "name": "appointments_id_business_customer_financial_key",
+          "validated": true,
+          "definition": "UNIQUE (id, business_id, customer_id)"
+        },
+        {
+          "name": "appointments_location_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointments_operational_revision_check",
+          "validated": true,
+          "definition": "CHECK ((operational_revision >= 0))"
+        },
+        {
+          "name": "appointments_payment_status_check",
+          "validated": true,
+          "definition": "CHECK ((payment_status = ANY (ARRAY['unpaid'::text, 'deposit_required'::text, 'deposit_paid'::text, 'partially_paid'::text, 'fully_paid'::text, 'refunded'::text, 'voided'::text])))"
+        },
+        {
+          "name": "appointments_pkey",
+          "validated": true,
+          "definition": "PRIMARY KEY (id)"
+        },
+        {
+          "name": "appointments_recurring_rule_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (recurring_rule_id) REFERENCES recurring_rules(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "appointments_room_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (room_id) REFERENCES booking_resources(id) ON DELETE SET NULL"
+        },
+        {
+          "name": "appointments_service_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointments_staff_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointments_staff_no_overlap",
+          "validated": true,
+          "definition": "EXCLUDE USING gist (staff_id WITH =, tstzrange(start_time, end_time, '[)'::text) WITH &&) WHERE ((status <> 'cancelled'::appointment_status))"
+        }
+      ]
+    },
+    {
+      "acl": [
+        "darshan=arwdDxtm/darshan",
+        "authenticated=arwd/darshan",
+        "service_role=arwd/darshan"
+      ],
+      "rls": true,
+      "force": false,
+      "owner": "darshan",
+      "table": "appointment_resources",
+      "columns": [
+        {
+          "name": "appointment_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "resource_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX appointment_resources_pkey ON public.appointment_resources USING btree (appointment_id, resource_id)",
+        "CREATE INDEX appointment_resources_resource_idx ON public.appointment_resources USING btree (resource_id)"
+      ],
+      "constraints": [
+        {
+          "name": "appointment_resources_appointment_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE"
+        },
+        {
+          "name": "appointment_resources_pkey",
+          "validated": true,
+          "definition": "PRIMARY KEY (appointment_id, resource_id)"
+        },
+        {
+          "name": "appointment_resources_resource_id_fkey",
+          "validated": true,
+          "definition": "FOREIGN KEY (resource_id) REFERENCES booking_resources(id) ON DELETE RESTRICT"
+        }
+      ]
+    },
+    {
+      "acl": [
+        "darshan=arwdDxtm/darshan",
+        "service_role=ar/darshan"
+      ],
+      "rls": true,
+      "force": false,
+      "owner": "darshan",
+      "table": "booking_lifecycle_private.appointment_mutations",
+      "columns": [
+        {
+          "name": "business_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "appointment_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "operation_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "mutation_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "original_attempt_id",
+          "type": "uuid",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "origin",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "command",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "transaction_id",
+          "type": "xid8",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "expected_revision",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "observed_revision",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "result_revision",
+          "type": "bigint",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "effect_revision",
+          "type": "bigint",
+          "default": null,
+          "not_null": false
+        },
+        {
+          "name": "outcome",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "request",
+          "type": "jsonb",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "before_image",
+          "type": "jsonb",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "after_image",
+          "type": "jsonb",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "before_resource_ids",
+          "type": "uuid[]",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "after_resource_ids",
+          "type": "uuid[]",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "allowed_fields",
+          "type": "text[]",
+          "default": null,
+          "not_null": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "default": "transaction_timestamp()",
+          "not_null": true
+        }
+      ],
+      "indexes": [
+        "CREATE UNIQUE INDEX appointment_mutations_pkey ON booking_lifecycle_private.appointment_mutations USING btree (business_id, appointment_id, mutation_id)",
+        "CREATE UNIQUE INDEX appointment_mutations_effect_key ON booking_lifecycle_private.appointment_mutations USING btree (business_id, appointment_id, effect_revision) WHERE (effect_revision IS NOT NULL)",
+        "CREATE INDEX appointment_mutations_transaction_idx ON booking_lifecycle_private.appointment_mutations USING btree (transaction_id, business_id, appointment_id, observed_revision)"
+      ],
+      "constraints": [
+        {
+          "name": "appointment_mutations_appointment_fk",
+          "validated": true,
+          "definition": "FOREIGN KEY (appointment_id, business_id) REFERENCES appointments(id, business_id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointment_mutations_attempt_fk",
+          "validated": true,
+          "definition": "FOREIGN KEY (original_attempt_id, business_id) REFERENCES commerce_payment_attempts(id, business_id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointment_mutations_business_fk",
+          "validated": true,
+          "definition": "FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointment_mutations_operation_fk",
+          "validated": true,
+          "definition": "FOREIGN KEY (operation_id, business_id) REFERENCES commerce_booking_operations(id, business_id) ON DELETE RESTRICT"
+        },
+        {
+          "name": "appointment_mutations_pkey",
+          "validated": true,
+          "definition": "PRIMARY KEY (business_id, appointment_id, mutation_id)"
+        },
+        {
+          "name": "appointment_mutations_revision_check",
+          "validated": true,
+          "definition": "CHECK (((expected_revision >= 0) AND (expected_revision = observed_revision) AND (result_revision >= 0) AND (((outcome = 'APPLIED'::text) AND (observed_revision < '9223372036854775807'::bigint) AND ((result_revision - observed_revision) = 1) AND (effect_revision IS NOT NULL) AND (effect_revision = result_revision)) OR ((outcome = 'NO_CHANGE'::text) AND (expected_revision = result_revision) AND (effect_revision IS NULL) AND (before_image = after_image) AND (before_resource_ids = after_resource_ids) AND (allowed_fields = '{}'::text[])))))"
+        },
+        {
+          "name": "appointment_mutations_shape_check",
+          "validated": true,
+          "definition": "CHECK (((origin = ANY (ARRAY['V2'::text, 'V1_CLOSE'::text])) AND (outcome = ANY (ARRAY['APPLIED'::text, 'NO_CHANGE'::text])) AND (command = ANY (ARRAY['STATUS'::text, 'NOTES'::text, 'RESCHEDULE'::text, 'RESIZE'::text, 'REASSIGN_STAFF'::text, 'REASSIGN_LOCATION'::text, 'RESOURCES'::text, 'SERVICE_CORRECTION'::text, 'CANCEL'::text, 'REASSIGN_CUSTOMER'::text])) AND (reason = btrim(reason)) AND ((char_length(reason) >= 1) AND (char_length(reason) <= 500)) AND (jsonb_typeof(request) = 'object'::text) AND (jsonb_typeof(before_image) = 'object'::text) AND (jsonb_typeof(after_image) = 'object'::text) AND (COALESCE(array_ndims(before_resource_ids), 1) = 1) AND (COALESCE(array_ndims(after_resource_ids), 1) = 1) AND (array_position(before_resource_ids, NULL::uuid) IS NULL) AND (array_position(after_resource_ids, NULL::uuid) IS NULL) AND (array_position(allowed_fields, NULL::text) IS NULL) AND isfinite(created_at)))"
+        }
+      ]
+    }
+  ]
+}
