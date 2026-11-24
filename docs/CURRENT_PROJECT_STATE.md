@@ -1,5 +1,10 @@
 # Chasum — Current Project State
 
+## Local GVM-N02 Production-only preparation — 2026-11-23
+
+Local candidate on `codex/gvm-n02-production-only` starts from verified serving `ab4e41f530d2a2da65bda429407e0f84446f9fac` and ports only the accepted PR #165 payment editor. **HELD: no publication or Production readiness.** Synthetic tests reproduce inherited overpayment/int4 risks and the accepted CAD writer test fails on this Production base (USD default). Build, editor and 16 responsive Chromium/WebKit cases pass. No unrelated fix or writer change is imported. See [bounded review and rollback plan](reviews/gvm-n02-production-only.md). Next gate is separate PO financial-safety/CI scope and manually dispatched exact-candidate Claude review; no customer/hosted execution or release authorized.
+
+
 ## Local M1C / Reception account candidate — 2026-10-27
 
 Darshan authorized one separate LOCAL descendant of audited Reception `d3b20b5445baa40c2aa6bb0fb0e375c1ee55bc00`, on `codex/m1c-reception-account-local`. Only `components/dashboard/sidebar.tsx` changes in application source. Bounded PR #128 AccountControl presentation is reused with canonical-form pending/repeat protection; the mobile navigation drawer gains priority over bottom navigation, safe-area/dynamic-height handling, visible Close contrast, focus containment/return, background inertness and desktop-resize cleanup. The audited shared Sheet, Auth action, Calendar, Booking/#135, Notes, Morning Brief, Preview footer and backend/financial paths remain unchanged.

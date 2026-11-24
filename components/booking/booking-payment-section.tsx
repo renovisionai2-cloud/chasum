@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { formatMoneyCents } from "@/lib/commerce/money";
 import {
   resolveBookingFinancials,
@@ -23,6 +24,26 @@ const BOOKING_METHODS: PaymentMethod[] = [
   "e_transfer",
   "other",
 ];
+
+/** Empty and partial decimals stay visible. At most one separator and two fraction digits. */
+const EDITABLE_AMOUNT = /^(?:\d+\.?|\d*\.\d{0,2})$/;
+
+function isEditableAmount(text: string): boolean {
+  return text === "" || EDITABLE_AMOUNT.test(text);
+}
+
+function centsFromAmountText(text: string): number | null {
+  if (text === "" || text === ".") return 0;
+  const [whole, fraction = ""] = text.split(".");
+  // Parse each part as an integer so decimal conversion cannot lose a cent.
+  const cents = Number(whole || "0") * 100 + Number(fraction.padEnd(2, "0"));
+  return Number.isSafeInteger(cents) ? cents : null;
+}
+
+function formatAmountCents(cents: number): string {
+  const amount = Math.max(0, Math.round(cents));
+  return `${Math.floor(amount / 100)}.${String(amount % 100).padStart(2, "0")}`;
+}
 
 export type BookingPaymentDraft = {
   mode: BookingPaymentMode;
@@ -82,10 +103,65 @@ export function BookingPaymentSection({
   });
   const depositNeeded = base.depositRequiredCents > 0;
   const expanded = defaultExpanded || value.mode !== "none" || depositNeeded;
+  const pricingKey = [
+    catalogPriceCents,
+    serviceTaxRateBps ?? "",
+    depositCents ?? "",
+    depositRequired ? 1 : 0,
+    currency ?? "",
+  ].join(":");
+  const [editing, setEditing] = useState(false);
+  const [amountText, setAmountText] = useState(() =>
+    formatAmountCents(value.amountCents),
+  );
+  const echoRef = useRef({
+    mode: value.mode,
+    amountCents: value.amountCents,
+    pricingKey,
+  });
+  const shownAmount = editing ? amountText : formatAmountCents(value.amountCents);
+
+  useEffect(() => {
+    if (!editing) return;
+    const echo = echoRef.current;
+    const ownKeystroke =
+      value.mode === echo.mode &&
+      value.amountCents === echo.amountCents &&
+      pricingKey === echo.pricingKey;
+    if (ownKeystroke) return;
+    setAmountText(formatAmountCents(value.amountCents));
+    echoRef.current = {
+      mode: value.mode,
+      amountCents: value.amountCents,
+      pricingKey,
+    };
+  }, [editing, pricingKey, value.amountCents, value.mode]);
+
+  function publishAmount(next: BookingPaymentDraft) {
+    echoRef.current = {
+      mode: next.mode,
+      amountCents: next.amountCents,
+      pricingKey,
+    };
+    onChange(next);
+  }
 
   function setMode(mode: BookingPaymentMode) {
     const amountCents = suggestPaymentTodayCents(mode, base, value.amountCents);
-    onChange({ ...value, mode, amountCents });
+    setEditing(false);
+    setAmountText(formatAmountCents(amountCents));
+    publishAmount({ ...value, mode, amountCents });
+  }
+
+  function editAmount(nextText: string) {
+    if (!isEditableAmount(nextText)) return;
+    const amountCents = centsFromAmountText(nextText);
+    if (amountCents === null) return;
+    setEditing(true);
+    const mode =
+      value.mode === "deposit" || value.mode === "full" ? "custom" : value.mode;
+    setAmountText(nextText);
+    publishAmount({ ...value, mode, amountCents });
   }
 
   return (
@@ -168,22 +244,26 @@ export function BookingPaymentSection({
                 <Label htmlFor="booking_payment_amount">Amount</Label>
                 <Input
                   id="booking_payment_amount"
-                  type="number"
-                  min={0.01}
-                  step="0.01"
-                  value={(value.amountCents / 100).toFixed(2)}
-                  onChange={(e) => {
-                    const dollars = Number(e.target.value);
-                    onChange({
-                      ...value,
-                      mode: value.mode === "deposit" || value.mode === "full"
-                        ? "custom"
-                        : value.mode,
-                      amountCents: Number.isFinite(dollars)
-                        ? Math.max(0, Math.round(dollars * 100))
-                        : 0,
-                    });
+                  type="text"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={shownAmount}
+                  onFocus={() => {
+                    setEditing(true);
+                    const text = formatAmountCents(value.amountCents);
+                    setAmountText(text);
+                    echoRef.current = {
+                      mode: value.mode,
+                      amountCents: value.amountCents,
+                      pricingKey,
+                    };
                   }}
+                  onBlur={() => setEditing(false)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") event.preventDefault();
+                  }}
+                  onChange={(event) => editAmount(event.target.value)}
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Record payment — does not charge a card online.

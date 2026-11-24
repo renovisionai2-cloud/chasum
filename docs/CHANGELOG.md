@@ -1,5 +1,9 @@
 # Chasum Changelog
 
+## 2026-11-23 — GVM-N02 local isolated preparation (HELD / unpublished)
+
+Ported only the accepted payment editor onto verified Production source; added synthetic regression and financial-boundary evidence. Overpayment/int4 risks and the Production-base CAD/USD mismatch block publication. No release or financial-data change. See [review](reviews/gvm-n02-production-only.md).
+
 ## 2026-10-27 — M1C Reception-compatible LOCAL candidate
 
 - Reuse the governed Account avatar/Sheet presentation with the unchanged canonical Sign out form, pending indication and synchronous local repeat protection.
