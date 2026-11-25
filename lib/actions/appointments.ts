@@ -478,7 +478,7 @@ export async function createAppointment(
           "@/lib/commerce/booking-financials"
         );
         const { PAYMENT_METHOD_LABELS } = await import("@/lib/commerce/types");
-        const { formatMoneyCents } = await import("@/lib/commerce/money");
+        const { formatMoneyCents, normalizeCurrency } = await import("@/lib/commerce/money");
         const { logAppointmentChange } = await import(
           "@/lib/booking-engine/conflicts"
         );
@@ -528,6 +528,7 @@ export async function createAppointment(
             customerId,
             appointmentId,
             amountCents: paymentAmountCents,
+            currency: normalizeCurrency(business.currency),
             method,
             kind,
             description: [

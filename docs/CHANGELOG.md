@@ -1,5 +1,9 @@
 # Chasum Changelog
 
+## 2026-11-25 — GVM-N02 limited local correction (unpublished)
+
+Preserve the accepted editor; propagate Business currency in booking payments, scope the appointment payment UPDATE by appointment and Business IDs, and install Chromium/WebKit with build-before-test CI ordering. Original assertions remain intact. Local regression/browser/release controls, typecheck, focused lint and build retry pass. Financial integrity and the emitted Next.js security-upgrade recommendation remain unresolved; no Preview or Production authorization. See [review and evidence](reviews/gvm-n02-production-only.md).
+
 ## 2026-11-23 — GVM-N02 local isolated preparation (HELD / unpublished)
 
 Ported only the accepted payment editor onto verified Production source; added synthetic regression and financial-boundary evidence. Overpayment/int4 risks and the Production-base CAD/USD mismatch block publication. No release or financial-data change. See [review](reviews/gvm-n02-production-only.md).

@@ -1,5 +1,13 @@
 # Chasum — Current Project State
 
+## Local GVM-N02 limited correction — 2026-11-25
+
+Darshan authorized completion of the existing isolated N02 candidate: preserve the accepted payment editor, propagate resolved Business currency in the booking caller, add the Business predicate to the appointment payment UPDATE, and correct Chromium/WebKit installation/build ordering. The five pending changes from the prior bounded task remain byte-identical. No other payment-writer behavior or financial architecture is changed.
+
+Local verification: 600 adjacent regression tests across 71 files, 16 real Chromium/WebKit responsive cases, and 26 release-control tests PASS; typecheck and focused lint PASS. Build PASS on the identical retry after Next.js's built-in security reminder; the original exit-1 log and unresolved upgrade recommendation are retained. Missing-browser negative controls fail explicitly. The editor, original writer assertions and teardown deadlines remain unchanged. These are synthetic macOS/Node 26 results; Linux/Node 22 CI, hosted acceptance and physical devices are NOT RUN.
+
+**Local candidate ready for independent review only; Preview and Production HELD.** Reject-on-excess/atomicity/concurrency/int4/partial-write, stored-value/provider/refund and invoice/receipt risks remain unresolved. The UPDATE predicate does not detect zero affected rows or undo an earlier ledger write. No financial-risk waiver is granted. Next gate: Darshan manually dispatches Claude's exact-candidate delta audit, then separately decides protected Preview publication. No push, merge, hosted database access, provider operation, release registration or deployment occurred. See [current bounded review](reviews/gvm-n02-production-only.md).
+
 ## Local GVM-N02 Production-only preparation — 2026-11-23
 
 Local candidate on `codex/gvm-n02-production-only` starts from verified serving `ab4e41f530d2a2da65bda429407e0f84446f9fac` and ports only the accepted PR #165 payment editor. **HELD: no publication or Production readiness.** Synthetic tests reproduce inherited overpayment/int4 risks and the accepted CAD writer test fails on this Production base (USD default). Build, editor and 16 responsive Chromium/WebKit cases pass. No unrelated fix or writer change is imported. See [bounded review and rollback plan](reviews/gvm-n02-production-only.md). Next gate is separate PO financial-safety/CI scope and manually dispatched exact-candidate Claude review; no customer/hosted execution or release authorized.

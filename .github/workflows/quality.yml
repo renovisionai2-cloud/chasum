@@ -42,8 +42,11 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Install Chromium
-        run: npx playwright install chromium --with-deps
+      - name: Install Chromium and WebKit
+        run: npx playwright install chromium webkit --with-deps
+
+      - name: Build
+        run: npm run build
 
       - name: Test
         run: npm run test

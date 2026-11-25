@@ -138,7 +138,8 @@ async function syncAppointmentPayment(
           ? Number(appt.deposit_cents)
           : depositRequiredCents,
     })
-    .eq("id", appointmentId);
+    .eq("id", appointmentId)
+    .eq("business_id", businessId);
 
   if (updErr) {
     return {

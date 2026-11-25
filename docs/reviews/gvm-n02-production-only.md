@@ -1,3 +1,83 @@
+# GVM-N02 limited UI/currency candidate — LOCAL REVIEW ONLY
+
+## November 25 authorized completion
+
+This supplement supersedes the November 23 preparation blockers only for the authorized local corrections. The earlier report below remains historical evidence. Competitive Product Gate: NOT_APPLICABLE — bounded corrections to locked behavior; no new feature, currency policy or payment architecture.
+
+Base: `b39b2e7ba579e58e0865c139ca1f2ee503c0e8ac`, tree `54e5b1d2b0d454e1a96ac4f7094f26825a68d069`, branch `codex/gvm-n02-production-only`. Historical Production ancestor: `ab4e41f530d2a2da65bda429407e0f84446f9fac`. Remote main freshly observed at `b85ba4a6ba51d81a144037ce6348a3deb63124fb`; it was not imported. Current Production identity was NOT accessed or verified. The immutable successor SHA/tree, source hashes and complete patches are in the external final evidence manifest to avoid a self-referential commit.
+
+Worktree: `/Users/darshan/.codex/worktrees/gvm-n02-production-only/chasum`.
+Evidence: `/Users/darshan/.codex/worktrees/gvm-n02-production-only/evidence/final-writer-20261125/`.
+Prior blocked evidence: sibling `limited-ui-currency-20261125/`; preserved unchanged.
+
+## Exact boundary and source preservation
+
+- Accepted editor is byte-identical to PR #165 source `70cb4f05c6bf59baf2a90eae5a0d9883a0eee847`: SHA-256 `471907fc25f2e0cc7188f3efdded6c689c14145c38416804caa6eea854edab0f`.
+- The five previously prepared currency/workflow/test files retain every recorded byte.
+- `lib/actions/appointments.ts` supplies `currency: normalizeCurrency(business.currency)` through the existing helper import. No FX conversion or historical rewrite.
+- The ONLY `lib/commerce/payments.ts` change is adding `.eq("business_id", businessId)` after `.eq("id", appointmentId)` on the UPDATE inside `syncAppointmentPayment`. Its scoped SELECT, calculations, ledger, invoice/receipt, provider/refund/store-credit and idempotency behavior are unchanged.
+- The original `custom-payment-submission.test.ts`, all overpayment/int4 characterizations, browser test/harness, editor tests, teardown implementation/tests, package/lock files, release policy and deployment config remain byte-identical to the accepted base.
+- New tenant-scoping test is `tests/unit/commerce/n02-appointment-business-scope.test.ts`. Four existing continuity/review documents receive bounded supplements. The Environment Manifest is unchanged because no hosted runtime was inspected or changed.
+- The full historical-Production comparison is 19 files: three runtime files (editor, booking action, payment writer), two workflows, ten test/helper files and four documents. No N01/N04/N06/N07/N08/T07/T11–T12 or Issue #112 work is included.
+
+## Verification and limitations
+
+| Check | Actual outcome |
+|---|---|
+| Tenant negative control before writer fix | Expected FAIL: 2 fail / 1 pass; missing predicate and changed-Business row mutation reproduced |
+| Focused writer/currency/editor/deposit/teardown | PASS 70/70 in six files |
+| Adjacent regression | PASS 600/600 in 71 files, no skips; focused tests included, not additive |
+| Original writer assertions | PASS 6/6 unchanged |
+| New tenant-scoping suite | PASS 3/3 |
+| Currency propagation/characterizations | PASS 9/9 |
+| Editor / teardown / deposit-due-now | PASS 17 / 31 / 4, all included in the regression total |
+| Chromium / WebKit responsive | PASS 8 each, 16 total; 320/390/834/1280px, light/dark |
+| Browser isolation/geometry | Zero external requests, domain writes, page errors and overflow; tested controls >=44px |
+| Real normal teardown | Both browsers and HTTP server completed; original 30s/10s/45s deadlines unchanged |
+| Missing-binary controls | Two expected failed suites, exit 1; each reports 16 skipped assertions because setup deliberately fails; never counted as a functional PASS |
+| Issue #136 tests | PASS 26/26, including 16 workflow/preservation tests |
+| Release config / diff check | PASS |
+| Focused lint / typecheck | PASS |
+| Production build | First attempt exit 1 on Next.js upgrade reminder; identical retry exit 0 with warning retained |
+| Linux/Node 22, hosted CI, physical devices, operator acceptance | NOT RUN |
+| Hosted database, real transactions, Preview or Production action | NOT RUN / prohibited |
+
+Commands and outputs are retained in `focused.log`, `regression.log/json`, `browser.log/json`, `release-tests.log`, `release-config.log`, `lint.log`, `typecheck.log`, `build.log`, `build-retry.log`, `scope-red.log` and the missing-browser logs/results. Exit files record actual command status. Browser screenshots and metrics are under `browser/`. The 600-regression command covers booking, booking-engine, commerce, reception, calendar, hooks and Sheet focus, excluding the separately executed real browser suite. Whole-repository lint/full test-suite acceptance is not claimed.
+
+Currency evidence executes the real action and legacy writer against an in-memory PostgREST-shaped fixture. Known CAD/normalized CAD/USD values agree across provider input, transaction, customer event and operator success disclosure; untrusted form currency cannot choose denomination. Existing seeded rows remain unchanged. Five fallback characterizations explicitly show that missing/unsupported currency still defaults to USD; that is NOT evidence of USD denomination. Business-resolution failure reaches no writers. No hosted denomination qualification is inferred.
+
+The new tenant tests exercise the real writer through its caller. They cover the authorized Business/appointment update, a foreign appointment rejected by the existing scoped SELECT, and a synthetic Business change between read and UPDATE. The last case fails before the correction and leaves the now-foreign row unchanged afterward. This does NOT establish hosted RLS, database concurrency or whole-payment rejection. The legacy writer may already have committed money and does not detect zero affected rows; those financial limitations remain unresolved.
+
+The first missing-browser evidence wrapper expected an aggregate error title, but Vitest printed its child errors. Its initial result is retained as `missing-browser-initial-verifier.json`; the corrected interpretation uses the same logs, with no test changes or rerun. Chromium/HTTP cleanup completed in the missing-WebKit case; missing-resource cleanup errors remained fatal.
+
+Local runtime: macOS Darwin 25.5.0 arm64, Node 26.7.0, Next 16.4.3, React 19.2.4, Playwright 1.61.1. CI is configured for Ubuntu/Node 22 and both engines with `--with-deps`; actual Linux/Node 22 execution remains a later CI gate.
+
+Next.js compiled and generated all pages on the first build, then its agent-upgrade reminder exited 1. Installed `next/dist/lib/upgrade/nudge.js` implements a one-use normal-command retry; repeating the identical command produced exit 0 and the security warning. No config/env suppression, dependency upgrade or retry-receipt manipulation occurred. The emitted recommendation is to upgrade Next.js for a known security vulnerability. Advisory identity/applicability and remediation are NOT resolved by this task or by build PASS; separately scoped security review/upgrade is recommended before release. Existing middleware deprecation and Node localStorage warnings also remain. No automatic upgrade or agent was started.
+
+## Release-control proof
+
+The approved workflow changes install Chromium plus WebKit and build before the CSS-dependent browser tests. The new release tests compare all other release-workflow semantics to the accepted base digest `9cf7ec13ee58d51f6afc271594ef22db4c5c3e3678c378880021f164103bdd00`. Negative controls reject missing browser installation, skipped/soft-failing tests, reversed ordering, changed protected environment, trusted checkout/source verification, early secret exposure and rollback removal. Existing policy/ancestry/source and build-info tests still pass. This is local preservation proof, not fresh GitHub/Vercel configuration verification.
+
+The trusted `control` checkout and approved `source` checkout remain separate; registration/expiry/ancestry rechecks, protected Production Environment, secret boundaries, pinned tooling and rollback behavior are unchanged. Candidate policy remains deny-all. Single-collaborator mandatory human review/CODEOWNER enforcement remains waived, not active two-person control. No workflow was dispatched.
+
+## Financial holds and next gates
+
+Reject-on-excess remains binding and unimplemented by this limited candidate. Overpayment, concurrent payment safety, cumulative int4 range, partial writes, stored-value denomination, store-credit lost updates, Stripe refund classification/idempotency/webhook finalization, missing automatic stored-value restoration, unproven broader lock order, refund-aware #133 projections and invoice/receipt consistency remain unresolved. Original unsafe characterizations remain passing demonstrations of risk, not acceptance. No Production financial-risk waiver exists.
+
+Darshan's next gate is manual independent Claude exact-candidate delta audit: preserve editor/five pending files, prove the one-predicate writer boundary and negative controls, review currency fallback limits, workflow safety/evidence, financial disclosure and rollback compatibility. Prior architecture audits remain closed and were not rerun. No specialist was dispatched.
+
+Preview publication requires that audit, applicable local evidence, separate PO authorization and the existing protected PR/CI process. Confirm exact Preview source SHA/deployment and separate authenticated operator/device acceptance; READY is not operator PASS. No new Preview URL exists.
+
+Production remains HELD for fresh serving identity, exact-source ancestry reconciliation, required CI/Preview evidence, explicit financial-risk and security review, exact-SHA Issue #136 registration, protected PO approval and compatible rollback. A reviewed true merge must preserve the isolated candidate SHA if integration is later authorized; do not substitute current main or a squash replacement.
+
+Rollback planning retains historical source `ab4e41f530d2a2da65bda429407e0f84446f9fac` and deployment `dpl_Gs291Rjqc3NXqHgFACeqqVeeWwZy` only as dated evidence. Freshly verify the canonical alias, exact prior deployment/source and `/api/build-info` before release; STOP and reconcile any difference. Use only the governed protected release/recovery mechanism, then independently verify restored alias/deployment and build-info. Unknown/failed restoration retains the incident hold. No ad hoc promotion, main reset, financial-data restoration, payment replay or customer communication. A code rollback cannot repair financial records, and restoring the old source also restores the old currency/predicate behavior.
+
+No hosted access/SQL, migration, financial/customer operation, publication, merge, deployment, release allowlisting, automatic agent dispatch or unrelated implementation occurred.
+
+---
+
+# Preserved November 23 historical report
+
 # GVM-N02 Production-isolated candidate — HELD
 
 Prepared 2026-11-23 Toronto / 2026-11-24 UTC. Local synthetic QA only.
