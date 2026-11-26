@@ -28,7 +28,6 @@ jobs:
       APPROVED_CONTROL_SHA: ${{ inputs.approved_control_sha }}
       TRUSTED_WORKFLOW_SHA: ${{ github.workflow_sha }}
       TRUSTED_WORKFLOW_REF: ${{ github.workflow_ref }}
-      PROOF_CHECK_RUN_ID: ${{ job.check_run_id }}
     steps:
       - name: Require reviewed control revision
         run: |
@@ -64,6 +63,8 @@ jobs:
           node-version: 22.23.4
       - name: Execute isolated exact-source proof
         id: proof
+        env:
+          PROOF_CHECK_RUN_ID: ${{ job.check_run_id }}
         run: |
           set -euo pipefail
           umask 022
@@ -801,6 +802,7 @@ jobs:
       - name: Require successful proof and artifact receipt
         if: always()
         env:
+          PROOF_CHECK_RUN_ID: ${{ job.check_run_id }}
           PROOF_OUTCOME: ${{ steps.proof.outcome }}
           UPLOAD_OUTCOME: ${{ steps.evidence.outcome }}
           ARTIFACT_ID: ${{ steps.evidence.outputs.artifact-id }}

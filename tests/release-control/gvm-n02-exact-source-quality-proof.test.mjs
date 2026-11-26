@@ -83,7 +83,6 @@ function verifyWorkflow(w) {
     APPROVED_CONTROL_SHA:'${{ inputs.approved_control_sha }}',
     TRUSTED_WORKFLOW_SHA:'${{ github.workflow_sha }}',
     TRUSTED_WORKFLOW_REF:'${{ github.workflow_ref }}',
-    PROOF_CHECK_RUN_ID:'${{ job.check_run_id }}',
   });
   const [guard, controls, candidate, node, execute, upload, receipt] = j.steps;
   assert.equal(j.steps.length,7);
@@ -93,7 +92,11 @@ function verifyWorkflow(w) {
   assert.deepEqual(candidate,{name:'Checkout literal audited application',uses:CHECKOUT,with:{ref:SHA,path:'candidate','fetch-depth':2,'persist-credentials':false}});
   assert.deepEqual(node,{name:'Set up Node 22 without shared caches',uses:NODE,with:{'node-version':'22.23.4'}});
   assert.deepEqual(Object.keys(guard).sort(),['name','run']);
-  assert.deepEqual(Object.keys(execute).sort(),['id','name','run']);
+  assert.deepEqual(Object.keys(execute).sort(),['env','id','name','run']);
+  // GitHub allows job in steps.env, not jobs.<job_id>.env. Keep the check-run
+  // identity distinct from github.run_id and available to both consumers.
+  // https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability
+  assert.deepEqual(execute.env,{PROOF_CHECK_RUN_ID:'${{ job.check_run_id }}'});
   assert.equal(execute.id,'proof');
   assert.deepEqual([guard.run,execute.run,receipt.run].map(sha256),RUN_HASHES);
   assert.deepEqual(upload,{name:'Upload bounded evidence including failures',id:'evidence',if:'always()',uses:UPLOAD,
@@ -102,6 +105,7 @@ function verifyWorkflow(w) {
   assert.deepEqual(Object.keys(receipt).sort(),['env','if','name','run']);
   assert.equal(receipt.if,'always()');
   assert.deepEqual(receipt.env,{
+    PROOF_CHECK_RUN_ID:'${{ job.check_run_id }}',
     PROOF_OUTCOME:'${{ steps.proof.outcome }}',UPLOAD_OUTCOME:'${{ steps.evidence.outcome }}',
     ARTIFACT_ID:'${{ steps.evidence.outputs.artifact-id }}',ARTIFACT_DIGEST:'${{ steps.evidence.outputs.artifact-digest }}',
     ARTIFACT_URL:'${{ steps.evidence.outputs.artifact-url }}',
@@ -198,6 +202,27 @@ for (const [name,mutate] of [
   ['upload failure ignored',w=>w.jobs['n02-exact-source-proof'].steps[5]['continue-on-error']=true],
   ['extra trigger',w=>w.on.push={}],
 ]) test(`structural negative: rejects ${name}`,()=>{const w=structuredClone(workflow);mutate(w);assert.throws(()=>verifyWorkflow(w));});
+
+// Regression for GitHub validation failure 45912270915. The original invalid
+// placement must fail even though it is syntactically valid YAML. Actionlint
+// independently checks expression-context availability during local validation.
+for(const [name,mutate] of [
+  ['original job-level context',j=>{
+    j.env.PROOF_CHECK_RUN_ID='${{ job.check_run_id }}';
+    delete j.steps[4].env;
+    delete j.steps[6].env.PROOF_CHECK_RUN_ID;
+  }],
+  ['job-level duplicate',j=>j.env.PROOF_CHECK_RUN_ID='${{ job.check_run_id }}'],
+  ['missing proof identity',j=>delete j.steps[4].env.PROOF_CHECK_RUN_ID],
+  ['missing receipt identity',j=>delete j.steps[6].env.PROOF_CHECK_RUN_ID],
+  ['proof run-ID substitution',j=>j.steps[4].env.PROOF_CHECK_RUN_ID='${{ github.run_id }}'],
+  ['receipt run-ID substitution',j=>j.steps[6].env.PROOF_CHECK_RUN_ID='${{ github.run_id }}'],
+  ['fabricated proof identity',j=>j.steps[4].env.PROOF_CHECK_RUN_ID='123'],
+  ['fabricated receipt identity',j=>j.steps[6].env.PROOF_CHECK_RUN_ID='123'],
+]) test(`check-run context negative: rejects ${name}`,()=>{
+  const w=structuredClone(workflow);mutate(w.jobs['n02-exact-source-proof']);
+  assert.throws(()=>verifyWorkflow(w));
+});
 
 test('embedded candidate identity accepts exact synthetic tuple',()=>pass('c.validate_identity(d)',identity));
 for(const [key,value] of [['sha','b'.repeat(40)],['tree','b'.repeat(40)],['parents',['b'.repeat(40)]],['parents',[PARENT,'b'.repeat(40)]],['clean',false]]) {
