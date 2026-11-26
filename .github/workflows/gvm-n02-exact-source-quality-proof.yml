@@ -1,0 +1,766 @@
+# Supplementary execution evidence only; never the required branch check "quality".
+# Local authoring does not establish Linux containment. Future dispatch requires
+# separate PO approval of the exact control revision and independent delta audit.
+# Isolation precedent: reviewed Decision B controls; no driver/candidate reuse.
+# Docker semantics: https://docs.docker.com/engine/network/drivers/none/
+name: GVM N02 exact-source Quality proof
+on:
+  workflow_dispatch:
+    inputs:
+      approved_control_sha:
+        description: Independently reviewed exact control SHA approved for this execution
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: gvm-n02-exact-source-proof
+  cancel-in-progress: false
+jobs:
+  n02-exact-source-proof:
+    name: n02-exact-source-proof
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    env:
+      APPROVED_CONTROL_SHA: ${{ inputs.approved_control_sha }}
+      TRUSTED_WORKFLOW_SHA: ${{ github.workflow_sha }}
+      TRUSTED_WORKFLOW_REF: ${{ github.workflow_ref }}
+      PROOF_CHECK_RUN_ID: ${{ job.check_run_id }}
+    steps:
+      - name: Require reviewed control revision
+        run: |
+          set -euo pipefail
+          python3 -I - <<'GUARD'
+          import os,re
+          e=os.environ
+          assert e['GITHUB_REPOSITORY']=='renovisionai2-cloud/chasum'
+          assert e['GITHUB_EVENT_NAME']=='workflow_dispatch'
+          assert e['GITHUB_REF']=='refs/heads/main'
+          assert re.fullmatch('[0-9a-f]{40}',e['APPROVED_CONTROL_SHA'])
+          assert e['GITHUB_SHA']==e['TRUSTED_WORKFLOW_SHA']==e['APPROVED_CONTROL_SHA']
+          assert e['TRUSTED_WORKFLOW_REF']=='renovisionai2-cloud/chasum/.github/workflows/gvm-n02-exact-source-quality-proof.yml@refs/heads/main'
+          assert e['GITHUB_RUN_ATTEMPT']=='1'
+          assert e['RUNNER_OS']=='Linux' and e['RUNNER_ENVIRONMENT']=='github-hosted'
+          GUARD
+      - name: Checkout reviewed controls
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          path: controls
+          persist-credentials: false
+      - name: Checkout literal audited application
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: 89f801b7974f1c8348909b06ae326e6d72c56bb4
+          path: candidate
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Set up Node 22 without shared caches
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22.23.4
+      - name: Execute isolated exact-source proof
+        id: proof
+        run: |
+          set -euo pipefail
+          umask 022
+          cat > "$RUNNER_TEMP/n02-controller.py" <<'N02_CONTROLLER'
+          """N02-only trusted controller. Linux execution is deliberately separate from offline tests.
+
+          Networked acquisition executes pinned tooling, never application/lifecycle scripts.
+          Every candidate-controlled phase executes in an unprivileged network-none container.
+          The image and font data are architectural inputs from the reviewed Decision B controls;
+          no Decision B driver, candidate, test scope or authorization is reused.
+          """
+          import copy, errno, hashlib, http.server, json, os, pathlib, platform, re
+          import shutil, socket, subprocess, sys, tarfile, threading, time, urllib.request
+
+          SHA = '89f801b7974f1c8348909b06ae326e6d72c56bb4'
+          TREE = 'df59a150ac2a44e9f6bd54564ec9756d40503e1e'
+          PARENT = 'b39b2e7ba579e58e0865c139ca1f2ee503c0e8ac'
+          REPO = 'renovisionai2-cloud/chasum'
+          WF = '.github/workflows/gvm-n02-exact-source-quality-proof.yml'
+          IMAGE = 'mcr.microsoft.com/playwright@sha256:cf0daee9b994042e011bc29f20cdff1a9f682a039b43fcd738f7d8a9d3bcd9d6'
+          NODE = '22.23.4'
+          FONT_LOCK = json.loads(r'''{
+            "acquired_at": "2026-11-16T17:28:40.912599+00:00",
+            "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
+            "stylesheets": [
+              {
+                "url": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
+                "sha256": "ca0e7a57972b3fab84277f4953676965fdd1e6f7edf991de59b4abdff1272af7",
+                "body": "/* cyrillic-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;\n}\n/* cyrillic */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;\n}\n/* greek-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+1F00-1FFF;\n}\n/* greek */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;\n}\n/* vietnamese */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;\n}\n/* latin-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;\n}\n/* latin */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 400;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2) format('woff2');\n  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}\n/* cyrillic-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;\n}\n/* cyrillic */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;\n}\n/* greek-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+1F00-1FFF;\n}\n/* greek */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;\n}\n/* vietnamese */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;\n}\n/* latin-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;\n}\n/* latin */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 500;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2) format('woff2');\n  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}\n/* cyrillic-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;\n}\n/* cyrillic */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;\n}\n/* greek-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+1F00-1FFF;\n}\n/* greek */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;\n}\n/* vietnamese */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;\n}\n/* latin-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;\n}\n/* latin */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 600;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2) format('woff2');\n  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}\n/* cyrillic-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;\n}\n/* cyrillic */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;\n}\n/* greek-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+1F00-1FFF;\n}\n/* greek */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;\n}\n/* vietnamese */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;\n}\n/* latin-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;\n}\n/* latin */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 700;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2) format('woff2');\n  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}\n/* cyrillic-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;\n}\n/* cyrillic */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;\n}\n/* greek-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+1F00-1FFF;\n}\n/* greek */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;\n}\n/* vietnamese */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;\n}\n/* latin-ext */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2) format('woff2');\n  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;\n}\n/* latin */\n@font-face {\n  font-family: 'Inter';\n  font-style: normal;\n  font-weight: 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2) format('woff2');\n  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}\n"
+              },
+              {
+                "url": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100..800&display=swap",
+                "sha256": "9c6cbca9f7d166a25e29f13591ad0007762453a50d20f509f7298f7760f7dbca",
+                "body": "/* cyrillic-ext */\n@font-face {\n  font-family: 'JetBrains Mono';\n  font-style: normal;\n  font-weight: 100 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD2OwGtT0rU3BE.woff2) format('woff2');\n  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;\n}\n/* cyrillic */\n@font-face {\n  font-family: 'JetBrains Mono';\n  font-style: normal;\n  font-weight: 100 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD_OwGtT0rU3BE.woff2) format('woff2');\n  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;\n}\n/* greek */\n@font-face {\n  font-family: 'JetBrains Mono';\n  font-style: normal;\n  font-weight: 100 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD4OwGtT0rU3BE.woff2) format('woff2');\n  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;\n}\n/* vietnamese */\n@font-face {\n  font-family: 'JetBrains Mono';\n  font-style: normal;\n  font-weight: 100 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD0OwGtT0rU3BE.woff2) format('woff2');\n  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;\n}\n/* latin-ext */\n@font-face {\n  font-family: 'JetBrains Mono';\n  font-style: normal;\n  font-weight: 100 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD1OwGtT0rU3BE.woff2) format('woff2');\n  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;\n}\n/* latin */\n@font-face {\n  font-family: 'JetBrains Mono';\n  font-style: normal;\n  font-weight: 100 800;\n  font-display: swap;\n  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2) format('woff2');\n  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;\n}\n"
+              }
+            ],
+            "assets": [
+              {
+                "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2",
+                "sha256": "fccca918fea40089dacadc7045861314d1a6bc91f1f323cc1eeb22ebcdb321b5",
+                "bytes": 25844
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2",
+                "sha256": "aebf2ab4a4ce6810d73c1ac7be7cafb4e5ec4cee2d6db5fb3e09691747ec4bd6",
+                "bytes": 18744
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2",
+                "sha256": "a2e2c783ca6f9c20486e81e72a279203e86730bbf8f01ff6a5ee9dbd09e1c271",
+                "bytes": 11272
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2",
+                "sha256": "46dd4cdca58c26ae87cc6927657bf83b2e8abfc39ffd0ab176e301a8d28d22bf",
+                "bytes": 19044
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2",
+                "sha256": "8db00ff46c67b22cda8bed865acf7077651cac8d2841d5b40980556b48961931",
+                "bytes": 10280
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2",
+                "sha256": "a28eb6d3ccb534ae0c94ca999371df024aab60b08c3c8a5720ee9e32fa0faaa2",
+                "bytes": 85272
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2",
+                "sha256": "c940764593d0fe5d596be327ca7558855e018039fb78509aa21921fd3644c3e4",
+                "bytes": 48432
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD2OwGtT0rU3BE.woff2",
+                "sha256": "992eea2f70210457ddd1196de4df3240919ffe068ad188c79d985fba4565d3bf",
+                "bytes": 2020
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD_OwGtT0rU3BE.woff2",
+                "sha256": "af7486955880be1c2b972e9c766acffb776768d669b6576ed9a0919ce72e7ca6",
+                "bytes": 12064
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD4OwGtT0rU3BE.woff2",
+                "sha256": "3edf363dbf9d5fa0cdc784ae2b431a8a4152f4055a8a8858028c0bd668808273",
+                "bytes": 9084
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD0OwGtT0rU3BE.woff2",
+                "sha256": "1390e86cc2823e759358918c01c4fcc1b6e4f01bca915bdbeb6d68eb5c244405",
+                "bytes": 7468
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD1OwGtT0rU3BE.woff2",
+                "sha256": "7db7affbce1fdee69c1ffc2641bbca289b049867f524c9d861fe35ab6670bf29",
+                "bytes": 15204
+              },
+              {
+                "url": "https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbV2o-flEEny0FZhsfKu5WU4xD7OwGtT0rU.woff2",
+                "sha256": "1e06740a02a443fb7f3eeda8fcaa685a0f6c620e3f01e6666e847295469ce3ad",
+                "bytes": 40480
+              }
+            ]
+          }''')
+          PROBE_JS = r'''// Bounded synthetic isolation proof. No real service endpoints or route mocks.
+          import assert from 'node:assert/strict';
+          import fs from 'node:fs';
+          import http from 'node:http';
+          import net from 'node:net';
+          import dgram from 'node:dgram';
+          import dns from 'node:dns';
+          import { spawnSync } from 'node:child_process';
+          import { createRequire } from 'node:module';
+
+          const mode = process.argv[2];
+          const log = (event, detail = {}) => console.log(JSON.stringify({ event, ...detail }));
+          const approved = {
+            PATH: '/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+            HOME: '/home/pwuser', TMPDIR: '/tmp', LANG: 'C.UTF-8', CI: 'true',
+            NEXT_TELEMETRY_DISABLED: '1', PLAYWRIGHT_BROWSERS_PATH: '/work/browsers',
+            CHASUM_N02_EVIDENCE: '/out/browser',
+          };
+          const receiver = JSON.parse(fs.readFileSync('/inputs/receiver.json', 'utf8'));
+
+          function kernel() {
+            assert.equal(process.platform, 'linux');
+            assert.notEqual(process.getuid(), 0);
+            for (const [key, value] of Object.entries(approved)) assert.equal(process.env[key], value, key);
+            assert.deepEqual(Object.keys(process.env).filter(k => !(k in approved) &&
+              !['PWD', 'SHLVL', '_'].includes(k)), [], 'Unapproved environment');
+            const status = fs.readFileSync('/proc/self/status', 'utf8');
+            for (const key of ['CapInh', 'CapPrm', 'CapEff', 'CapBnd', 'CapAmb'])
+              assert.match(status, new RegExp(`^${key}:\\s+0+$`, 'm'));
+            assert.match(status, /^NoNewPrivs:\s+1$/m);
+            assert.match(status, /^Seccomp:\s+2$/m, 'Seccomp filtering required');
+            assert.deepEqual(fs.readdirSync('/sys/class/net'), ['lo'], 'NETWORK_INTERFACE_GUARD');
+            const routes = fs.readFileSync('/proc/net/route', 'utf8').trim().split('\n');
+            assert.equal(routes.length, 1, 'External IPv4 route');
+            for (const row of fs.readFileSync('/proc/net/ipv6_route', 'utf8').trim().split('\n'))
+              if (row) assert.equal(row.trim().split(/\s+/).at(-1), 'lo', 'External IPv6 route');
+            for (const p of ['/var/run/docker.sock', '/run/podman/podman.sock', '/home/pwuser/.aws',
+              '/home/pwuser/.ssh', '/home/pwuser/.npmrc']) assert.equal(fs.existsSync(p), false, p);
+            log('KERNEL_BOUNDARY_PASS', { uid: process.getuid(), environment: approved });
+          }
+
+          async function blockedTCP(host, port) {
+            await new Promise((resolve, reject) => {
+              const socket = net.connect({ host, port });
+              socket.setTimeout(1500);
+              socket.once('connect', () => { socket.destroy(); reject(new Error(`TCP escaped: ${host}`)); });
+              socket.once('error', error => { socket.destroy(); log('TCP_BLOCKED', { host, code: error.code }); resolve(); });
+              socket.once('timeout', () => { socket.destroy(); reject(new Error(`Inconclusive TCP timeout: ${host}`)); });
+            });
+          }
+
+          async function escapes() {
+            await blockedTCP(receiver.ip, receiver.http_port);
+            await blockedTCP('2001:db8::191', receiver.http_port);
+            await assert.rejects(fetch(`http://${receiver.ip}:${receiver.http_port}/bypassed`,
+              { signal: AbortSignal.timeout(2000) }));
+            for (const [kind, address] of [['udp4', receiver.ip], ['udp6', '2001:db8::191']]) {
+              await new Promise((resolve, reject) => {
+                const socket = dgram.createSocket(kind);
+                const timer = setTimeout(() => { socket.close(); reject(new Error('UDP proof timeout')); }, 2000);
+                socket.send(Buffer.from('isolation-probe'), receiver.udp_port, address, error => {
+                  clearTimeout(timer); socket.close();
+                  if (!error) reject(new Error('UDP send accepted; boundary proof incomplete'));
+                  else { log('UDP_BLOCKED', { kind, code: error.code }); resolve(); }
+                });
+              });
+            }
+            const resolver = new dns.promises.Resolver({ timeout: 750, tries: 1 });
+            resolver.setServers([`${receiver.ip}:${receiver.udp_port}`]);
+            await assert.rejects(resolver.resolve4('qa.invalid'));
+            log('CONTROLLED_DNS_BLOCKED');
+          }
+
+          kernel();
+          if (mode === 'kernel') process.exit(0);
+          if (mode === 'child') { await escapes(); log('CHILD_BOUNDARY_PASS'); process.exit(0); }
+          assert.equal(mode, 'browser');
+          const require = createRequire('/work/package.json');
+          const { setupServer } = await import(require.resolve('msw/node'));
+          const mocks = setupServer();
+          mocks.listen({ onUnhandledRequest: 'bypass' });
+          try { await escapes(); log('MSW_BYPASS_BLOCKED'); } finally { mocks.close(); }
+          const child = spawnSync(process.execPath, ['/inputs/probe.mjs', 'child'],
+            { encoding: 'utf8', timeout: 12000, env: { ...approved } });
+          process.stdout.write(child.stdout || '');
+          assert.equal(child.status, 0, child.stderr);
+          const server = http.createServer((request, response) => {
+            response.setHeader('Content-Type', 'text/html'); response.end('<h1>synthetic loopback</h1>');
+          });
+          await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+          const local = `http://127.0.0.1:${server.address().port}`;
+          const { chromium, webkit } = require('playwright-core');
+          try {
+            assert.equal((await fetch(local)).status, 200);
+            for (const [engine, type] of Object.entries({ chromium, webkit })) {
+              const browser = await type.launch();
+              try {
+                const page = await browser.newPage();
+                await page.goto(local, { waitUntil: 'load', timeout: 5000 });
+                assert.equal(await page.locator('h1').innerText(), 'synthetic loopback');
+                for (const target of [`http://${receiver.ip}:${receiver.http_port}/browser`,
+                  `http://[2001:db8::191]:${receiver.http_port}/browser`, 'http://qa.invalid/'])
+                  await assert.rejects(page.goto(target, { waitUntil: 'load', timeout: 2500 }));
+                log('BROWSER_BOUNDARY_PASS', { engine, version: browser.version() });
+              } finally {
+                await Promise.race([browser.close(), new Promise((_, reject) => {
+                  const t = setTimeout(() => reject(new Error(`${engine} cleanup timed out`)), 10000); t.unref();
+                })]);
+                log('PROBE_BROWSER_CLOSED', { engine });
+              }
+            }
+          } finally { await new Promise((resolve, reject) => server.close(e => e ? reject(e) : resolve())); }
+          log('ISOLATION_PROBE_COMPLETE');
+          '''
+          ENV = {'PATH': '/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+                 'HOME': '/home/pwuser', 'TMPDIR': '/tmp', 'LANG': 'C.UTF-8', 'CI': 'true',
+                 'NEXT_TELEMETRY_DISABLED': '1', 'PLAYWRIGHT_BROWSERS_PATH': '/work/browsers',
+                 'CHASUM_N02_EVIDENCE': '/out/browser'}
+          STAGES = [
+              ('install', ['npm', 'ci', '--offline', '--no-audit', '--no-fund', '--cache', '/work/npm-cache']),
+              ('release-config', ['node', 'scripts/verify-release-control-config.mjs']),
+              ('release-tests', ['node', '--test', '--test-reporter=tap']),
+              ('typecheck', ['npm', 'run', 'typecheck']),
+              ('build', ['npm', 'run', 'build']),
+              ('browser-install', ['node', 'node_modules/playwright-core/cli.js', 'install', 'chromium', 'webkit']),
+              ('vitest', ['npm', 'run', 'test', '--', '--maxWorkers=1', '--reporter=default', '--reporter=json', '--outputFile=/out/vitest.json']),
+          ]
+          SKIP_FILE = 'tests/integration/package-a-availability-postgres.test.ts'
+
+          def require(ok, message):
+              if not ok: raise RuntimeError(message)
+
+          def sha256(data): return hashlib.sha256(data).hexdigest()
+
+          def write_json(path, data):
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_text(json.dumps(data, indent=2) + '\n')
+
+          def validate_dispatch(d):
+              require(d['repository'] == REPO, 'Wrong repository')
+              require(d['event'] == 'workflow_dispatch' and d['ref'] == 'refs/heads/main', 'Untrusted dispatch/ref')
+              require(re.fullmatch('[0-9a-f]{40}', d['approved_control_sha']) is not None, 'Control SHA required')
+              require(d['control_sha'] == d['workflow_sha'] == d['approved_control_sha'], 'Control revision mismatch')
+              require(d['workflow_ref'] == REPO + '/' + WF + '@refs/heads/main', 'Wrong workflow source')
+              require(d['attempt'] == '1', 'Rerun requires new approval; retry rejected')
+              require(d['runner_os'] == 'Linux' and d['runner_environment'] == 'github-hosted', 'Wrong runner')
+
+          def validate_identity(d):
+              require(d['sha'] == SHA and d['tree'] == TREE and d['parents'] == [PARENT], 'Candidate identity mismatch')
+              require(d['clean'] is True, 'Dirty candidate')
+
+          def validate_plan(stages):
+              require([s[0] for s in stages] == ['install','release-config','release-tests','typecheck','build','browser-install','vitest'], 'Required stage ordering')
+              commands = dict(stages)
+              require(commands['browser-install'] == ['node','node_modules/playwright-core/cli.js','install','chromium','webkit'], 'Both browsers required')
+              require(commands['vitest'] == ['npm','run','test','--','--maxWorkers=1','--reporter=default','--reporter=json','--outputFile=/out/vitest.json'], 'Full suite required')
+              require(commands['build'] == ['npm','run','build'], 'Original build required')
+
+          def command(args, cwd=None, env=None, log=None, timeout=120):
+              # Never stream untrusted child output into the Actions command interpreter.
+              if log:
+                  with pathlib.Path(log).open('w') as f:
+                      p = subprocess.run(args, cwd=cwd, env=env, stdout=f, stderr=subprocess.STDOUT, timeout=timeout)
+              else:
+                  p = subprocess.run(args, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout)
+              require(p.returncode == 0, 'Command failed (exit ' + str(p.returncode) + '): ' + args[0])
+              return p.stdout.strip() if not log else ''
+
+          def git(root, *args): return command(['git', '--no-replace-objects', *args], cwd=root)
+
+          def identity(root):
+              d = {'sha': git(root, 'rev-parse', 'HEAD'), 'tree': git(root, 'rev-parse', 'HEAD^{tree}'),
+                   'parents': git(root, 'show', '-s', '--format=%P', 'HEAD').split(),
+                   'clean': not git(root, 'status', '--porcelain=v1', '--untracked-files=all')}
+              validate_identity(d)
+              return d
+
+          def manifest(root):
+              result = {}
+              for name in git(root, 'ls-files', '-z').split('\0'):
+                  if not name: continue
+                  path = root / name
+                  require(not path.is_symlink() and path.is_file(), 'Source symlink/nonfile')
+                  require(path.name not in ('.env', '.env.local', '.env.production', '.env.production.local', '.npmrc'), 'Credential/config file')
+                  result[name] = sha256(path.read_bytes())
+              return result
+
+          def verify_bytes(root, hashes):
+              for name, digest in hashes.items():
+                  p = root / name
+                  require(p.is_file() and not p.is_symlink() and sha256(p.read_bytes()) == digest, 'Source bytes changed: ' + name)
+
+          def prepare_inputs(root):
+              # Browser bundles may contain relative library links. Preserve only links
+              # whose resolved target stays in the staged public inputs; never chmod links.
+              root = root.resolve()
+              for p in root.rglob('*'):
+                  if p.is_symlink():
+                      require(not os.path.isabs(os.readlink(p)) and root in p.resolve(strict=True).parents,
+                              'Acquisition symlink escapes staged inputs')
+                  else:
+                      require(p.is_dir() or p.is_file(), 'Special acquisition file')
+                      p.chmod(0o755 if p.is_dir() or (p.stat().st_mode & 0o111) else 0o644)
+
+          def validate_container(d, mounts):
+              h = d['HostConfig']
+              require(h['NetworkMode'] == 'none', 'Network containment removed')
+              require(h['Privileged'] is False and h['ReadonlyRootfs'] is True, 'Unsafe container')
+              require(h['CapDrop'] == ['ALL'] and not h.get('CapAdd'), 'Capability escalation')
+              require('no-new-privileges' in h['SecurityOpt'], 'Missing no-new-privileges')
+              require(not any('unconfined' in x for x in h['SecurityOpt']), 'Seccomp bypass')
+              require(d['Config']['User'] == '1000:1000', 'Root execution')
+              require(h['PidMode'] == '' and h['IpcMode'] == 'private', 'Host namespace')
+              require(not h.get('Devices') and not h.get('PortBindings'), 'Device/port authority')
+              require(all(m['Type'] in ('bind', 'tmpfs') for m in d['Mounts']), 'Unexpected volume type')
+              require(all(m['Destination'] in ('/work', '/tmp', '/home/pwuser') for m in d['Mounts'] if m['Type'] == 'tmpfs'),
+                      'Unexpected temporary mount')
+              actual = {m['Destination']: (m['Source'], m['RW']) for m in d['Mounts'] if m['Type'] == 'bind'}
+              require(actual == mounts, 'Unexpected mount or credential exposure')
+
+          def validate_results(r, expected_files, metrics, cleanup):
+              require(r['success'] is True and r['numFailedTests'] == 0 and r['numFailedTestSuites'] == 0, 'Vitest failed')
+              require(r.get('numRuntimeErrorTestSuites', 0) == 0, 'Runtime suite error')
+              files, skipped, browser_cases, passed = set(), [], [], 0
+              for suite in r['testResults']:
+                  name = suite['name'].removeprefix('/work/')
+                  require(name not in files, 'Duplicate result file')
+                  files.add(name)
+                  for case in suite['assertionResults']:
+                      status = case['status']
+                      require(status in ('passed', 'pending', 'skipped'), 'Nonpassing test')
+                      if status == 'passed': passed += 1
+                      if status != 'passed':
+                          require(name == SKIP_FILE, 'Unexpected/missing mandatory test')
+                          skipped.append({'file': name, 'test': case['fullName'], 'status': status,
+                                          'reason': 'CHASUM_RUN_PACKAGE_A_PG is not enabled; no database execution authorized'})
+                      if name == 'tests/unit/booking/custom-payment-amount-browser.test.ts':
+                          require(status == 'passed', 'Mandatory browser skipped')
+                          browser_cases.append(case['fullName'])
+              require(files == set(expected_files), 'Incomplete Vitest file coverage')
+              require(len(skipped) == 36 and r['numPendingTests'] == 36, 'Unexpected skip inventory')
+              require(passed == r['numPassedTests'] == 2042 and passed + len(skipped) == r['numTotalTests'] == 2078,
+                      'Incomplete test inventory')
+              require(len(browser_cases) == 16, 'Missing mandatory browser cases')
+              required = {(e, w, t) for e in ('chromium', 'webkit') for w in (320, 390, 834, 1280) for t in ('light', 'dark')}
+              require(len(metrics) == 16 and {(m['engine'], m['width'], m['theme']) for m in metrics} == required, 'Incomplete browser metrics')
+              require(all(m['errors'] == m['external'] == m['writes'] == [] for m in metrics), 'Browser boundary failure')
+              events = [json.loads(line.split('[n02-teardown] ', 1)[1]) for line in cleanup.splitlines() if '[n02-teardown] ' in line]
+              for component in ('CHROMIUM', 'WEBKIT', 'HTTP_SERVER'):
+                  require(sum(e['event'] == component + '_CLOSE_BEGIN' for e in events) == 1, 'Missing cleanup begin')
+                  completed = [e for e in events if e['event'] == component + '_CLOSE_COMPLETE']
+                  require(len(completed) == 1 and completed[0]['status'] == 'completed', 'Incomplete fixture cleanup')
+              require(not any(e['event'].endswith('_ERROR') for e in events), 'Fixture cleanup failed')
+              return skipped
+
+          def validate_release(log):
+              for field, count in [('tests', 26), ('pass', 26), ('fail', 0), ('cancelled', 0), ('skipped', 0), ('todo', 0)]:
+                  require(re.search(r'^# ' + field + r'\s+' + str(count) + r'\s*$', log, re.M), 'Incomplete release tests: ' + field)
+
+          def validate_outcome(d):
+              require(d['status'] == 'PASS', 'Execution failed')
+              require(d['stages'] == [n for n, _ in STAGES], 'Missing or reordered stage')
+              require(d['exit_code'] == 0 and d['oom'] is False and d['container_removed'] is True, 'Termination unverified')
+              require(d['source_after'] is True and d['receiver_hits'] == [], 'Integrity/egress failure')
+
+          def validate_receipt(proof, upload, artifact_id, digest):
+              require(proof == upload == 'success', 'Proof or artifact upload failed')
+              require(str(artifact_id).isdigit() and int(artifact_id) > 0, 'Artifact identity missing')
+              require(re.fullmatch('[0-9a-f]{64}', digest or '') is not None, 'Artifact digest missing')
+
+          def sanitized_copy(source, target):
+              total = 0
+              for p in sorted(source.rglob('*')):
+                  require(not p.is_symlink(), 'Artifact symlink')
+                  if p.is_dir(): continue
+                  require(p.is_file() and p.suffix in ('.json', '.jsonl', '.log', '.txt', '.png'), 'Unsafe artifact type')
+                  total += p.stat().st_size
+                  require(total <= 128 * 1024 * 1024, 'Artifact size limit')
+                  out = target / p.relative_to(source); out.parent.mkdir(parents=True, exist_ok=True)
+                  if p.suffix == '.png':
+                      require(p.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'), 'Invalid PNG')
+                      out.write_bytes(p.read_bytes())
+                  else:
+                      text = p.read_text(errors='replace')
+                      text = re.sub(r'\x1b\[[0-9;]*[a-zA-Z]', '', text)
+                      text = re.sub(r'(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+|eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)', '[REDACTED]', text)
+                      text = re.sub(r'(?i)(bearer\s+|(?:token|api_key|password|secret)=)[^\s&\"]+', r'\1[REDACTED]', text)
+                      out.write_text(text)
+
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, *args, **kwargs): raise RuntimeError('Font redirect forbidden')
+
+          def stage_fonts(root):
+              root.mkdir()
+              responses = {}
+              for a in FONT_LOCK['assets']:
+                  u = urllib.parse.urlsplit(a['url'])
+                  require(u.scheme == 'https' and u.hostname == 'fonts.gstatic.com' and u.port in (None, 443)
+                          and not u.username and not u.password and not u.fragment
+                          and (u.path.startswith('/s/') or u.path == '/l/font'), 'Unapproved font URL')
+                  req = urllib.request.Request(a['url'], headers={'User-Agent': FONT_LOCK['user_agent']})
+                  with urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect()).open(req, timeout=20) as r:
+                      data = r.read(4 * 1024 * 1024 + 1)
+                  require(len(data) <= 4 * 1024 * 1024 and sha256(data) == a['sha256'], 'Font drift')
+                  require(data[:4] in (b'wOF2', b'wOFF', b'\x00\x01\x00\x00', b'OTTO'), 'Invalid font bytes')
+                  (root / a['sha256']).write_bytes(data)
+              for css in FONT_LOCK['stylesheets']:
+                  require(sha256(css['body'].encode()) == css['sha256'], 'Stylesheet drift')
+                  text = css['body']
+                  for a in FONT_LOCK['assets']: text = text.replace(a['url'], 'http://127.0.0.1:43197/' + a['sha256'])
+                  require('https://' not in text, 'Unstaged font')
+                  responses[css['url']] = text
+              (root / 'responses.cjs').write_text('module.exports = ' + json.dumps(responses) + ';\n')
+
+          class Receiver:
+              def __init__(self, ip):
+                  self.hits = []
+                  owner = self
+                  class Handler(http.server.BaseHTTPRequestHandler):
+                      def do_GET(self):
+                          owner.hits.append('http'); self.send_response(200); self.end_headers(); self.wfile.write(b'synthetic')
+                      def log_message(self, *args): pass
+                  self.http = http.server.HTTPServer((ip, 0), Handler)
+                  self.thread = threading.Thread(target=self.http.serve_forever, daemon=True); self.thread.start()
+                  self.udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM); self.udp.bind((ip, 0)); self.udp.settimeout(.1)
+                  self.stop = False
+                  def receive():
+                      while not self.stop:
+                          try: self.udp.recvfrom(4096); self.hits.append('udp')
+                          except socket.timeout: pass
+                  self.ut = threading.Thread(target=receive, daemon=True); self.ut.start()
+                  self.config = {'ip': ip, 'http_port': self.http.server_port, 'udp_port': self.udp.getsockname()[1]}
+                  with urllib.request.build_opener(urllib.request.ProxyHandler({})).open('http://%s:%s/' % (ip, self.http.server_port), timeout=2) as r:
+                      require(r.status == 200, 'Receiver unavailable')
+                  with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s: s.sendto(b'positive', (ip, self.config['udp_port']))
+                  deadline = time.monotonic() + 2
+                  while 'udp' not in self.hits and time.monotonic() < deadline: time.sleep(.01)
+                  require(set(self.hits) == {'http', 'udp'}, 'Receiver positive controls failed')
+                  self.positive = list(self.hits); self.hits.clear()
+              def close(self):
+                  self.stop = True; self.http.shutdown(); self.http.server_close()
+                  self.thread.join(2); self.ut.join(2); self.udp.close()
+                  require(not self.thread.is_alive() and not self.ut.is_alive(), 'Receiver cleanup failed')
+
+          def inside():
+              validate_plan(STAGES)
+              require(platform.system() == 'Linux' and os.getuid() == 1000, 'Wrong execution boundary')
+              require(dict(os.environ) == ENV, 'Unexpected candidate environment')
+              require(command(['node', '-p', 'process.versions.node']) == NODE, 'Node version mismatch')
+              command(['node', '/inputs/probe.mjs', 'kernel'])
+              os.chdir('/work')
+              command(['tar', '-xf', '/inputs/candidate.tar'])
+              hashes = json.loads(pathlib.Path('/inputs/source.json').read_text())
+              verify_bytes(pathlib.Path('/work'), hashes)
+              shutil.copytree('/inputs/npm-cache', '/work/npm-cache')
+              shutil.copytree('/inputs/browsers', '/work/browsers', symlinks=True)
+              out = pathlib.Path('/out'); stages = []
+              write_json(out / 'runtime.json', {'node': command(['node', '--version']), 'npm': command(['npm', '--version']),
+                         'os_release': pathlib.Path('/etc/os-release').read_text(), 'platform': platform.platform()})
+              # Genuine pinned font bytes served only on loopback; no app/config edits or fake fonts.
+              assets = {a['sha256'] for a in FONT_LOCK['assets']}
+              class FontHandler(http.server.BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      name = self.path[1:]
+                      if name not in assets: self.send_error(404); return
+                      data = (pathlib.Path('/inputs/fonts') / name).read_bytes()
+                      require(sha256(data) == name, 'Font corrupt')
+                      self.send_response(200); self.end_headers(); self.wfile.write(data)
+                  def log_message(self, *args): pass
+              fonts = http.server.HTTPServer(('127.0.0.1', 43197), FontHandler)
+              thread = threading.Thread(target=fonts.serve_forever, daemon=True); thread.start()
+              try:
+                  for name, args in STAGES:
+                      if name == 'release-tests': args = args + sorted(str(p.relative_to('/work')) for p in pathlib.Path('/work/tests/release-control').glob('*.test.mjs'))
+                      env = dict(ENV)
+                      if name == 'build': env['NEXT_FONT_GOOGLE_MOCKED_RESPONSES'] = '/inputs/fonts/responses.cjs'
+                      command(args, env=env, log=out / (name + '.log'), timeout=1200 if name == 'vitest' else 600)
+                      stages.append(name); write_json(out / 'stages.json', stages)
+                      if name == 'browser-install':
+                          require(command(['node', '-p', 'require("playwright-core/package.json").version']) == '1.61.1', 'Browser version drift')
+                          command(['node', '/inputs/probe.mjs', 'browser'], env=ENV, log=out / 'isolation.jsonl', timeout=60)
+                  verify_bytes(pathlib.Path('/work'), hashes)
+                  # Ensure original font payloads reached the production build.
+                  built = {sha256(p.read_bytes()) for p in pathlib.Path('/work/.next/static/media').glob('*') if p.is_file()}
+                  require(assets <= built, 'Original font bytes missing from build')
+              finally:
+                  fonts.shutdown(); fonts.server_close(); thread.join(3)
+                  require(not thread.is_alive(), 'Font store cleanup failed')
+                  write_json(out / 'font-cleanup.json', {'closed': True})
+
+          def run():
+              root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'n02-proof'
+              root.mkdir(mode=0o700, exist_ok=False)
+              raw, inputs, execution, publish = [root / x for x in ('raw', 'inputs', 'execution', 'publish')]
+              for p in (raw, inputs, execution, publish): p.mkdir()
+              execution.chmod(0o777)
+              candidate = pathlib.Path(os.environ['GITHUB_WORKSPACE']) / 'candidate'
+              controls = pathlib.Path(os.environ['GITHUB_WORKSPACE']) / 'controls'
+              result = {'status': 'FAIL', 'stages': [], 'container_removed': False, 'source_after': False}
+              container = receiver = None
+              containers = []
+              try:
+                  d = {key: os.environ[env] for key, env in {
+                      'repository':'GITHUB_REPOSITORY', 'event':'GITHUB_EVENT_NAME', 'ref':'GITHUB_REF',
+                      'control_sha':'GITHUB_SHA', 'workflow_sha':'TRUSTED_WORKFLOW_SHA',
+                      'workflow_ref':'TRUSTED_WORKFLOW_REF', 'approved_control_sha':'APPROVED_CONTROL_SHA',
+                      'attempt':'GITHUB_RUN_ATTEMPT', 'runner_os':'RUNNER_OS', 'runner_environment':'RUNNER_ENVIRONMENT'}.items()}
+                  validate_dispatch(d)
+                  validate_plan(STAGES)
+                  require(os.environ['PROOF_CHECK_RUN_ID'].isdigit(), 'Missing job check-run identity')
+                  require(not any(os.environ.get(k) for k in ('VERCEL_TOKEN','SUPABASE_SERVICE_ROLE_KEY','DATABASE_URL',
+                      'NEXT_PUBLIC_SUPABASE_URL','NEXT_PUBLIC_SUPABASE_ANON_KEY','STRIPE_SECRET_KEY','RESEND_API_KEY',
+                      'TWILIO_AUTH_TOKEN','SENTRY_AUTH_TOKEN','GH_TOKEN','GITHUB_TOKEN')), 'Unexpected hosted credential/configuration')
+                  require(platform.system() == 'Linux' and platform.machine() == 'x86_64', 'Requires Linux amd64')
+                  require('VERSION_ID="24.04"' in pathlib.Path('/etc/os-release').read_text(), 'Requires Ubuntu 24.04')
+                  require(git(controls, 'rev-parse', 'HEAD') == d['approved_control_sha'] and not git(controls, 'status', '--porcelain'), 'Control checkout mismatch')
+                  require(command(['node', '-p', 'process.versions.node']) == NODE, 'Requires Node 22.23.4')
+                  write_json(raw / 'identity.json', {'control': d, 'control_tree': git(controls, 'rev-parse', 'HEAD^{tree}'),
+                      'control_files': {n:sha256((controls/n).read_bytes()) for n in (WF, 'tests/release-control/gvm-n02-exact-source-quality-proof.test.mjs')},
+                      'controller_sha256': sha256(pathlib.Path(__file__).read_bytes()), 'candidate': identity(candidate),
+                      'run_id': os.environ['GITHUB_RUN_ID'], 'job_key': os.environ['GITHUB_JOB'],
+                      'check_run_id': os.environ['PROOF_CHECK_RUN_ID'],
+                      'run_url': 'https://github.com/' + REPO + '/actions/runs/' + os.environ['GITHUB_RUN_ID'],
+                      'runner_name': os.environ['RUNNER_NAME'], 'image_os': os.environ.get('ImageOS'),
+                      'image_version': os.environ.get('ImageVersion'), 'os_release': pathlib.Path('/etc/os-release').read_text(),
+                      'node': command(['node', '--version']), 'npm': command(['npm', '--version'])})
+                  hashes = manifest(candidate); write_json(inputs / 'source.json', hashes)
+                  write_json(raw / 'source-manifest.json', hashes)
+                  write_json(raw / 'required-plan.json', {'stages': STAGES, 'environment': ENV, 'container_image': IMAGE})
+                  with (inputs / 'candidate.tar').open('wb') as f:
+                      subprocess.run(['git', '--no-replace-objects', 'archive', SHA], cwd=candidate, stdout=f, check=True)
+                  acquisition = root / 'acquisition'; acquisition.mkdir()
+                  for name in ('package.json', 'package-lock.json'): shutil.copyfile(candidate / name, acquisition / name)
+                  lock = json.loads((acquisition / 'package-lock.json').read_text())
+                  for name, package in lock['packages'].items():
+                      if name:
+                          require(package.get('resolved', '').startswith('https://registry.npmjs.org/') and package.get('integrity', '').startswith('sha512-'), 'Nonregistry/unpinned dependency')
+                  home = root / 'acquisition-home'; home.mkdir()
+                  for name in ('user.npmrc', 'global.npmrc'): (home / name).write_text('')
+                  node_home = pathlib.Path(shutil.which('node')).resolve().parent.parent
+                  acq_env = {'PATH': str(node_home / 'bin') + ':/usr/bin:/bin', 'HOME': str(home), 'LANG':'C.UTF-8', 'CI':'true',
+                      'npm_config_userconfig':str(home / 'user.npmrc'), 'npm_config_globalconfig':str(home / 'global.npmrc'),
+                      'PLAYWRIGHT_BROWSERS_PATH':str(inputs / 'browsers')}
+                  command(['npm','ci','--ignore-scripts','--no-audit','--no-fund','--registry=https://registry.npmjs.org', '--cache',str(inputs / 'npm-cache')],
+                          cwd=acquisition, env=acq_env, log=raw / 'acquisition.log', timeout=600)
+                  cli = acquisition / 'node_modules/playwright-core/cli.js'
+                  require(json.loads((cli.parent / 'package.json').read_text())['version'] == '1.61.1', 'Wrong acquisition tool')
+                  command(['node',str(cli),'install','--with-deps','chromium','webkit'], cwd=home, env=acq_env, log=raw / 'browser-acquisition.log', timeout=600)
+                  stage_fonts(inputs / 'fonts'); write_json(raw / 'font-inputs.json', FONT_LOCK)
+                  command(['docker','pull','--platform','linux/amd64',IMAGE], log=raw / 'image.log', timeout=600)
+                  bridge = json.loads(command(['docker','network','inspect','bridge']))[0]
+                  ip = next(x['Gateway'] for x in bridge['IPAM']['Config'] if ':' not in x['Gateway'])
+                  receiver = Receiver(ip); write_json(inputs / 'receiver.json', receiver.config)
+                  # This script contains no secret values; only this generated read-only input is mounted.
+                  shutil.copyfile(pathlib.Path(__file__), inputs / 'controller.py')
+                  (inputs / 'probe.mjs').write_text(PROBE_JS)
+                  # Inputs contain public locked packages/fonts and synthetic metadata only.
+                  # Normalize readability for uid 1000 without mounting the runner's HOME.
+                  prepare_inputs(inputs)
+                  mounts = {'/inputs': (str(inputs), False), '/node': (str(node_home), False), '/out': (str(execution), True)}
+                  args = ['docker','create','--platform','linux/amd64','--network','none','--user','1000:1000',
+                      '--cap-drop','ALL','--security-opt','no-new-privileges','--read-only','--pids-limit','512',
+                      '--ipc','private','--shm-size','1g','--memory','6g',
+                      '--tmpfs','/work:rw,exec,uid=1000,gid=1000,mode=0755,size=6g',
+                      '--tmpfs','/tmp:rw,exec,uid=1000,gid=1000,mode=1777,size=1g',
+                      '--tmpfs','/home/pwuser:rw,uid=1000,gid=1000,mode=0700,size=128m']
+                  for target, (host, rw) in mounts.items(): args += ['--mount', 'type=bind,src=' + host + ',dst=' + target + ('' if rw else ',readonly')]
+                  args += ['--entrypoint','/usr/bin/env',IMAGE,'-i'] + [k+'='+v for k,v in ENV.items()] + ['python3','-I','/inputs/controller.py','--inside']
+                  # A trusted kernel-only canary must fail when the network boundary is removed.
+                  # It runs no candidate lifecycle, build or test code and contacts no real service.
+                  exposed = list(args)
+                  exposed[exposed.index('--network') + 1] = 'bridge'
+                  exposed[-4:] = ['node', '/inputs/probe.mjs', 'kernel']
+                  canary = command(exposed); containers.append(canary)
+                  with (raw/'removed-boundary.log').open('w') as stream:
+                      subprocess.run(['docker','start','--attach',canary], stdout=stream, stderr=subprocess.STDOUT, timeout=30)
+                  canary_state = json.loads(command(['docker','inspect',canary]))[0]
+                  require(canary_state['HostConfig']['NetworkMode'] == 'bridge' and not canary_state['State']['Running']
+                          and canary_state['State']['ExitCode'] != 0 and 'NETWORK_INTERFACE_GUARD' in (raw/'removed-boundary.log').read_text(),
+                          'Removed-boundary negative control was inconclusive')
+                  write_json(raw/'removed-boundary.json', {'rejected':True,'network':'bridge','exit_code':canary_state['State']['ExitCode']})
+                  container = command(args); containers.append(container)
+                  inspection = json.loads(command(['docker','inspect',container]))[0]
+                  validate_container(inspection, mounts)
+                  # Actual inspected configuration is also the negative-control input: reject removal.
+                  removed = copy.deepcopy(inspection); removed['HostConfig']['NetworkMode'] = 'bridge'
+                  try: validate_container(removed, mounts)
+                  except RuntimeError: pass
+                  else: raise RuntimeError('Containment removal accepted')
+                  write_json(raw / 'container.json', {'host':inspection['HostConfig'],'mounts':inspection['Mounts'],'image':inspection['Image']})
+                  command(['docker','start','--attach',container], log=raw / 'container.log', timeout=2400)
+                  state = json.loads(command(['docker','inspect',container]))[0]['State']
+                  result.update(exit_code=state['ExitCode'], oom=state['OOMKilled'])
+                  require(state['ExitCode'] == 0 and not state['OOMKilled'] and not state['Running'], 'Container termination failure')
+                  sanitized_copy(execution, raw / 'execution')
+                  out = raw / 'execution'
+                  expected = [p for p in hashes if re.fullmatch(r'tests/(unit|integration)/.*\.(test|spec)\.(ts|tsx)', p)]
+                  skipped = validate_results(json.loads((out/'vitest.json').read_text()), expected,
+                      json.loads((out/'browser/browser-metrics.json').read_text()), (out/'vitest.log').read_text())
+                  write_json(raw / 'skipped-tests.json', skipped)
+                  validate_release((out/'release-tests.log').read_text())
+                  probe = [json.loads(line) for line in (out/'isolation.jsonl').read_text().splitlines() if line.startswith('{')]
+                  for event, count in [('KERNEL_BOUNDARY_PASS',2),('MSW_BYPASS_BLOCKED',1),('CHILD_BOUNDARY_PASS',1),('BROWSER_BOUNDARY_PASS',2),('PROBE_BROWSER_CLOSED',2),('ISOLATION_PROBE_COMPLETE',1)]:
+                      require(sum(x.get('event') == event for x in probe) == count, 'Missing containment evidence: '+event)
+                  require(json.loads((out/'font-cleanup.json').read_text()) == {'closed':True}, 'Font cleanup missing')
+                  result.update(status='PASS', stages=json.loads((out/'stages.json').read_text()))
+              except Exception as e:
+                  result.update(status='FAIL', error=type(e).__name__ + ': ' + str(e)[:1000])
+              finally:
+                  errors = []
+                  # Preserve partial execution and actual termination even when docker start
+                  # fails; a failed command remains failed regardless of these observations.
+                  if container:
+                      try:
+                          state = json.loads(command(['docker','inspect',container]))[0]['State']
+                          write_json(raw/'termination.json',state)
+                          result.update(exit_code=state['ExitCode'], oom=state['OOMKilled'], running_at_cleanup=state['Running'])
+                          if state['Running']: errors.append('Container still running after execution; forced cleanup required')
+                          if (execution/'stages.json').is_file():
+                              require(not (execution/'stages.json').is_symlink() and (execution/'stages.json').stat().st_size < 4096,
+                                      'Unsafe stage evidence')
+                              result['stages'] = json.loads((execution/'stages.json').read_text())
+                      except Exception as e: errors.append('termination evidence: '+str(e))
+                  if containers:
+                      try:
+                          for item in containers: command(['docker','rm','--force',item])
+                          remaining = command(['docker','ps','--all','--quiet','--no-trunc']).splitlines()
+                          require(not any(item in remaining for item in containers), 'Container still exists')
+                          result['container_removed'] = True
+                      except Exception as e: errors.append('container cleanup: '+str(e))
+                  if receiver:
+                      try:
+                          receiver.close(); result['receiver_hits'] = list(receiver.hits)
+                          write_json(raw/'receiver.json', {'positive':receiver.positive,'isolated_hits':receiver.hits})
+                          require(not receiver.hits, 'Egress escaped')
+                      except Exception as e: errors.append('receiver: '+str(e))
+                  try: write_json(raw/'source-after.json',identity(candidate)); result['source_after'] = True
+                  except Exception as e: errors.append('source: '+str(e))
+                  try:
+                      if not (raw/'execution').exists(): sanitized_copy(execution,raw/'execution')
+                  except Exception as e: errors.append('unsafe evidence: '+str(e))
+                  if errors: result.update(status='FAIL',cleanup_errors=errors)
+                  try: validate_outcome(result)
+                  except Exception as e: result.update(status='FAIL',validation_error=str(e))
+                  write_json(raw/'outcome.json',result)
+                  try:
+                      sanitized_copy(raw,publish)
+                      write_json(publish/'SHA256SUMS.json',{str(p.relative_to(publish)):sha256(p.read_bytes()) for p in sorted(publish.rglob('*')) if p.is_file()})
+                  except Exception:
+                      shutil.rmtree(publish); publish.mkdir()
+                      write_json(publish/'evidence-failure.json',{'status':'FAIL','reason':'Unsafe or incomplete evidence'})
+                      raise
+              require(result['status'] == 'PASS', 'Proof failed; inspect bounded evidence')
+
+          if __name__ == '__main__':
+              if sys.argv[1:] == ['--inside']: inside()
+              elif not sys.argv[1:]: run()
+              else: raise SystemExit('Unsupported mode')
+          N02_CONTROLLER
+          python3 -I "$RUNNER_TEMP/n02-controller.py"
+      - name: Upload bounded evidence including failures
+        id: evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: n02-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/n02-proof/publish/
+          if-no-files-found: error
+          retention-days: 14
+          include-hidden-files: false
+      - name: Require successful proof and artifact receipt
+        if: always()
+        env:
+          PROOF_OUTCOME: ${{ steps.proof.outcome }}
+          UPLOAD_OUTCOME: ${{ steps.evidence.outcome }}
+          ARTIFACT_ID: ${{ steps.evidence.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.evidence.outputs.artifact-digest }}
+          ARTIFACT_URL: ${{ steps.evidence.outputs.artifact-url }}
+        run: |
+          set -euo pipefail
+          python3 -I - <<'RECEIPT'
+          import importlib.util,json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'n02-controller.py'
+          spec=importlib.util.spec_from_file_location('control',p)
+          control=importlib.util.module_from_spec(spec); spec.loader.exec_module(control)
+          e=os.environ
+          control.validate_receipt(e['PROOF_OUTCOME'],e['UPLOAD_OUTCOME'],e['ARTIFACT_ID'],e['ARTIFACT_DIGEST'])
+          result=json.loads((p.parent/'n02-proof/publish/outcome.json').read_text())
+          control.validate_outcome(result)
+          with open(e['GITHUB_STEP_SUMMARY'],'a') as f:
+              f.write('Supplementary N02 proof; not branch-protection quality.\n')
+              f.write(json.dumps({'control_sha':e['GITHUB_SHA'],'candidate_sha':control.SHA,'candidate_tree':control.TREE,
+                  'run_id':e['GITHUB_RUN_ID'],'job':e['GITHUB_JOB'],'check_run_id':e['PROOF_CHECK_RUN_ID'],
+                  'attempt':e['GITHUB_RUN_ATTEMPT'],'artifact_id':e['ARTIFACT_ID'],'artifact_sha256':e['ARTIFACT_DIGEST'],
+                  'artifact_url':e['ARTIFACT_URL']},indent=2)+'\n')
+          RECEIPT
